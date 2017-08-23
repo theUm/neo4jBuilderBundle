@@ -1,11 +1,11 @@
 <?php
 
-namespace BuilderBundle\Helpers\Util;
+namespace Nodeart\BuilderBundle\Helpers\Util;
 
-use BuilderBundle\Entity\CommentNode;
-use BuilderBundle\Entity\Repositories\CommentNodeRepository;
 use Doctrine\ORM\EntityNotFoundException;
 use GraphAware\Neo4j\OGM\EntityManager;
+use Nodeart\BuilderBundle\Entity\CommentNode;
+use Nodeart\BuilderBundle\Entity\Repositories\CommentNodeRepository;
 use Symfony\Component\Form\FormInterface;
 
 /**

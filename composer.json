@@ -53,8 +53,8 @@
     "friendsofsymfony/user-bundle": "^2.0"
   },
   "autoload": {
-    "psr-0": {
-      "BuilderBundle": ""
+    "psr-4": {
+      "Nodeart\\BuilderBundle\\": ""
     }
   },
   "minimum-stability": "dev",

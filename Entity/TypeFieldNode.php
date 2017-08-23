@@ -1,13 +1,13 @@
 <?php
 
-namespace BuilderBundle\Entity;
+namespace Nodeart\BuilderBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use FrontBundle\Helpers\TemplateTwigFileResolver;
 use GraphAware\Neo4j\OGM\Annotations as OGM;
 
 /**
- * @OGM\Node(label="EntityTypeField", repository="BuilderBundle\Entity\Repositories\TypeFieldNodeRepository")
+ * @OGM\Node(label="EntityTypeField", repository="Nodeart\BuilderBundle\Entity\Repositories\TypeFieldNodeRepository")
  */
 class TypeFieldNode {
 	/**

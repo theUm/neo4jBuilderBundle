@@ -1,13 +1,13 @@
 <?php
 
-namespace BuilderBundle\Helpers;
+namespace Nodeart\BuilderBundle\Helpers;
 
-use BuilderBundle\Entity\CommentNode;
-use BuilderBundle\Helpers\Util\AbstractCommentValidator;
-use BuilderBundle\Helpers\Util\ObjectCommentValidator;
-use BuilderBundle\Helpers\Util\TypeCommentValidator;
-use BuilderBundle\Helpers\Util\UserCommentValidator;
 use GraphAware\Neo4j\OGM\EntityManager;
+use Nodeart\BuilderBundle\Entity\CommentNode;
+use Nodeart\BuilderBundle\Helpers\Util\AbstractCommentValidator;
+use Nodeart\BuilderBundle\Helpers\Util\ObjectCommentValidator;
+use Nodeart\BuilderBundle\Helpers\Util\TypeCommentValidator;
+use Nodeart\BuilderBundle\Helpers\Util\UserCommentValidator;
 use Symfony\Component\Form\FormInterface;
 
 /**

@@ -1,8 +1,8 @@
 <?php
 
-namespace BuilderBundle\Helpers;
+namespace Nodeart\BuilderBundle\Helpers;
 
-use BuilderBundle\Entity\TypeFieldNode;
+use Nodeart\BuilderBundle\Entity\TypeFieldNode;
 
 class FieldAndValue {
 	/**

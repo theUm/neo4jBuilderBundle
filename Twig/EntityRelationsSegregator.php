@@ -1,8 +1,8 @@
 <?php
 
-namespace BuilderBundle\Twig;
+namespace Nodeart\BuilderBundle\Twig;
 
-use BuilderBundle\Entity\EntityTypeNode;
+use Nodeart\BuilderBundle\Entity\EntityTypeNode;
 
 class EntityRelationsSegregator extends \Twig_Extension {
 

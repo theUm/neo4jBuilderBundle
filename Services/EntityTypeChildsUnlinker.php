@@ -7,13 +7,13 @@
  * Time: 13:08
  */
 
-namespace BuilderBundle\Services;
+namespace Nodeart\BuilderBundle\Services;
 
 
-use BuilderBundle\Entity\EntityTypeNode;
-use BuilderBundle\Entity\ObjectNode;
 use GraphAware\Common\Result\Record;
 use GraphAware\Neo4j\OGM\EntityManager;
+use Nodeart\BuilderBundle\Entity\EntityTypeNode;
+use Nodeart\BuilderBundle\Entity\ObjectNode;
 
 class EntityTypeChildsUnlinker {
 	/** @var EntityManager */

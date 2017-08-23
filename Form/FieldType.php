@@ -1,12 +1,12 @@
 <?php
 
-namespace BuilderBundle\Form;
+namespace Nodeart\BuilderBundle\Form;
 
-use BuilderBundle\Form\Type\AjaxCheckboxType;
-use BuilderBundle\Form\Type\SluggableText;
-use BuilderBundle\Services\FormNodeBridge;
 use FrontBundle\Helpers\TemplateTwigFileResolver;
 use GraphAware\Neo4j\OGM\EntityManager;
+use Nodeart\BuilderBundle\Form\Type\AjaxCheckboxType;
+use Nodeart\BuilderBundle\Form\Type\SluggableText;
+use Nodeart\BuilderBundle\Services\FormNodeBridge;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Exception\TransformationFailedException;

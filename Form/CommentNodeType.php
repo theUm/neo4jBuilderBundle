@@ -1,8 +1,8 @@
 <?php
 
-namespace BuilderBundle\Form;
+namespace Nodeart\BuilderBundle\Form;
 
-use BuilderBundle\Entity\CommentNode;
+use Nodeart\BuilderBundle\Entity\CommentNode;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;

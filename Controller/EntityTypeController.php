@@ -1,16 +1,16 @@
 <?php
 
-namespace BuilderBundle\Controller;
+namespace Nodeart\BuilderBundle\Controller;
 
-use BuilderBundle\Entity\EntityTypeNode;
-use BuilderBundle\Entity\Repositories\EntityTypeNodeRepository;
-use BuilderBundle\Entity\Repositories\TypeFieldNodeRepository;
-use BuilderBundle\Entity\TypeFieldNode;
-use BuilderBundle\Form\EntityTypeNodeType;
-use BuilderBundle\Form\FieldType;
-use BuilderBundle\Form\Type\AjaxCheckboxType;
-use BuilderBundle\Services\EntityTypeChildsUnlinker;
 use Doctrine\Common\Collections\ArrayCollection;
+use Nodeart\BuilderBundle\Entity\EntityTypeNode;
+use Nodeart\BuilderBundle\Entity\Repositories\EntityTypeNodeRepository;
+use Nodeart\BuilderBundle\Entity\Repositories\TypeFieldNodeRepository;
+use Nodeart\BuilderBundle\Entity\TypeFieldNode;
+use Nodeart\BuilderBundle\Form\EntityTypeNodeType;
+use Nodeart\BuilderBundle\Form\FieldType;
+use Nodeart\BuilderBundle\Form\Type\AjaxCheckboxType;
+use Nodeart\BuilderBundle\Services\EntityTypeChildsUnlinker;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;

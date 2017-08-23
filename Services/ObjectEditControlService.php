@@ -1,11 +1,11 @@
 <?php
 
-namespace BuilderBundle\Services;
+namespace Nodeart\BuilderBundle\Services;
 
-use BuilderBundle\Entity\ObjectNode;
-use BuilderBundle\Entity\Repositories\ObjectNodeRepository;
-use BuilderBundle\Form\ObjectNodeType;
 use GraphAware\Neo4j\OGM\EntityManager;
+use Nodeart\BuilderBundle\Entity\ObjectNode;
+use Nodeart\BuilderBundle\Entity\Repositories\ObjectNodeRepository;
+use Nodeart\BuilderBundle\Form\ObjectNodeType;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\Form\Form;
 

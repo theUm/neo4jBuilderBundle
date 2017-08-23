@@ -1,6 +1,6 @@
 <?php
 
-namespace BuilderBundle\Entity;
+namespace Nodeart\BuilderBundle\Entity;
 
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Finder\Finder;

@@ -1,12 +1,12 @@
 <?php
 
-namespace BuilderBundle\Entity;
+namespace Nodeart\BuilderBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use GraphAware\Neo4j\OGM\Annotations as OGM;
 
 /**
- * @OGM\Node(label="FieldValue", repository="BuilderBundle\Entity\Repositories\FieldValueNodeRepository")
+ * @OGM\Node(label="FieldValue", repository="Nodeart\BuilderBundle\Entity\Repositories\FieldValueNodeRepository")
  */
 class FieldValueNode {
 	use FileFieldTrait;

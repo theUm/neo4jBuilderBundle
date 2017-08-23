@@ -7,7 +7,7 @@
  * Time: 12:51
  */
 
-namespace BuilderBundle\Services;
+namespace Nodeart\BuilderBundle\Services;
 
 use GraphAware\Neo4j\OGM\EntityManager;
 use GraphAware\Neo4j\OGM\Query;

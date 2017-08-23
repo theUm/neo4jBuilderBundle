@@ -1,13 +1,13 @@
 <?php
 
-namespace BuilderBundle\Controller;
+namespace Nodeart\BuilderBundle\Controller;
 
-use BuilderBundle\Entity\EntityTypeNode;
-use BuilderBundle\Entity\ObjectNode;
-use BuilderBundle\Entity\Repositories\EntityTypeNodeRepository;
-use BuilderBundle\Entity\Repositories\ObjectNodeRepository;
-use BuilderBundle\Form\ObjectNodeType;
-use BuilderBundle\Services\EntityTypeChildsUnlinker;
+use Nodeart\BuilderBundle\Entity\EntityTypeNode;
+use Nodeart\BuilderBundle\Entity\ObjectNode;
+use Nodeart\BuilderBundle\Entity\Repositories\EntityTypeNodeRepository;
+use Nodeart\BuilderBundle\Entity\Repositories\ObjectNodeRepository;
+use Nodeart\BuilderBundle\Form\ObjectNodeType;
+use Nodeart\BuilderBundle\Services\EntityTypeChildsUnlinker;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;

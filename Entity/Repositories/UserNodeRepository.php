@@ -1,6 +1,6 @@
 <?php
 
-namespace BuilderBundle\Entity\Repositories;
+namespace Nodeart\BuilderBundle\Entity\Repositories;
 
 class UserNodeRepository extends BaseRepository {
 

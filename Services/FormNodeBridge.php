@@ -6,18 +6,18 @@
  * Time: 17:07
  */
 
-namespace BuilderBundle\Services;
+namespace Nodeart\BuilderBundle\Services;
 
 
-use BuilderBundle\Entity\EntityTypeNode;
-use BuilderBundle\Entity\FieldValueNode;
-use BuilderBundle\Entity\TypeFieldNode;
-use BuilderBundle\Form\Type\AjaxCheckboxType;
-use BuilderBundle\Form\Type\LabeledNumberType;
-use BuilderBundle\Form\Type\NamedFileType;
-use BuilderBundle\Form\Type\PredefinedAjaxCheckboxType;
-use BuilderBundle\Form\Type\WysiwygType;
 use DateTime;
+use Nodeart\BuilderBundle\Entity\EntityTypeNode;
+use Nodeart\BuilderBundle\Entity\FieldValueNode;
+use Nodeart\BuilderBundle\Entity\TypeFieldNode;
+use Nodeart\BuilderBundle\Form\Type\AjaxCheckboxType;
+use Nodeart\BuilderBundle\Form\Type\LabeledNumberType;
+use Nodeart\BuilderBundle\Form\Type\NamedFileType;
+use Nodeart\BuilderBundle\Form\Type\PredefinedAjaxCheckboxType;
+use Nodeart\BuilderBundle\Form\Type\WysiwygType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;

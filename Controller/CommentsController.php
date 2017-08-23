@@ -1,12 +1,12 @@
 <?php
 
-namespace BuilderBundle\Controller;
+namespace Nodeart\BuilderBundle\Controller;
 
-use BuilderBundle\Entity\CommentNode;
-use BuilderBundle\Entity\Repositories\CommentNodeRepository;
-use BuilderBundle\Form\CommentNodeType;
-use BuilderBundle\Helpers\CommentSaver;
 use FrontBundle\Controller\Base\BaseController;
+use Nodeart\BuilderBundle\Entity\CommentNode;
+use Nodeart\BuilderBundle\Entity\Repositories\CommentNodeRepository;
+use Nodeart\BuilderBundle\Form\CommentNodeType;
+use Nodeart\BuilderBundle\Helpers\CommentSaver;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\JsonResponse;

@@ -1,6 +1,6 @@
 <?php
 
-namespace BuilderBundle\Services;
+namespace Nodeart\BuilderBundle\Services;
 
 use GraphAware\Common\Result\Record;
 use GraphAware\Neo4j\OGM\EntityManager;

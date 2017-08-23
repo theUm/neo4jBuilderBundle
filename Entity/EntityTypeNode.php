@@ -1,13 +1,13 @@
 <?php
 
-namespace BuilderBundle\Entity;
+namespace Nodeart\BuilderBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use FrontBundle\Helpers\TemplateTwigFileResolver;
 use GraphAware\Neo4j\OGM\Annotations as OGM;
 
 /**
- * @OGM\Node(label="EntityType", repository="BuilderBundle\Entity\Repositories\EntityTypeNodeRepository")
+ * @OGM\Node(label="EntityType", repository="Nodeart\BuilderBundle\Entity\Repositories\EntityTypeNodeRepository")
  */
 class EntityTypeNode {
 	use isCommentableTrait;

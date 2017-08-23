@@ -1,13 +1,13 @@
 <?php
 
-namespace BuilderBundle\Entity\Repositories;
+namespace Nodeart\BuilderBundle\Entity\Repositories;
 
-use BuilderBundle\Entity\EntityTypeNode;
-use BuilderBundle\Entity\FieldValueNode;
-use BuilderBundle\Entity\ObjectNode;
-use BuilderBundle\Entity\TypeFieldNode;
-use BuilderBundle\Helpers\FieldAndValue;
 use GraphAware\Neo4j\OGM\Query;
+use Nodeart\BuilderBundle\Entity\EntityTypeNode;
+use Nodeart\BuilderBundle\Entity\FieldValueNode;
+use Nodeart\BuilderBundle\Entity\ObjectNode;
+use Nodeart\BuilderBundle\Entity\TypeFieldNode;
+use Nodeart\BuilderBundle\Helpers\FieldAndValue;
 
 class ObjectNodeRepository extends BaseRepository {
 

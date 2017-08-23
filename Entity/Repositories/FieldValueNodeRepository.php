@@ -1,10 +1,10 @@
 <?php
 
-namespace BuilderBundle\Entity\Repositories;
+namespace Nodeart\BuilderBundle\Entity\Repositories;
 
-use BuilderBundle\Entity\FieldValueNode;
-use BuilderBundle\Entity\ObjectNode;
-use BuilderBundle\Entity\TypeFieldNode;
+use Nodeart\BuilderBundle\Entity\FieldValueNode;
+use Nodeart\BuilderBundle\Entity\ObjectNode;
+use Nodeart\BuilderBundle\Entity\TypeFieldNode;
 use Symfony\Component\Form\Exception\LogicException;
 
 class FieldValueNodeRepository extends BaseRepository {

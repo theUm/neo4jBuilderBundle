@@ -6,23 +6,23 @@
  * Time: 17:07
  */
 
-namespace BuilderBundle\Services;
+namespace Nodeart\BuilderBundle\Services;
 
-use BuilderBundle\Entity\EntityTypeNode;
-use BuilderBundle\Entity\FieldValueNode;
-use BuilderBundle\Entity\ObjectNode;
-use BuilderBundle\Entity\Repositories\EntityTypeNodeRepository;
-use BuilderBundle\Entity\Repositories\FieldValueNodeRepository;
-use BuilderBundle\Entity\Repositories\ObjectNodeRepository;
-use BuilderBundle\Entity\Repositories\TypeFieldNodeRepository;
-use BuilderBundle\Entity\TypeFieldNode;
-use BuilderBundle\Form\Type\AjaxCheckboxType;
-use BuilderBundle\Form\Type\LabeledNumberType;
-use BuilderBundle\Form\Type\NamedFileType;
-use BuilderBundle\Form\Type\NodeCheckboxType;
-use BuilderBundle\Form\Type\PredefinedAjaxCheckboxType;
 use Doctrine\Common\Collections\ArrayCollection;
 use GraphAware\Neo4j\OGM\EntityManager;
+use Nodeart\BuilderBundle\Entity\EntityTypeNode;
+use Nodeart\BuilderBundle\Entity\FieldValueNode;
+use Nodeart\BuilderBundle\Entity\ObjectNode;
+use Nodeart\BuilderBundle\Entity\Repositories\EntityTypeNodeRepository;
+use Nodeart\BuilderBundle\Entity\Repositories\FieldValueNodeRepository;
+use Nodeart\BuilderBundle\Entity\Repositories\ObjectNodeRepository;
+use Nodeart\BuilderBundle\Entity\Repositories\TypeFieldNodeRepository;
+use Nodeart\BuilderBundle\Entity\TypeFieldNode;
+use Nodeart\BuilderBundle\Form\Type\AjaxCheckboxType;
+use Nodeart\BuilderBundle\Form\Type\LabeledNumberType;
+use Nodeart\BuilderBundle\Form\Type\NamedFileType;
+use Nodeart\BuilderBundle\Form\Type\NodeCheckboxType;
+use Nodeart\BuilderBundle\Form\Type\PredefinedAjaxCheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Form;
 use Symfony\Component\Form\FormBuilderInterface;

@@ -1,12 +1,12 @@
 <?php
 
-namespace BuilderBundle\Entity;
+namespace Nodeart\BuilderBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use GraphAware\Neo4j\OGM\Annotations as OGM;
 
 /**
- * @OGM\Node(label="Comment", repository="BuilderBundle\Entity\Repositories\CommentNodeRepository")
+ * @OGM\Node(label="Comment", repository="Nodeart\BuilderBundle\Entity\Repositories\CommentNodeRepository")
  */
 class CommentNode {
 	const CAT_COMMENT = 'cat_comment';

@@ -1,11 +1,11 @@
 <?php
 
-namespace BuilderBundle\Helpers;
+namespace Nodeart\BuilderBundle\Helpers;
 
 use ArrayIterator;
-use BuilderBundle\Entity\FieldValueNode;
-use BuilderBundle\Entity\TypeFieldNode;
 use IteratorAggregate;
+use Nodeart\BuilderBundle\Entity\FieldValueNode;
+use Nodeart\BuilderBundle\Entity\TypeFieldNode;
 use Traversable;
 
 /**
@@ -14,7 +14,7 @@ use Traversable;
  * $container[$fieldTypeId]= FieldAndValueObj{FieldTypeObj,ValueObj}
  *
  * Class FieldsAndValuesContainer
- * @package BuilderBundle\Helpers
+ * @package Nodeart\BuilderBundle\Helpers
  */
 class FieldsAndValuesCollection implements IteratorAggregate {
 	private $container = [];

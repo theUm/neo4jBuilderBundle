@@ -1,16 +1,16 @@
 <?php
 
-namespace BuilderBundle\Twig;
+namespace Nodeart\BuilderBundle\Twig;
 
-use BuilderBundle\Entity\CommentNode;
-use BuilderBundle\Entity\EntityTypeNode;
-use BuilderBundle\Entity\FieldValueNode;
-use BuilderBundle\Entity\ObjectNode;
-use BuilderBundle\Entity\Repositories\ObjectNodeRepository;
-use BuilderBundle\Form\CommentNodeType;
 use FrontBundle\Helpers\UrlCyrillicTransformer;
 use GraphAware\Neo4j\OGM\EntityManager;
 use Liip\ImagineBundle\Imagine\Cache\CacheManager;
+use Nodeart\BuilderBundle\Entity\CommentNode;
+use Nodeart\BuilderBundle\Entity\EntityTypeNode;
+use Nodeart\BuilderBundle\Entity\FieldValueNode;
+use Nodeart\BuilderBundle\Entity\ObjectNode;
+use Nodeart\BuilderBundle\Entity\Repositories\ObjectNodeRepository;
+use Nodeart\BuilderBundle\Form\CommentNodeType;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Form;

@@ -6,7 +6,7 @@
  * Time: 16:14
  */
 
-namespace BuilderBundle\Controller;
+namespace Nodeart\BuilderBundle\Controller;
 
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;

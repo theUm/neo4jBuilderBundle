@@ -1,6 +1,6 @@
 <?php
 
-namespace BuilderBundle\Entity\Repositories;
+namespace Nodeart\BuilderBundle\Entity\Repositories;
 
 use GraphAware\Neo4j\Client\Client;
 use GraphAware\Neo4j\OGM\EntityManager;

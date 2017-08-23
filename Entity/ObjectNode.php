@@ -1,6 +1,6 @@
 <?php
 
-namespace BuilderBundle\Entity;
+namespace Nodeart\BuilderBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use FrontBundle\Helpers\TemplateTwigFileResolver;
@@ -9,7 +9,7 @@ use GraphAware\Neo4j\OGM\Common\Collection;
 use Symfony\Component\Workflow\Exception\LogicException;
 
 /**
- * @OGM\Node(label="Object", repository="BuilderBundle\Entity\Repositories\ObjectNodeRepository")
+ * @OGM\Node(label="Object", repository="Nodeart\BuilderBundle\Entity\Repositories\ObjectNodeRepository")
  */
 class ObjectNode {
 	use isCommentableTrait;

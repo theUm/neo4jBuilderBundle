@@ -1,10 +1,10 @@
 <?php
 
-namespace BuilderBundle\Entity\Repositories;
+namespace Nodeart\BuilderBundle\Entity\Repositories;
 
-use BuilderBundle\Entity\EntityTypeNode;
-use BuilderBundle\Entity\TypeFieldNode;
 use Doctrine\Common\Collections\ArrayCollection;
+use Nodeart\BuilderBundle\Entity\EntityTypeNode;
+use Nodeart\BuilderBundle\Entity\TypeFieldNode;
 
 class EntityTypeNodeRepository extends BaseRepository {
 	/*public function findAllOrderedByName()
@@ -121,7 +121,7 @@ class EntityTypeNodeRepository extends BaseRepository {
 	/**
 	 * @param EntityTypeNode $entityType
 	 *
-	 * @return \BuilderBundle\Entity\ObjectNode[] | \Doctrine\Common\Collections\ArrayCollection
+	 * @return \Nodeart\BuilderBundle\Entity\ObjectNode[] | \Doctrine\Common\Collections\ArrayCollection
 	 */
 	public function getParentObjects( EntityTypeNode $entityType ) {
 		$parentObjects         = new ArrayCollection();

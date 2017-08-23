@@ -1,15 +1,15 @@
 <?php
 
-namespace BuilderBundle\Controller;
+namespace Nodeart\BuilderBundle\Controller;
 
-use BuilderBundle\Entity\FieldValueNode;
-use BuilderBundle\Entity\ObjectNode;
-use BuilderBundle\Entity\Repositories\FieldValueNodeRepository;
-use BuilderBundle\Entity\Repositories\ObjectNodeRepository;
-use BuilderBundle\Entity\Repositories\TypeFieldNodeRepository;
-use BuilderBundle\Entity\TypeFieldNode;
 use Doctrine\Common\Collections\ArrayCollection;
 use GraphAware\Neo4j\OGM\EntityManager;
+use Nodeart\BuilderBundle\Entity\FieldValueNode;
+use Nodeart\BuilderBundle\Entity\ObjectNode;
+use Nodeart\BuilderBundle\Entity\Repositories\FieldValueNodeRepository;
+use Nodeart\BuilderBundle\Entity\Repositories\ObjectNodeRepository;
+use Nodeart\BuilderBundle\Entity\Repositories\TypeFieldNodeRepository;
+use Nodeart\BuilderBundle\Entity\TypeFieldNode;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;

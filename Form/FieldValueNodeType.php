@@ -1,8 +1,8 @@
 <?php
 
-namespace BuilderBundle\Form;
+namespace Nodeart\BuilderBundle\Form;
 
-use BuilderBundle\Entity\FieldValueNode;
+use Nodeart\BuilderBundle\Entity\FieldValueNode;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;

@@ -1,9 +1,9 @@
 <?php
 
-namespace BuilderBundle\Helpers\Util;
+namespace Nodeart\BuilderBundle\Helpers\Util;
 
-use BuilderBundle\Entity\EntityTypeNode;
 use Doctrine\ORM\EntityNotFoundException;
+use Nodeart\BuilderBundle\Entity\EntityTypeNode;
 
 /**
  * Created by PhpStorm.

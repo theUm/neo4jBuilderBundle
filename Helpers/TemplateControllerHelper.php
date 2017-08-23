@@ -1,11 +1,11 @@
 <?php
 
-namespace BuilderBundle\Helpers;
+namespace Nodeart\BuilderBundle\Helpers;
 
-use BuilderBundle\Entity\EntityTypeNode;
-use BuilderBundle\Entity\FieldValueNode;
-use BuilderBundle\Entity\ObjectNode;
-use BuilderBundle\Entity\TypeFieldNode;
+use Nodeart\BuilderBundle\Entity\EntityTypeNode;
+use Nodeart\BuilderBundle\Entity\FieldValueNode;
+use Nodeart\BuilderBundle\Entity\ObjectNode;
+use Nodeart\BuilderBundle\Entity\TypeFieldNode;
 use Symfony\Component\DependencyInjection\Container;
 
 

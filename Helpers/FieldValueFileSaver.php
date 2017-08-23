@@ -1,8 +1,8 @@
 <?php
 
-namespace BuilderBundle\Helpers;
+namespace Nodeart\BuilderBundle\Helpers;
 
-use BuilderBundle\Entity\FieldValueNode;
+use Nodeart\BuilderBundle\Entity\FieldValueNode;
 use Symfony\Component\Form\Exception\TransformationFailedException;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;

@@ -1,11 +1,11 @@
 <?php
 
-namespace BuilderBundle\Form;
+namespace Nodeart\BuilderBundle\Form;
 
-use BuilderBundle\Entity\ObjectNode;
-use BuilderBundle\Form\Type\SluggableText;
-use BuilderBundle\Form\Type\WysiwygType;
 use FrontBundle\Helpers\TemplateTwigFileResolver;
+use Nodeart\BuilderBundle\Entity\ObjectNode;
+use Nodeart\BuilderBundle\Form\Type\SluggableText;
+use Nodeart\BuilderBundle\Form\Type\WysiwygType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;

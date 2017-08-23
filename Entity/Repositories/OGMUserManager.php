@@ -9,15 +9,15 @@
  * file that was distributed with this source code.
  */
 
-namespace BuilderBundle\Entity\Repositories;
+namespace Nodeart\BuilderBundle\Entity\Repositories;
 
-use BuilderBundle\Entity\UserNode;
 use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\Common\Persistence\ObjectRepository;
 use FOS\UserBundle\Model\UserInterface;
 use FOS\UserBundle\Model\UserManager as BaseUserManager;
 use FOS\UserBundle\Util\CanonicalFieldsUpdater;
 use FOS\UserBundle\Util\PasswordUpdaterInterface;
+use Nodeart\BuilderBundle\Entity\UserNode;
 
 class OGMUserManager extends BaseUserManager {
 	/**
@@ -67,7 +67,7 @@ class OGMUserManager extends BaseUserManager {
 			$res = $this->getRepository()->findOneBy( $criteria );
 		}
 		$res = serialize( $res );
-		$res = str_replace( 'C:45:"neo4j_ogm_proxy_BuilderBundle_Entity_UserNode"', 'C:29:"BuilderBundle\Entity\UserNode"', $res );
+		$res = str_replace( 'C:45:"neo4j_ogm_proxy_BuilderBundle_Entity_UserNode"', 'C:29:"Nodeart\BuilderBundle\Entity\UserNode"', $res );
 		$res = unserialize( $res );
 
 		return $res;

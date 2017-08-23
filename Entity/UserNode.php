@@ -1,13 +1,13 @@
 <?php
 
-namespace BuilderBundle\Entity;
+namespace Nodeart\BuilderBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use FOS\UserBundle\Model\User;
 use GraphAware\Neo4j\OGM\Annotations as OGM;
 
 /**
- * @OGM\Node(label="User", repository="BuilderBundle\Entity\Repositories\UserNodeRepository")
+ * @OGM\Node(label="User", repository="Nodeart\BuilderBundle\Entity\Repositories\UserNodeRepository")
  */
 class UserNode extends User {
 	const ROLE_USER = 'ROLE_USER';

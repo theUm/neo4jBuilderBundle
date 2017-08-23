@@ -1,9 +1,9 @@
 <?php
 
-namespace BuilderBundle\Form\Type;
+namespace Nodeart\BuilderBundle\Form\Type;
 
-use BuilderBundle\Entity\FieldValueNode;
-use BuilderBundle\Helpers\FieldValueFileSaver;
+use Nodeart\BuilderBundle\Entity\FieldValueNode;
+use Nodeart\BuilderBundle\Helpers\FieldValueFileSaver;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\FileType;

@@ -1,8 +1,8 @@
 <?php
 
-namespace BuilderBundle\Entity\Repositories;
+namespace Nodeart\BuilderBundle\Entity\Repositories;
 
-use BuilderBundle\Entity\TypeFieldNode;
+use Nodeart\BuilderBundle\Entity\TypeFieldNode;
 
 class TypeFieldNodeRepository extends BaseRepository {
 

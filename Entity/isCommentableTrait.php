@@ -1,6 +1,6 @@
 <?php
 
-namespace BuilderBundle\Entity;
+namespace Nodeart\BuilderBundle\Entity;
 
 /**
  * Created by PhpStorm.

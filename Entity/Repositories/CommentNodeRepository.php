@@ -1,9 +1,9 @@
 <?php
 
-namespace BuilderBundle\Entity\Repositories;
+namespace Nodeart\BuilderBundle\Entity\Repositories;
 
-use BuilderBundle\Entity\CommentNode;
 use GraphAware\Neo4j\OGM\Repository\BaseRepository;
+use Nodeart\BuilderBundle\Entity\CommentNode;
 
 class CommentNodeRepository extends BaseRepository {
 

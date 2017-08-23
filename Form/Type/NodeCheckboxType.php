@@ -1,6 +1,6 @@
 <?php
 
-namespace BuilderBundle\Form\Type;
+namespace Nodeart\BuilderBundle\Form\Type;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Form\AbstractType;
@@ -14,7 +14,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
  * Class NodeCheckboxType accepts ArrayCollection of nodes as local_search_data config argument, and similar collection
  * or single node entity. Does not maps
- * @package BuilderBundle\Form\Type
+ * @package Nodeart\BuilderBundle\Form\Type
  */
 class NodeCheckboxType extends AbstractType {
 

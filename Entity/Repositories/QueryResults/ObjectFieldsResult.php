@@ -1,10 +1,10 @@
 <?php
 
-namespace BuilderBundle\Entity\Repositories\QueryResults;
+namespace Nodeart\BuilderBundle\Entity\Repositories\QueryResults;
 
-use BuilderBundle\Entity\FieldValueNode;
-use BuilderBundle\Entity\TypeFieldNode;
 use GraphAware\Neo4j\OGM\Annotations as OGM;
+use Nodeart\BuilderBundle\Entity\FieldValueNode;
+use Nodeart\BuilderBundle\Entity\TypeFieldNode;
 
 /**
  * @OGM\QueryResult()

@@ -1,0 +1,149 @@
+{% extends 'BuilderBundle:default:base.object.fields.html.twig' %}
+
+{% block content %}
+    {{ parent() }}
+    <div class="sixteen wide column">
+        {{ block('crud_modal') }}
+        <div class="ui grid container">
+            {# left menu #}
+            <div class="ui four wide column vertical pointing secondary tabular menu">
+                <a class="active item"
+                   data-tab="main_object_form"><b>{{ 'Редактировать \"%name\"'|trans({'%name' : objectEntity.name})|raw }}</b></a>
+                <div class="ui divider"></div>
+                {% for childType in objectEntity.entityType.childTypes if childType.dataType %}
+                    <a class="item" data-tab="{{ 'child_type_'~childType.slug }}">{{ childType.name }}</a>
+                {% endfor %}
+                <div class="ui divider"></div>
+                {% for childType in objectEntity.entityType.childTypes if not childType.dataType %}
+                    <a class="item" data-tab="{{ 'child_type_'~childType.slug }}">{{ childType.name }}</a>
+                {% endfor %}
+            </div>
+            {# /left menu #}
+            <div class="twelve wide stretched column">
+                {# left menu main object tab #}
+                <div class="ui twelve wide tab segment active" data-tab="main_object_form">
+                    {% if objectEntity.entityType.dataType %}
+                        <h1 class="ui header">{{ "Редактировать объект для данных типа <b>\"%type\"</b>"|trans({'%type' : objectEntity.entityType.name})|raw }}</h1>
+                    {% else %}
+                        <h1 class="ui header">{{ "Редактировать объект \"%name\" типа [%type]"|trans({'%name' : objectEntity.name, '%type' : objectEntity.entityType.name})|raw }}</h1>
+                    {% endif %}
+                    {{ form_start(form) }}
+                    {% if not objectEntity.entityType.dataType %}
+                        {{ form_row(form.name) }}
+                        {{ form_row(form.slug) }}
+                        {{ form_row(form.isCommentable) }}
+                        {{ form_row(form.description) }}
+                    {% endif %}
+                    <div class="ui top attached tabular menu">
+                        {% for groupName, fields in fieldsByGroups %}
+                            <a class="item{% if loop.first %} active{% endif %}"
+                               data-tab="{{ groupName }}">{{ groupName }}</a>
+                        {% endfor %}
+                        <a class="item{% if fieldsByGroups is empty %} active{% endif %}"
+                           data-tab="__links">{{ 'Связи и шаблон'|trans }}</a>
+                    </div>
+                    {% for groupName, fields in fieldsByGroups %}
+                        <div class="ui bottom attached tab segment{% if loop.first %} active{% endif %}"
+                             data-tab="{{ groupName }}">
+                            {% for groupName, field in fields %}
+                                {{ form_row(form[field['type'].id]) }}
+                                {{ form_errors(form[field['type'].id]) }}
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                    {% do form.submit_button.setRendered %}
+                    <div class="ui bottom attached tab segment{% if fieldsByGroups is empty %} active{% endif %}"
+                         data-tab="__links">
+                        {{ form_rest(form) }}
+                    </div>
+                    <button type="submit" id="{{ form.submit_button.vars.id }}"
+                            name="{{ form.submit_button.vars.full_name }}"
+                            class="primary ui button">{{ form.submit_button.vars.label }}</button>
+                    <button type="button" id="{{ form.vars.id }}" name="delete_{{ form.vars.id }}"
+                            class="ui red delete-this button"
+                            data-url="{{ path('builder_list_objects',{'id':objectEntity.entityType.id}) }}">{{ 'Удалить'|trans }}</button>
+                    {{ form_end(form) }}
+                    {{ form(delete_form) }}
+                </div>
+                {# /left menu main object tab #}
+                {# left menu child tabs #}
+                {% for childType in objectEntity.entityType.childTypes if childType.dataType %}
+                    <div class="ui dynamic twelve wide tab segment" data-tab="{{ 'child_type_'~childType.slug }}"
+                         data-url-template="{{ path('builder_edit_object',{ 'id': 0}) }}">
+                        <div class="ui top attached tabular menu">
+                            {% if childType.id in relatedObjects|keys %}
+                                {% for childObject in relatedObjects[childType.id] %}
+                                    <div class="item"
+                                         data-tab="{{ 'obj_'~childType.slug~'_'~childObject.id }}">{{ childType.slug }}</div>
+                                {% endfor %}
+                            {% endif %}
+                            <div id="{{ 'obj_'~childType.slug~'_new' }}" class="item"
+                                 data-tab="{{ 'obj_'~childType.slug~'_new' }}">
+                                {#<button class="ui icon button">#}
+                                <i class="icon plus"></i>
+                                {#</button>#}
+                            </div>
+                        </div>
+                        {% if childType.id in relatedObjects|keys %}
+                            {% for childObject in relatedObjects[childType.id] %}
+                                <div class="ui bottom attached bottom-padded tab segment"
+                                     data-tab="{{ 'obj_'~childType.slug~'_'~childObject.id }}"
+                                     data-url="{{ path('builder_edit_object',{ 'id': childObject.id}) }}"></div>
+                            {% endfor %}
+                        {% endif %}
+                        <div class="ui bottom attached tab segment"
+                             data-tab="{{ 'obj_'~childType.slug~'_new' }}"
+                             data-url="{{ path('builder_add_type_object',{ 'id': childType.id, 'parentObjId': objectEntity.id}) }}"
+                             data-new="true"></div>
+                    </div>
+                {% endfor %}
+                {# /left menu child tabs #}
+                {# left menu parent tabs #}
+                {% for childType in objectEntity.entityType.childTypes if not childType.dataType %}
+                    <div class="ui dynamic twelve wide tab segment" data-tab="{{ 'child_type_'~childType.slug }}"
+                         data-url-template="{{ path('builder_edit_object',{ 'id': 0}) }}">
+                        <div class="ui top attached tabular menu">
+                            {% if childType.id in relatedObjects|keys %}
+                                {% for childObject in relatedObjects[childType.id] %}
+                                    <div class="item"
+                                         data-tab="{{ 'obj_'~childType.slug~'_'~childObject.id }}">{{ childObject.name }}</div>
+                                {% endfor %}
+                            {% endif %}
+                            <div id="{{ 'obj_'~childType.slug~'_new' }}" class="item"
+                                 data-tab="{{ 'obj_'~childType.slug~'_new' }}">
+                                <i class="icon plus"></i>
+                            </div>
+                        </div>
+                        {% if childType.id in relatedObjects|keys %}
+                            {% for childObject in relatedObjects[childType.id] %}
+                                <div class="ui bottom attached bottom-padded tab segment"
+                                     data-tab="{{ 'obj_'~childType.slug~'_'~childObject.id }}"
+                                     data-url="{{ path('builder_edit_object',{ 'id': childObject.id}) }}"></div>
+                            {% endfor %}
+                        {% endif %}
+                        <div class="ui bottom attached tab segment"
+                             data-tab="{{ 'obj_'~childType.slug~'_new' }}"
+                             data-url="{{ path('builder_add_type_object',{ 'id': childType.id, 'parentObjId': objectEntity.id}) }}"
+                             data-new="true"></div>
+                    </div>
+                {% endfor %}
+                {# /left menu parent tabs #}
+                <div class="ui row">
+                    <a class="ui left floated button" href="{{ path('builder_add_types',{}) }}">Назад</a>
+                    {% if not objectEntity.entityType.isDataType %}
+                        <a href="{{ path('vSingleObject',{'entityType':objectEntity.entityType.slug, 'object': objectEntity.slug}) }}"
+                           class="ui right floated green button" target="_blank">{{ 'Страница объекта'|trans }}</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block crud_modal_header %}
+    {{- "Удалить обьект?"|trans -}}
+{% endblock %}
+
+{% block crud_modal_content %}
+    <p>{{ "Удалив обьект вы также удалите ВСЕ значения полей этого обьекта. Cвязанные с другими обьектами поля не будут удалены. Действие необратимо!"|trans }}</p>
+{% endblock %}

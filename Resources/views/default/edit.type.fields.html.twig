@@ -1,0 +1,179 @@
+{% extends '::crud_page.html.twig' %}
+
+{% block content %}
+    <div class="twelve wide column">
+        {{ block('crud_modal') }}
+        <h1 class="ui header">{{ "Редактировать поля типа"|trans ~ ' ' ~ entity.name }}
+            {% if entity.parentTypes %}
+                <small>[{% for perentType in entity.parentTypes %}{{ ' ' ~ perentType.name ~ ' ' }}{% endfor %}
+                ]</small>{% endif %}
+            <span class="sub header"><button id="toggle-sort-mode" type="button" class="ui tiny blue button"
+                                             data-toggled="false"><i
+                            class="sort content ascending icon"></i>{{ 'Режим упорядочивания'|trans }}</button></span>
+        </h1>
+        {{ form(form) }}
+        <a class="ui left floated button primary" href="{{ path('builder_add_types',{}) }}">{{ "Назад"|trans }}</a>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('app/js/sortable.min.js') }}"></script>
+    <script type="text/javascript">
+        {% if form.dyn_fields is defined %}
+        //symfony dynamic form field add/remove
+        $(document).ready(function () {
+            let newVar = $('<div/>', {
+                'id': 'add-another-var',
+                'class': 'ui positive bottom attached button',
+                'type': 'button'
+            });
+            newVar.html('Добавить элемент');
+
+            let deleteButton = $('<button/>', {
+                href: '#',
+                title: 'Удалить элемент',
+                text: 'Удалить',
+                'class': 'ui negative mini button',
+                type: 'button'
+            }).click(function (e) {
+                e.preventDefault();
+
+                $('.ui.basic.test.modal')
+                    .modal({
+                        onApprove: function () {
+                            $(e.currentTarget).parent().remove();
+                        }
+                    })
+                    .modal('show');
+            });
+
+            let childInsList = $('#type_fields_dyn_fields');
+
+            childInsList.find('>div').append(deleteButton);
+            childInsList.parent().append(newVar);
+            $('.checkbox').checkbox().removeClass('hidden');
+            $('.checkbox input').toggleClass('hidden', false);
+
+            let varsCount = {{ form.dyn_fields|length }};
+            newVar.click(function (e) {
+                e.preventDefault();
+
+                let newWidget = childInsList.attr('data-prototype');
+                let newVar = $('<div/>').html(
+                    newWidget
+                        .replace(/__name__/g, varsCount)
+                        .replace(/title/g, 'title active')
+                        .replace(/content/g, 'content active')
+                ).contents();
+                let newWrapper = $('<div class="ui segment"/>');
+                newWrapper.append(newVar);
+                let deleteButton = $('<button/>', {
+                    href: '#',
+                    title: 'Удалить элемент',
+                    text: 'Удалить',
+                    'class': 'ui negative mini button',
+                    type: 'button'
+                }).click(function (e) {
+                    e.preventDefault();
+                    $(this).parent().remove();
+                });
+
+                newVar.parent().append(deleteButton);
+                varsCount++;
+
+                childInsList.append(newWrapper);
+                newWrapper.find('.checkbox').checkbox();
+                newWrapper.find('.checkbox input').toggleClass('hidden', false);
+                newWrapper.find('.checkbox>.toggle-class').parent().change(function () {
+                    let context = $(this);
+                    let input = context.find('input');
+                    if (input.data('toggleClass')) {
+                        let relatedInput = $('.' + input.data('toggleClass'));
+                        if (input.is(':checked')) {
+                            relatedInput.toggleClass('disabled', false);
+                        } else {
+                            relatedInput.dropdown('set selected', relatedInput.find('option').first().val());
+                            relatedInput.toggleClass('disabled', true);
+                        }
+                    }
+                });
+                window.initSemanticSearch(newWrapper);
+                newWrapper.find('.sluggable.field').each(
+                    function () {
+                        let options = JSON.parse(this.dataset.options);
+                        $(this).find('.slugify').click(function () {
+                            let baseFieldVal = $(this).parents('.ui.segment').first().find(options.base_field).val();
+                            let slug = getSlug(baseFieldVal, options.options);
+                            if (options.slug_field !== '') {
+                                $(options.slug_field).val(slug);
+                            } else {
+                                this.previousElementSibling.value = slug;
+                            }
+                        });
+                    }
+                );
+                newWrapper.find('.accordion').accordion();
+                newWrapper.find('.ui.regular.dropdown').dropdown({
+                    onChange: function (value) {
+                        togglePredefined(this, (value !== 'predefSelect2'));
+                    }
+                });
+            });
+
+            $('.ui.regular.dropdown').dropdown({
+                onChange: function (value) {
+                    togglePredefined(this, (value !== 'predefSelect2'));
+                }
+            });
+
+            function togglePredefined(el, toggleTo) {
+                let valuesElem = $(el).parents('.ui.fluid.form').find('.isPredefinedValues');
+                valuesElem.toggleClass('disabled', toggleTo);
+                if (toggleTo) {
+                    let dropdown = valuesElem.find('.ui.dropdown');
+                    dropdown.find('input').val('');
+                    dropdown.find('.ui.label').remove();
+                    dropdown.dropdown('refresh');
+                }
+            }
+
+            // init sortable
+            let sortable = Sortable.create(document.querySelector('#type_fields_dyn_fields'), {
+                disabled: true,
+                animation: 200,
+                onEnd: function () {
+                    // overwrite all indexes on drag end
+                    updateSortOrderIndexes('.ui.segment');
+                }
+            });
+
+            function updateSortOrderIndexes(inputsSelector) {
+                $(inputsSelector).each(function (index, value) {
+                    $(value).find('.field-order').val(index);
+                });
+            }
+
+            $('#toggle-sort-mode').click(function () {
+                let isToggled = $(this).data('toggled');
+                let segments = $('.ui.segment');
+
+                this.classList.toggle('red');
+                this.classList.toggle('blue');
+                segments.toggleClass('draggable', !isToggled);
+                segments.find('.form > .ui.accordion.field').toggle(isToggled);
+                segments.find('.three.fields label').toggle(isToggled);
+                segments.children('.button').toggle(isToggled);
+                if (isToggled) {
+                    segments.find('.three.fields input').removeAttr('readonly');
+                } else {
+                    segments.find('.three.fields input').attr('readonly', '');
+                }
+                sortable.option("disabled", isToggled);
+                $(this).data('toggled', !isToggled);
+            });
+
+        });
+        {% endif %}
+    </script>
+{% endblock javascripts %}

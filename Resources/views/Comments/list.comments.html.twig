@@ -1,0 +1,50 @@
+{% extends '@Front/default/empty.main.content.twig' %}
+
+{% block main_content %}
+    {% for comment in comments %}
+        {% set prevCommentLevel = ( loop.first )? 0 : comments[loop.index0 -1].level %}
+        {% set diff = comment.level - prevCommentLevel %}
+        {{ block('printComment') }}
+    {% endfor %}
+{% endblock %}
+
+{% block printComment %}
+    {% if diff == 0 %}
+        {% if not loop.first %}
+            </div>
+        {% endif %}
+    <div class="comment" id="{{ comment.id }}">
+        {#{{ '['~loop.index~'] same ' }}#}
+        {{ block('user_comment_contnent') }}
+    {% elseif diff < 0 %}
+        {% for bla in 1..diff|abs %}
+            </div>
+            </div>
+            </div>
+        {% endfor %}
+        </div>
+        <div class="comment" id="{{ comment.id }}">
+        {#{{ '['~loop.index~'] close '~ diff }}#}
+        {{ block('user_comment_contnent') }}
+    {% else %}
+        {% for blabal in 1..diff|abs %}
+            <div class="comments">
+            <div class="comment">
+        {% endfor %}
+        <div class="comment" id="{{ comment.id }}">
+        {#{{ '['~loop.index~'] open '~ diff }}#}
+        {{ block('user_comment_contnent') }}
+    {% endif %}
+    {% if loop.last %}
+        {#{{ '['~loop.index~'] last '~ comment.level ~' perv'~ prevCommentLevel  }}#}
+        {% if comment.level > 0 %}
+            {% for blabal in 1..comment.level %}
+                </div>
+                </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+        </div>
+        </div>
+    {% endif %}
+{% endblock %}

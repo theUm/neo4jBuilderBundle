@@ -1,0 +1,95 @@
+services:
+    app.twig.extension.loader:
+        class:        Twig_Extension_StringLoader
+        tags:
+             - { name: 'twig.extension' }
+
+    neo.app.manager:
+        alias: neo4j.entity_manager.default
+
+    add.field.form.type:
+          class: BuilderBundle\Form\FieldType
+          arguments: ['@neo.app.manager','@form.node.bridge', '@template.twig.files.resolver']
+          tags:
+              - { name: form.type }
+
+    form.node.bridge:
+        class: BuilderBundle\Services\FormNodeBridge
+        arguments: ['%uploads_dir%', '%web_uploads_dir%']
+
+    semantic.input.search:
+        class: BuilderBundle\Services\SearchService
+        arguments: ['@service_container']
+
+    ajax.checkbox.form.type:
+        class: BuilderBundle\Form\Type\AjaxCheckboxType
+        arguments: [ '@router' ]
+        tags:
+            - { name: form.type }
+
+    neo.app.entity.type.unlinker:
+        class: BuilderBundle\Services\EntityTypeChildsUnlinker
+        arguments: ['@neo.app.manager']
+
+    object.form.fields:
+        class: BuilderBundle\Services\ObjectFormFieldsService
+        arguments: ['@form.node.bridge','@neo.app.manager']
+
+    twig.entity.segregator:
+        class: BuilderBundle\Twig\EntityRelationsSegregator
+        public: false
+        tags:
+            - { name: twig.extension }
+
+    app.twig.extension.front.functions:
+        class: BuilderBundle\Twig\TwigFunctions
+        arguments: ['@neo.app.manager', '@liip_imagine.cache.manager', '@assets.packages', '@form.factory']
+        public: false
+        tags:
+            - { name: twig.extension }
+
+    sluggable.text.form.type:
+        class: BuilderBundle\Form\Type\SluggableText
+        tags:
+            - { name: form.type }
+
+    object.edit.control.service:
+        class: BuilderBundle\Services\ObjectEditControlService
+        arguments: ['@service_container']
+
+#    neo.media.helper:
+#        class: BuilderBundle\Services\MediaHelper
+#        arguments: ['@service_container']
+
+    neo.pager:
+        class: BuilderBundle\Services\Pager
+        arguments: ['@neo.app.manager', '@request_stack']
+
+# base entity node form types
+    object.form.type:
+        class: BuilderBundle\Form\ObjectNodeType
+        arguments: ['@template.twig.files.resolver']
+        tags:
+            - { name: form.type }
+
+    entity.type.form.type:
+        class: BuilderBundle\Form\EntityTypeNodeType
+        arguments: ['@template.twig.files.resolver']
+        tags:
+            - { name: form.type }
+
+    field.value.file.saver:
+        class: BuilderBundle\Helpers\FieldValueFileSaver
+        arguments: ['%uploads_dir%', '%web_uploads_dir%']
+
+    named.file.type:
+        class: BuilderBundle\Form\Type\NamedFileType
+        arguments: ['@field.value.file.saver']
+        tags:
+            - { name: form.type }
+
+    BuilderBundle\Entity\Repositories\OGMUserManager:
+        ['@fos_user.util.password_updater', '@fos_user.util.canonical_fields_updater', '@neo.app.manager', 'BuilderBundle\Entity\UserNode']
+
+    BuilderBundle\Helpers\CommentSaver:
+        arguments: ['@neo.app.manager']

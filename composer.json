@@ -1,0 +1,62 @@
+{
+  "name": "nodeart/builderbundle",
+  "description": "Admin bundle of graph-orm based php mini-cmf",
+  "type": "symfony-bundle",
+  "authors": [
+    {
+      "name": "share",
+      "email": "1337.um@gmail.com"
+    }
+  ],
+  "keywords": [
+    "admin bundle",
+    "graph",
+    "neo4j",
+    "neo4j-php-ogm",
+    "ogm",
+    "cmf"
+  ],
+  "license": [
+    "MIT"
+  ],
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "ssh://git@git.nodeart.io/fin/neo4j-builder.git"
+    },
+    {
+      "type": "vcs",
+      "url": "https://github.com/toooni/BreadcrumbsBundle"
+    },
+    {
+      "type": "vcs",
+      "url": "https://github.com/theUm/neo4j-php-ogm"
+    }
+  ],
+  "require": {
+    "php": ">=5.5.9",
+    "symfony/symfony": "^3.3",
+    "doctrine/orm": "^2.5",
+    "doctrine/doctrine-bundle": "^1.6",
+    "doctrine/doctrine-cache-bundle": "^1.2",
+    "symfony/swiftmailer-bundle": "^2.3",
+    "symfony/monolog-bundle": "^2.8",
+    "symfony/polyfill-apcu": "^1.0",
+    "sensio/distribution-bundle": "^5.0",
+    "sensio/framework-extra-bundle": "^3.0.2",
+    "incenteev/composer-parameter-handler": "^2.0",
+    "symfony/var-dumper": "^3.1",
+    "graphaware/neo4j-php-ogm": "dev-php7.1-quickfix",
+    "neo4j/neo4j-bundle": "dev-master",
+    "whiteoctober/breadcrumbs-bundle": "dev-jsonld",
+    "liip/imagine-bundle": "^1.8",
+    "friendsofsymfony/user-bundle": "^2.0"
+  },
+  "autoload": {
+    "psr-0": {
+      "Nodeart\\BuilderBundle": ""
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}

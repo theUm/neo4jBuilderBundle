@@ -1,0 +1,16 @@
+{% extends '::crud_page.html.twig' %}
+
+{% block content -%}
+    <div class="twelve wide column">
+        {{ block('crud_modal') }}
+        <h1 class="ui header">
+            <div class="content">{{ "Удалить объект и все его значения?"|trans ~ ' ' ~ entity.name }}
+                <div class="red-colored sub header">Действие необратимо! Если значения присутствуют в другом обьекте,
+                    они не будут удалены.
+                </div>
+            </div>
+        </h1>
+        {{ form(form) }}
+        <a class="ui left floated button primary" href="{{ path('builder_add_types',{}) }}">{{ "Назад"|trans }}</a>
+    </div>
+{%- endblock %}

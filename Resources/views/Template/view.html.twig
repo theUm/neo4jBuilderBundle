@@ -1,0 +1,13 @@
+{% extends '::base.html.twig' %}
+
+{% block body %}
+    <div id="wrapper">
+        <div id="container">
+            {{ include(template_from_string(template, data)) }}
+        </div>
+    </div>
+{% endblock %}
+
+{% block top_menu %}
+    {{ parent() }}
+{% endblock %}

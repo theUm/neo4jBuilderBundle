@@ -1,0 +1,97 @@
+{% extends '::base.html.twig' %}
+
+{# this page has sidebar which have diffrent layout that other pages #}
+{% block body %}
+    {% spaceless %}
+        {# the sidebar #}
+        <div class="ui right overlay wide menu thumbnail sidebar">
+            <div class="ui fullwidth segment">
+                <a class="ui left cancel corner label">
+                    <i class="cancel icon"></i>
+                </a>
+                <div class="ui dimmer">
+                    <div class="ui text disabled loader">Loading</div>
+                    <p></p>
+                </div>
+                <h1 class="ui header">{{ 'Редактировать'|trans }}</h1>
+                {# ajax form will appear here #}
+                <div class="form-content"></div>
+            </div>
+        </div>
+        {# page content #}
+        <div class="pusher">
+            <div class="ui centered grid">
+                <div class="fifteen wide column">
+                    <h3 class="ui header">{{ "Media dashboard"|trans }}</h3>
+                    <div class="ui segments">
+                        {# filters form #}
+                        <div class="ui segment">
+                            {{ form_start(filtersForm) }}
+                            <div class="compact inline fields">
+                                {{ form_row(filtersForm.fileName) }}
+                                {{ form_row(filtersForm.createdAt) }}
+                                {{ form_row(filtersForm.isLinked) }}
+                                {{ form_rest(filtersForm) }}
+                                {# button outside this form. fetches form for create new upload file #}
+                                {#<button class="ui cancel button" type="button">{{ 'Cancel'|trans }}</button>#}
+                                <button type="button" class="ui icon media-sidebar button"
+                                        data-url="{{ path('media_ajax_edit', {'id':0}) }}">
+                                    <i class="plus icon"></i>
+                                </button>
+                            </div>
+                            {{ form_end(filtersForm) }}
+                        </div>
+                        {# media grid #}
+                        <div class="ui segment">
+                            <div class="ui eight column doubling media-dashboard cards">
+                                {% for pic in pics %}
+                                    <div class="ui card" id="media_{{ pic.id }}">
+                                        <div class="image">
+                                            <img src="{{ pic|getSingleFieldThumb('gallery_grid') }}"
+                                                 onerror="this.src='{{ asset('app/img/noim.png') }}';">
+                                        </div>
+                                        <div class="content media-sidebar"
+                                             data-url="{{ path('media_ajax_edit', {'id':pic.id}) }}"
+                                             data-id="{{ pic.id }}">
+                                            <a class="header"
+                                               title="{{ pic.originalFileName }}">{{ pic.originalFileName }}</a>
+                                            <div class="meta">
+                                                <span class="date">{{ 'Created at'|trans ~ ' ' ~ (pic.createdAt|date('d.m.Y H:i')) }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {# pager #}
+                        <div class="ui segment">
+                            <div class="ui pagination menu">
+                                {# pager.first #}
+                                <a class="item"
+                                   href="{{ path('media_dashboard', {page:pager.first, perPage:pager.limit, filters:pager.filtersString}) }}">{{ 'First'|trans }}</a>
+                                {# pager. current slice of pages #}
+                                {% for page in pager.pagesInRange %}
+                                    {% if page == pager.current %}
+                                        <span class="item">{{ page }}</span>
+                                    {% else %}
+                                        <a class="item"
+                                           href="{{ path('media_dashboard', {page:page, perPage:pager.limit, filters:pager.filtersString}) }}">{{ page }}</a>
+                                    {% endif %}
+                                {% endfor %}
+                                {# pager.last #}
+                                <a class="item"
+                                   href="{{ path('media_dashboard', {page:pager.last, perPage:pager.limit, filters:pager.filtersString}) }}">{{ 'Last'|trans }}</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endspaceless %}
+{% endblock %}
+
+{% block javascripts %}
+    <script src="{{ asset('app/js/calendar.min.js') }}"></script>
+    <script src="{{ asset('app/js/form.js') }}"></script>
+    <script src="{{ asset('app/js/media-dashboard.js') }}"></script>
+{% endblock %}

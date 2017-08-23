@@ -1,0 +1,45 @@
+{% extends 'BuilderBundle:default:base.object.fields.html.twig' %}
+
+{% block content %}
+    <div class="twelve wide column">
+        {{ block('crud_modal') }}
+        {% if entityType.dataType %}
+            <h1 class="ui header">{{ "Редактировать объект для данных типа <b>\"%type\"</b>"|trans({'%type' : entityType.name})|raw }}</h1>
+        {% else %}
+            <h1 class="ui header">{{ "Редактировать объект \"%name\" типа [%type]"|trans({'%name' : objectEntity.name, '%type' : entityType.name})|raw }}</h1>
+        {% endif %}
+        {{ form_start(form) }}
+        {% if not entityType.dataType %}
+            {{ form_row(form.name) }}
+            {{ form_row(form.slug) }}
+            {{ form_row(form.description) }}
+        {% endif %}
+        <div class="ui top attached tabular menu">
+            {% for groupName, fields in fieldsByGroups %}
+                <a class="item{% if loop.first %} active{% endif %}" data-tab="{{ groupName }}">{{ groupName }}</a>
+            {% endfor %}
+            <a class="item{% if fieldsByGroups is empty %} active{% endif %}"
+               data-tab="__links">{{ 'Связи и шаблон'|trans }}</a>
+        </div>
+        {% for groupName, fields in fieldsByGroups %}
+            <div class="ui bottom attached tab segment{% if loop.first %} active{% endif %}" data-tab="{{ groupName }}">
+                {% for groupName, field in fields %}
+                    {{ form_row(form[field['type'].id]) }}
+                {% endfor %}
+            </div>
+        {% endfor %}
+        {% do form.submit_button.setRendered %}
+        <div class="ui bottom attached tab segment  {% if fieldsByGroups is empty %} active{% endif %}"
+             data-tab="__links">
+            {{ form_rest(form) }}
+        </div>
+        <button type="submit" id="{{ form.submit_button.vars.id }}" name="{{ form.submit_button.vars.full_name }}"
+                class="primary ui submit button">{{ form.submit_button.vars.label }}</button>
+        <button type="button" id="{{ delete_form.vars.id }}" name="delete_{{ delete_form.vars.id }}"
+                class="ui red delete-this button"
+                data-url="{{ path('builder_list_objects',{'id':entityType.id}) }}">{{ 'Удалить' }}</button>
+        {{ form_end(form) }}
+        {{ form(delete_form) }}
+        <a class="ui left floated button primary" href="{{ path('builder_add_types',{}) }}">Назад</a>
+    </div>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends '::crud_page.html.twig' %}
+
+{% block content %}
+    <div class="twelve wide column">
+        <h1 class="ui header">{{ 'Редактировать шаблон'|trans }}</h1>
+        <h3 class="ui header">{{ "Возможные параметры шаблона для типа"|trans ~ ' ' ~ entity.name }}</h3>
+        <div class="ui middle aligned divided list x-scroll">
+            {{ block ('possible_fields_table') }}
+        </div>
+    </div>
+    <div class="twelve wide column">
+        {{ form(form) }}
+        <a class="ui left floated button primary" href="{{ path('builder_add_types',{}) }}">{{ "Назад"|trans }}</a>
+    </div>
+{% endblock %}

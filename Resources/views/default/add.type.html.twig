@@ -1,0 +1,116 @@
+{% extends '::crud_page.html.twig' %}
+
+{% block content %}
+    <div class="twelve wide column">
+        <h3 class="ui header">{{ "Существующие типы объектов"|trans }}</h3>
+        {% if rootNodeTypes|length == 0 %}
+            <div class="ui middle">
+                <span>{{ "Нет таких"|trans }}</span>
+            </div>
+        {% else %}
+            {% from _self import recursiveCategory %}
+            <div class="ui middle aligned recursive list">
+                {% for node in rootNodeTypes %}
+                    <div class="item">
+                        <div class="content">
+                            {{ block('node_buttons') }}
+                            <div class="ui dividing header" id="{{ node.slug }}">{{ node.name }}</div>
+                            {% if node.childTypes %}
+                                {{ recursiveCategory(node) }}
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+    <div class="twelve wide column">
+        <h1 class="ui header">{{ "Создать тип объекта"|trans }}</h1>
+        {{ form(form) }}
+    </div>
+{% endblock %}
+
+{% macro recursiveCategory(node) %}
+    {% import _self as self %}
+
+    {% if node.childTypes|length %}
+        {% set renderdedChilds = [] %}
+        <div class="list">
+            {% set childs = getChilds(node) %}
+            {% set dataChilds = childs['data'] %}
+            {% set rootChilds = childs['root'] %}
+            {% if dataChilds is not empty %}
+                <div class="ui fluid accordion">
+                    <div class="title">
+                        <i class="dropdown icon"></i>
+                        {{ "Типы данных"|trans }}
+                    </div>
+                    <div class="content">
+                        {% for child in dataChilds %}
+                            {% if child.id not in renderdedChilds %}
+                                <div class="item transition visible">
+                                    <div class="fullwidth data-types content">
+                                        <div>
+                                            {% set node = child %}
+                                            {{ block('node_buttons') }}
+                                            <div class=" ui dividing sub header">{{ child.name }}</div>
+                                            {#{{ self.recursiveCategory(child) }}#}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% set renderdedChilds = renderdedChilds|merge([child.id]) %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+            {% if rootChilds is not empty %}
+                <div class="ui fluid accordion">
+                    <div class="title">
+                        <i class="dropdown icon"></i>
+                        {{ "Связанные типы"|trans }}
+                    </div>
+                    <div class="content">
+                        {% for child in rootChilds %}
+                            {% if child.id not in renderdedChilds %}
+                                <div class="item">
+                                    {#<i class="minus icon"></i>#}
+                                    <div class="fullwidth root-types content">
+                                        <div>
+                                            {% set node = child %}
+                                            {#{{ block('node_buttons') }}#}
+                                            <div class="small ui dividing header">{{ child.name }}</div>
+                                            {#{{ self.recursiveCategory(child) }}#}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% set renderdedChilds = renderdedChilds|merge([child.id]) %}
+                            {% endif %}
+                        {% endfor %}
+                        {% set renderdedChilds = [] %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+{% endmacro %}
+
+{% block node_buttons %}
+    <div class="child-left right floated ui icon buttons">
+        <a class="tiny ui button" href="{{ path('builder_edit_type',{'id':node.id}) }}"
+           title="{{ 'Редактировать тип'|trans }}">
+            <i class="edit icon"></i></a>
+        <a class="tiny ui button" href="{{ path('builder_edit_type_fields',{'id':node.id}) }}"
+           title="{{ "Поля типа"|trans }}">
+            <i class="list icon"></i></a>
+        <a class="tiny ui button" href="{{ path('builder_list_objects',{'id':node.id}) }}"
+           title="{{ "Перейти к списку объектов этого типа"|trans }}">
+            <i class="database icon"></i></a>
+        <a class="tiny ui button" href="{{ path('builder_add_type_object',{'id':node.id}) }}"
+           title="{{ "Добавить объект"|trans }}">
+            <i class="icons">
+                <i class="database icon"></i>
+                <i class="corner add icon"></i>
+            </i></a>
+    </div>
+{% endblock %}

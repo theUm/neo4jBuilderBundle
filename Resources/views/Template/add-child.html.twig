@@ -1,0 +1,16 @@
+{% extends '::base.html.twig' %}
+
+{% block body %}
+    <div id="wrapper">
+        <div id="container">
+            <div><b>Шаблон</b></div>
+
+            <div class="conent-block">
+                <pre>{{ 'base_template' }}</pre>
+            </div>
+            <div class="conent-block">
+                {{ form(form) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

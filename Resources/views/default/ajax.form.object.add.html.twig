@@ -1,0 +1,62 @@
+{% spaceless %}
+    {% set method = form.vars.method|upper %}
+    {%- if method in ["GET", "POST"] -%}
+        {% set form_method = method %}
+    {%- else -%}
+        {% set form_method = "POST" %}
+    {%- endif -%}
+    {% set attr = form.vars.attr|merge({'class': (form.vars.attr.class|default('ui form'))|trim}) %}
+
+    {%- if not form.vars.valid -%}
+        {% set attr = attr|merge({'class': (attr.class|default('') ~ ' error')|trim}) %}
+    {% endif %}
+    <form name="{{ form.vars.name }}"
+    method="{{ form_method|lower }}"{% if form.vars.action != '' %} action="{{ form.vars.action }}"{% endif %}{% for attrname, attrvalue in attr %} {{ attrname }}="{{ attrvalue }}"{% endfor -%}
+    {%- if form.vars.multipart %} enctype="multipart/form-data"{% endif -%}
+    {% set dataId = '' %}
+    {% if objectNodeId is defined and objectNodeId is not empty %}{% spaceless %}{% set dataId = objectNodeId %}
+        data-id="{{ objectNodeId }}" data-url="{{ path('builder_edit_object',{'id':objectNodeId}) }}" {% if not entityType.isDataType %}data-name="{{ form.name.vars.value }}"{% endif %}
+    {% endspaceless %}{% endif %}>
+    {%- if form_method != method -%}
+        <input type="hidden" name="_method" value="{{ method }}"/>
+    {%- endif -%}
+    {%- if not entityType.dataType %}
+        {{ form_row(form.name) }}
+        {{ form_row(form.slug) }}
+        {{ form_row(form.description) }}
+        {{ form_row(form.isCommentable) }}
+    {% endif -%}
+    <div class="ui top attached tabular menu">
+        {% for groupName, fields in fieldsByGroups %}
+            <a class="item{% if loop.first %} active{% endif %}"
+               data-tab="{{ groupName }}_{{ entityType.id }}_{{ dataId }}">{{ groupName }}</a>
+        {% endfor %}
+        <a class="item{% if fieldsByGroups is empty %} active{% endif %}"
+           data-tab="__links_{{ entityType.id }}_{{ dataId }}">{{ 'Связи и шаблон'|trans }}</a>
+    </div>
+    {% for groupName, fields in fieldsByGroups %}
+        <div class="ui bottom attached tab segment{% if loop.first %} active{% endif %}"
+             data-tab="{{ groupName }}_{{ entityType.id }}_{{ dataId }}">
+            {% for groupName, field in fields %}
+                {{ form_row(form[field['type'].id]) }}
+            {% endfor %}
+        </div>
+    {% endfor %}
+    {% do form.submit_button.setRendered %}
+    <div class="ui bottom attached tab segment{% if fieldsByGroups is empty %} active{% endif %}"
+         data-tab="__links_{{ entityType.id }}_{{ dataId }}">
+        {{ form_rest(form) }}
+    </div>
+    <button type="submit" id="{{ form.submit_button.vars.id }}" name="{{ form.submit_button.vars.full_name }}"
+            class="primary ui button">
+        {%- if objectNodeId is defined and objectNodeId is not empty -%}{{ 'Редактировать объект'|trans }}{%- else -%}{{ 'Создать объект'|trans }}{% endif -%}
+    </button>
+    {% if delete_form is defined %}
+        <button type="button" id="{{ form.vars.id }}" name="delete_{{ form.vars.id }}"
+                class="ui red delete-this button">{{ 'Удалить' }}</button>
+    {% endif %}
+    {{ form_end(form) }}
+    {% if delete_form is defined %}
+        {{ form(delete_form) }}
+    {% endif %}
+{% endspaceless %}

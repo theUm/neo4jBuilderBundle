@@ -1,0 +1,11 @@
+{% extends '::crud_page.html.twig' %}
+
+{% block content %}
+    <div class="twelve wide column">
+        <h1 class="ui header">{{ "Редактировать тип объекта"|trans }}</h1>
+        {{ form(form) }}
+        <a class="ui left floated button primary" href="{{ path('builder_add_types') }}"
+           title="{{ "Перейти к списку объектов этого типа"|trans }}">Назад</a>
+        {{ form(delete_form) }}
+    </div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% for pic in pics %}
+    <div class="ui card" id="media_{{ pic.id }}">
+        <div class="image">
+            <img src="{{ pic|getSingleFieldThumb('gallery_grid') }}"
+                 onerror="this.src='{{ asset('app/img/noim.png') }}';">
+        </div>
+        <div class="content media-sidebar"
+             data-url="{{ path('media_ajax_edit', {'id':pic.id}) }}"
+             data-id="{{ pic.id }}">
+            <a class="header"
+               title="{{ pic.originalFileName }}">{{ pic.originalFileName }}</a>
+            <div class="meta">
+                <span class="date">{{ 'Created at'|trans ~ ' ' ~ (pic.createdAt|date('d.m.Y H:i')) }}</span>
+            </div>
+        </div>
+    </div>
+{% endfor %}
+<div class="ui pager segment">
+    <div class="ui pagination menu">
+        {# pager.first #}
+        <a class="item"
+           href="{{ path('media_dashboard', {page:pager.first, perPage:pager.limit, filters:pager.filtersString}) }}">{{ 'First'|trans }}</a>
+        {% for page in pager.pagesInRange %}
+            {% if page == pager.current %}
+                <span class="item">{{ page }}</span>
+            {% else %}
+                <a class="item"
+                   href="{{ path('media_dashboard', {page:page, perPage:pager.limit, filters:pager.filtersString}) }}">{{ page }}</a>
+            {% endif %}
+        {% endfor %}
+        {# pager.last #}
+        <a class="item"
+           href="{{ path('media_dashboard', {page:pager.last, perPage:pager.limit, filters:pager.filtersString}) }}">{{ 'Last'|trans }}</a>
+    </div>
+</div>

@@ -48,11 +48,7 @@ class CommentsController extends BaseController {
 			// in case if ajax: if valid - return single comment template, else return json with error
 			if ( $request->isXmlHttpRequest() ) {
 				if ( $form->isValid() ) {
-					return new JsonResponse( [
-						'status'  => 'success',
-						'message' => 'Comment successfully added',
-						'comment' => [ 'id' => $comment->getId() ]
-					] );
+					return $this->render( 'BuilderBundle:Comments:single.comment.html.twig', [ 'comment' => $comment ] );
 				} else {
 					return new JsonResponse( [
 						'status'  => 'failure',

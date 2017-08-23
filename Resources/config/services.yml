@@ -62,7 +62,7 @@ services:
         arguments: ['@neo.app.manager', '@request_stack']
 
     template.twig.files.resolver:
-        class: FrontBundle\Helpers\TemplateTwigFileResolver
+        class: Nodeart\BuilderBundle\Helpers\TemplateTwigFileResolver
         arguments: ['@request_stack', '%twig_structure_base_path%', '@kernel']
 
 

@@ -2,10 +2,10 @@
 
 namespace Nodeart\BuilderBundle\Form;
 
-use FrontBundle\Helpers\TemplateTwigFileResolver;
 use GraphAware\Neo4j\OGM\EntityManager;
 use Nodeart\BuilderBundle\Form\Type\AjaxCheckboxType;
 use Nodeart\BuilderBundle\Form\Type\SluggableText;
+use Nodeart\BuilderBundle\Helpers\TemplateTwigFileResolver;
 use Nodeart\BuilderBundle\Services\FormNodeBridge;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;

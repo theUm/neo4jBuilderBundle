@@ -3,8 +3,8 @@
 namespace Nodeart\BuilderBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use FrontBundle\Helpers\TemplateTwigFileResolver;
 use GraphAware\Neo4j\OGM\Annotations as OGM;
+use Nodeart\BuilderBundle\Helpers\TemplateTwigFileResolver;
 
 /**
  * @OGM\Node(label="EntityTypeField", repository="Nodeart\BuilderBundle\Entity\Repositories\TypeFieldNodeRepository")

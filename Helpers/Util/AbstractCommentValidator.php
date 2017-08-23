@@ -113,7 +113,9 @@ abstract class AbstractCommentValidator {
 				$this->refId,
 				$this->comment->getRefType()
 			);
-			$this->comment->setOrder( strval( intval( $lastInsertedSibling->getOrder() ) + 1 ) );
+			if ( ! is_null( $lastInsertedSibling ) ) {
+				$this->comment->setOrder( strval( intval( $lastInsertedSibling->getOrder() ) + 1 ) );
+			}
 		}
 	}
 

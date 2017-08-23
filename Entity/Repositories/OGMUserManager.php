@@ -67,7 +67,7 @@ class OGMUserManager extends BaseUserManager {
 			$res = $this->getRepository()->findOneBy( $criteria );
 		}
 		$res = serialize( $res );
-		$res = str_replace( 'C:45:"neo4j_ogm_proxy_BuilderBundle_Entity_UserNode"', 'C:37:"Nodeart\BuilderBundle\Entity\UserNode"', $res );
+		$res = str_replace( 'C:53:"neo4j_ogm_proxy_Nodeart_BuilderBundle_Entity_UserNode"', 'C:37:"Nodeart\BuilderBundle\Entity\UserNode"', $res );
 		$res = unserialize( $res );
 
 		return $res;

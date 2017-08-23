@@ -57,13 +57,14 @@ services:
         class: Nodeart\BuilderBundle\Services\ObjectEditControlService
         arguments: ['@service_container']
 
-#    neo.media.helper:
-#        class: Nodeart\BuilderBundle\Services\MediaHelper
-#        arguments: ['@service_container']
-
     neo.pager:
         class: Nodeart\BuilderBundle\Services\Pager
         arguments: ['@neo.app.manager', '@request_stack']
+
+    template.twig.files.resolver:
+        class: FrontBundle\Helpers\TemplateTwigFileResolver
+        arguments: ['@request_stack', '%twig_structure_base_path%', '@kernel']
+
 
 # base entity node form types
     object.form.type:

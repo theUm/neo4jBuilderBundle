@@ -54,7 +54,7 @@
   },
   "autoload": {
     "psr-0": {
-      "Nodeart\\BuilderBundle": ""
+      "BuilderBundle": ""
     }
   },
   "minimum-stability": "dev",

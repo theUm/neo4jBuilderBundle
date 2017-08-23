@@ -22,7 +22,7 @@
   "repositories": [
     {
       "type": "vcs",
-      "url": "https://github.com/theUm/neo4jBuilderBundle.git"
+      "url": "https://github.com/theUm/neo4jBuilderBundle"
     },
     {
       "type": "vcs",

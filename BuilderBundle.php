@@ -1,6 +1,6 @@
 <?php
 
-namespace BuilderBundle;
+namespace Nodeart\BuilderBundle;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 

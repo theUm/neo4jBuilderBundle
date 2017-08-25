@@ -63,7 +63,7 @@ services:
 
     template.twig.files.resolver:
         class: Nodeart\BuilderBundle\Helpers\TemplateTwigFileResolver
-        arguments: ['@request_stack', '%twig_structure_base_path%', '@kernel']
+        arguments: ['@request_stack', '%twig_structure_base_path%', '%twig_structure_rel_path%', '@kernel']
 
 
 # base entity node form types

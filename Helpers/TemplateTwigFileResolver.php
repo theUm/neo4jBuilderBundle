@@ -16,14 +16,15 @@ use Symfony\Component\Yaml\Yaml;
 class TemplateTwigFileResolver {
 	const DEFAULT_TEMPLATE_NAME = '_base';
 	const DEFAULT_TEMPLATE_FULL_NAME = self::DEFAULT_TEMPLATE_NAME . '.html.twig';
-	const BASE_TEMPLATE_DIR_REL_PATH = __DIR__ . '/../Resources/views/Structure/';
 
 	private $baseTwigPath;
 	private $route;
 	private $mapping;
+	private $relTwigPath;
 
-	public function __construct( RequestStack $request, string $baseTwigPath, KernelInterface $kernel ) {
+	public function __construct( RequestStack $request, string $baseTwigPath, string $relTwigPath, KernelInterface $kernel ) {
 		$this->baseTwigPath = $baseTwigPath;
+		$this->relTwigPath  = $relTwigPath;
 		$this->route        = $request->getCurrentRequest()->get( '_route' );
 		$this->mapping      = Yaml::parse( file_get_contents( $kernel->getRootDir() . '/config/node_types.yml' ) );
 	}
@@ -116,7 +117,7 @@ class TemplateTwigFileResolver {
 	 */
 	public function getPossibleTemplates( $routeName, bool $forChoices = false ) {
 		$templateFiles = [ self::DEFAULT_TEMPLATE_FULL_NAME ];
-		$seekDirectory = self::BASE_TEMPLATE_DIR_REL_PATH . $this->transformRouteToPath( $routeName );
+		$seekDirectory = $this->relTwigPath . $this->transformRouteToPath( $routeName );
 		// get rid of dots in dir, then place default template file name on first place
 		$templateFiles = array_merge( $templateFiles, array_diff( scandir( $seekDirectory ), [
 			'..',

@@ -91,7 +91,7 @@ class CommentNode {
 	protected $childComments;
 
 	/**
-	 * @OGM\Relationship(type="is_comment_of", direction="BOTH", targetEntity="ObjectNode", collection=false, mappedBy="commentsAbout")
+	 * @OGM\Relationship(type="is_comment_of", direction="BOTH", targetEntity="ObjectNode", collection=false, mappedBy="comments")
 	 * @var ObjectNode
 	 */
 	protected $object;
@@ -353,14 +353,14 @@ class CommentNode {
 	/**
 	 * @return ArrayCollection
 	 */
-	public function getChildComments(): ArrayCollection {
+	public function getChildComments() {
 		return $this->childComments;
 	}
 
 	/**
 	 * @param ArrayCollection $childComments
 	 */
-	public function setChildComments( ArrayCollection $childComments ) {
+	public function setChildComments( $childComments ) {
 		$this->childComments = $childComments;
 	}
 }

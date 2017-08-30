@@ -4,7 +4,6 @@ namespace Nodeart\BuilderBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use GraphAware\Neo4j\OGM\Annotations as OGM;
-use GraphAware\Neo4j\OGM\Common\Collection;
 use Nodeart\BuilderBundle\Helpers\TemplateTwigFileResolver;
 use Symfony\Component\Workflow\Exception\LogicException;
 
@@ -78,11 +77,18 @@ class ObjectNode {
 	 */
 	private $fieldsInitialized = false;
 
+	/**
+	 * @OGM\Relationship(type="is_comment_of", direction="INCOMING", targetEntity="CommentNode", collection=true)
+	 * @var ArrayCollection|CommentNode[]
+	 */
+	private $comments;
+
 	public function __construct( $name = '' ) {
 		$this->name          = $name;
-		$this->childObjects  = new Collection();
-		$this->parentObjects = new Collection();
-		$this->fieldVals     = new Collection();
+		$this->childObjects  = new ArrayCollection();
+		$this->parentObjects = new ArrayCollection();
+		$this->fieldVals     = new ArrayCollection();
+		$this->comments     = new ArrayCollection();
 	}
 
 	/**
@@ -286,5 +292,19 @@ class ObjectNode {
 	public function setFields( array $fields ) {
 		$this->fields            = $fields;
 		$this->fieldsInitialized = true;
+	}
+
+	/**
+	 * @return ArrayCollection|CommentNode[]
+	 */
+	public function getComments() {
+		return $this->comments;
+	}
+
+	/**
+	 * @param ArrayCollection|CommentNode[] $comments
+	 */
+	public function setComments( $comments ) {
+		$this->comments = $comments;
 	}
 }

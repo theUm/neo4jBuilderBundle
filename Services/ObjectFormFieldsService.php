@@ -404,8 +404,16 @@ class ObjectFormFieldsService {
 					$actionsArray['delete'] = array_diff( $previousValues[ $typeId ], $values );
 				}
 			} else { //just replace old vals with new if needed
-				$actionsArray['delete']      = array_diff( $previousValues[ $typeId ], $values );
-				$actionsArray['create']      = array_diff( $values, $previousValues[ $typeId ] );
+				$actionsArray['delete']      = array_udiff( $previousValues[ $typeId ], $values,
+					function (FieldValueNode $obj_a, FieldValueNode $obj_b) {
+						return $obj_a->getDataLabel() !== $obj_b->getDataLabel() || $obj_a->getData() !== $obj_b->getData();
+					}
+				);
+				$actionsArray['create']      = array_udiff( $values, $previousValues[ $typeId ],
+					function (FieldValueNode $obj_a, FieldValueNode $obj_b) {
+						return $obj_a->getDataLabel() !== $obj_b->getDataLabel() || $obj_a->getData() !== $obj_b->getData();
+					}
+				);
 				$actionsArray['updateOrder'] = $values;
 			}
 		} else {

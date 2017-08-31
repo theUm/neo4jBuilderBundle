@@ -28,7 +28,8 @@ class PredefinedAjaxCheckboxType extends AbstractType {
 			'saveRemoteData' => false,
 			'localSearch'    => true,
 			'delimiter'      => $options['delimiter'],
-			'keys'           => [ 'delimiter' => false ]
+			'keys'           => [ 'delimiter' => false ],
+			'fullTextSearch' => true
 		];
 
 		$view->vars['dropdown_options'] = json_encode( $view->vars['dropdown_options'] );

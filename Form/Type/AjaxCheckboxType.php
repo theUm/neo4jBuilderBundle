@@ -113,7 +113,8 @@ class AjaxCheckboxType extends AbstractType {
 			// semantic options that should not be changed
 			'forceSelection'  => false,
 			'selectOnKeydown' => false,
-			'hideAdditions'   => false
+			'hideAdditions'   => false,
+			'fullTextSearch' => true
 		];
 
 		//if localSearch is enabled - prevent remote ajax call on search. Use data provided in 'local_search_data'

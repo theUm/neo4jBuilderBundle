@@ -133,7 +133,8 @@ class NodeCheckboxType extends AbstractType {
 			'saveRemoteData' => $options['saveRemoteData'],
 			'delimiter'      => $options['delimiter'],
 			'keys'           => [ 'delimiter' => false ],
-			'updateChilds'   => $options['updateChilds']
+			'updateChilds'   => $options['updateChilds'],
+			'fullTextSearch' => true
 		];
 
 		$view->vars['dropdown_options'] = json_encode( $view->vars['dropdown_options'], JSON_FORCE_OBJECT );

@@ -401,7 +401,7 @@ class ObjectNodeRepository extends BaseRepository {
 
 		return "MATCH (o:Object)$leftPart-[r:is_child_of]-$rightPart(rem:Object)
                     WHERE id(o)={id} AND id(rem) in {id_rem}
-                    DELETE o
+                    DELETE r
                     return o";
 	}
 }

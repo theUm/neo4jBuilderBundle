@@ -3,6 +3,7 @@
 namespace Nodeart\BuilderBundle\Controller;
 
 use FrontBundle\Controller\Base\BaseController;
+use GraphAware\Neo4j\OGM\EntityManager;
 use Nodeart\BuilderBundle\Entity\CommentNode;
 use Nodeart\BuilderBundle\Entity\Repositories\CommentNodeRepository;
 use Nodeart\BuilderBundle\Form\CommentNodeType;
@@ -48,7 +49,7 @@ class CommentsController extends BaseController {
 			// in case if ajax: if valid - return single comment template, else return json with error
 			if ( $request->isXmlHttpRequest() ) {
 				if ( $form->isValid() ) {
-					return $this->render( 'BuilderBundle:Comments:single.comment.html.twig', [ 'comment' => $comment ] );
+					return $this->render( 'BuilderBundle:Comments:single.comment.html.twig', [ 'pair'=>['comment' => $comment, 'user' => $user] ] );
 				} else {
 					return new JsonResponse( [
 						'status'  => 'failure',
@@ -64,12 +65,15 @@ class CommentsController extends BaseController {
 
 	/**
 	 * @Route("/comments/list/{type}/{id}/{perPage}", name="commentsList", defaults={"type"=CommentNode::CAT_COMMENT, "id"=0, "perPage"=6})
-	 * @param Request $request
+	 * @param $type
+	 * @param $id
+	 * @param $perPage
 	 *
 	 * @return \Symfony\Component\HttpFoundation\Response
 	 */
-	public function listCommentsAction( $type, $id, $perPage, Request $request ) {
+	public function listCommentsAction( $type, $id, $perPage ) {
 
+		/** @var EntityManager $nm */
 		$nm = $this->get( 'neo.app.manager' );
 		/** @var CommentNodeRepository $commentsRepo */
 		$commentsRepo = $nm->getRepository( CommentNode::class );

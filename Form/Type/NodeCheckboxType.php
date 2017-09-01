@@ -122,7 +122,7 @@ class NodeCheckboxType extends AbstractType {
 		$view->vars['local_search_data'] = $options['local_search_data'];
 		$view->vars['delimiter']         = $options['delimiter'];
 		$view->vars['placeholder']       = $options['placeholder'];
-		if ( ! $options['is_multiple'] ) {
+		if ( $options['is_multiple'] ) {
 			$options['maxSelections'] = false;
 		}
 		$view->vars['dropdown_options'] = [

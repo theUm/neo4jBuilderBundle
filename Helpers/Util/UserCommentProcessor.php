@@ -11,7 +11,7 @@ use Nodeart\BuilderBundle\Entity\UserNode;
  * Date: 011 11.10.2016
  * Time: 18:16
  */
-class UserCommentValidator extends AbstractCommentValidator {
+class UserCommentProcessor extends AbstractCommentProcessor {
 	function processRelId() {
 		$userNode = $this->nm->getRepository( UserNode::class )->find( $this->getRefId() );
 

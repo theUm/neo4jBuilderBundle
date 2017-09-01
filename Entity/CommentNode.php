@@ -67,12 +67,6 @@ class CommentNode {
 	protected $level = 0;
 
 	/**
-	 * @OGM\Property(type="string")
-	 * @var string
-	 */
-	protected $order = '1';
-
-	/**
 	 * @OGM\Relationship(type="commented", direction="OUTGOING", targetEntity="UserNode", collection=false, mappedBy="comments")
 	 * @var UserNode
 	 */
@@ -83,6 +77,12 @@ class CommentNode {
 	 * @var CommentNode
 	 */
 	protected $parentComment;
+
+	/**
+	 * @OGM\Relationship(type="is_ref_to", direction="OUTGOING", targetEntity="CommentNode", collection=false)
+	 * @var CommentNode
+	 */
+	protected $refComment;
 
 	/**
 	 * @OGM\Relationship(type="is_child_of", direction="INCOMING", targetEntity="CommentNode", collection=true)
@@ -229,9 +229,9 @@ class CommentNode {
 	}
 
 	/**
-	 * @return CommentNode
+	 * @return CommentNode|null
 	 */
-	public function getParentComment(): ?CommentNode {
+	public function getParentComment() {
 		return $this->parentComment;
 	}
 
@@ -249,7 +249,7 @@ class CommentNode {
 	/**
 	 * @return ObjectNode
 	 */
-	public function getObject(): ?ObjectNode {
+	public function getObject() {
 		return $this->object;
 	}
 
@@ -267,7 +267,7 @@ class CommentNode {
 	/**
 	 * @return EntityTypeNode
 	 */
-	public function getEntityType(): ?EntityTypeNode {
+	public function getEntityType() {
 		return $this->entityType;
 	}
 
@@ -285,7 +285,7 @@ class CommentNode {
 	/**
 	 * @return UserNode
 	 */
-	public function getUser(): ?UserNode {
+	public function getUser() {
 		return $this->user;
 	}
 
@@ -333,24 +333,6 @@ class CommentNode {
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getOrder(): ?string {
-		return $this->order;
-	}
-
-	/**
-	 * @param string $order
-	 *
-	 * @return CommentNode
-	 */
-	public function setOrder( string $order ): CommentNode {
-		$this->order = $order;
-
-		return $this;
-	}
-
-	/**
 	 * @return ArrayCollection
 	 */
 	public function getChildComments() {
@@ -362,5 +344,23 @@ class CommentNode {
 	 */
 	public function setChildComments( $childComments ) {
 		$this->childComments = $childComments;
+	}
+
+	/**
+	 * @param CommentNode $refComment
+	 *
+	 * @return CommentNode
+	 */
+	public function setRefComment( CommentNode $refComment ): CommentNode {
+		$this->refComment = $refComment;
+
+		return $this;
+}
+
+	/**
+	 * @return CommentNode
+	 */
+	public function getRefComment() {
+		return $this->refComment;
 	}
 }

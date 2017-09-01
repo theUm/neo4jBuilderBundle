@@ -4,10 +4,10 @@ namespace Nodeart\BuilderBundle\Helpers;
 
 use GraphAware\Neo4j\OGM\EntityManager;
 use Nodeart\BuilderBundle\Entity\CommentNode;
-use Nodeart\BuilderBundle\Helpers\Util\AbstractCommentValidator;
-use Nodeart\BuilderBundle\Helpers\Util\ObjectCommentValidator;
-use Nodeart\BuilderBundle\Helpers\Util\TypeCommentValidator;
-use Nodeart\BuilderBundle\Helpers\Util\UserCommentValidator;
+use Nodeart\BuilderBundle\Helpers\Util\AbstractCommentProcessor;
+use Nodeart\BuilderBundle\Helpers\Util\ObjectCommentProcessor;
+use Nodeart\BuilderBundle\Helpers\Util\TypeCommentProcessor;
+use Nodeart\BuilderBundle\Helpers\Util\UserCommentProcessor;
 use Symfony\Component\Form\FormInterface;
 
 /**
@@ -21,7 +21,7 @@ class CommentSaver {
 	private $nm;
 
 	/**
-	 * @var AbstractCommentValidator
+	 * @var AbstractCommentProcessor
 	 */
 	private $validator;
 
@@ -32,15 +32,15 @@ class CommentSaver {
 	public function bindForm( FormInterface $form ) {
 		switch ( $form->get( 'refType' )->getData() ) {
 			case CommentNode::REF_TYPE_OBJECT: {
-				$this->validator = new ObjectCommentValidator();
+				$this->validator = new ObjectCommentProcessor();
 				break;
 			}
 			case CommentNode::REF_TYPE_USER: {
-				$this->validator = new UserCommentValidator();
+				$this->validator = new UserCommentProcessor();
 				break;
 			}
 			case CommentNode::REF_TYPE_TYPE: {
-				$this->validator = new TypeCommentValidator();
+				$this->validator = new TypeCommentProcessor();
 				break;
 			}
 		}
@@ -59,7 +59,6 @@ class CommentSaver {
 	public function processForm() {
 		$this->validator->processRelId();
 		$this->validator->processParentComment();
-		$this->validator->processOrder();
 
 		return $this;
 	}

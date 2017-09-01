@@ -11,7 +11,7 @@ use Nodeart\BuilderBundle\Entity\ObjectNode;
  * Date: 011 11.10.2016
  * Time: 18:16
  */
-class ObjectCommentValidator extends AbstractCommentValidator {
+class ObjectCommentProcessor extends AbstractCommentProcessor {
 	function processRelId() {
 		$objectNode = $this->nm->getRepository( ObjectNode::class )->find( $this->getRefId() );
 

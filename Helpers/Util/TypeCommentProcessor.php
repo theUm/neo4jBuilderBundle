@@ -11,7 +11,7 @@ use Nodeart\BuilderBundle\Entity\EntityTypeNode;
  * Date: 011 11.10.2016
  * Time: 18:16
  */
-class TypeCommentValidator extends AbstractCommentValidator {
+class TypeCommentProcessor extends AbstractCommentProcessor {
 	function processRelId() {
 		$entityTypeNode = $this->nm->getRepository( EntityTypeNode::class )->find( $this->getRefId() );
 

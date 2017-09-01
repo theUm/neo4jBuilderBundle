@@ -7,7 +7,7 @@
             {{ block('user_comment_contnent') }}
             {% if pair.childs is not empty %}
             <div class="comments">
-                {% for childStruct in pair.childs %}
+                {% for childStruct in pair.childs|reverse %}
                     {% set pair = childStruct %}
                     <div class="comment"  id="{{ struct.comment.id }}">
                         {{ block('user_comment_contnent') }}

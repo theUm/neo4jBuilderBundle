@@ -118,6 +118,12 @@ class UserNode extends User {
 	protected $comments;
 
 	/**
+	 * @OGM\Relationship(type="reported", direction="INCOMING", targetEntity="CommentNode", collection=true)
+	 * @var ArrayCollection|CommentNode[]
+	 */
+	protected $reported;
+
+	/**
 	 * @var array|null
 	 * @OGM\Property(type="array", nullable=false)
 	 */
@@ -132,6 +138,7 @@ class UserNode extends User {
 		parent::__construct();
 		$this->roles    = [ self::ROLE_USER ];
 		$this->comments = new ArrayCollection();
+		$this->reported = new ArrayCollection();
 	}
 
 	/**
@@ -460,6 +467,38 @@ class UserNode extends User {
 	 */
 	public function setComments( $comments ) {
 		$this->comments = $comments;
+	}
+
+	/**
+	 * @return ArrayCollection|CommentNode[]
+	 */
+	public function getReported() {
+		return $this->reported;
+	}
+
+	/**
+	 * @param ArrayCollection|CommentNode[] $reported
+	 */
+	public function setReported( $reported ) {
+		$this->reported = $reported;
+	}
+
+	/**
+	 * @param CommentNode $comment
+	 *
+	 * @return bool
+	 */
+	public function addReported( CommentNode $comment ) {
+		return $this->getReported()->add( $comment );
+	}
+
+	/**
+	 * @param CommentNode $comment
+	 *
+	 * @return bool
+	 */
+	public function removeReported( CommentNode $comment ) {
+		return $this->getReported()->removeElement( $comment );
 	}
 
 }

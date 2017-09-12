@@ -1,0 +1,10 @@
+{% use '@Front/Structure/atoms.html.twig' %}
+
+{% if comments.count > 5 %}
+    <div>show more</div>
+{% endif %}
+{% for pair in comments.comments %}
+    <div class="comment" id="{{ pair.comment.id }}" data-is-child="false">
+        {{ block('user_comment_contnent') }}
+    </div>
+{% endfor %}

@@ -9,43 +9,6 @@ use Nodeart\BuilderBundle\Entity\UserNode;
 
 class CommentNodeRepository extends BaseRepository {
 
-
-	/**
-	 * Returns structure of first level comments + users ordered by createdAt DESC  and some of the related
-	 * second level comments ordered by createdAt ASC
-	 *
-	 * @param $nodeId
-	 * @param $type
-	 * @param int $limit
-	 *
-	 * @return array|mixed
-	 */
-	public function findCommentsByRefIdAndType( $nodeId, $type, $limit = 10 ) {
-		//$query = $this->entityManager->createQuery( 'MATCH (comment:Comment)-->(ref) WHERE id(ref) = {refId} and comment.refType = {refType} AND comment.createdAt > 0 RETURN comment ORDER BY comment.order LIMIT {limit}' );
-
-		$query = $this->entityManager->createQuery( 'MATCH (o:Object)<-[:is_comment_of]-(comment:Comment)-[]->(user:User) 
-										WHERE id(o) = {oID}  AND comment.level=0 AND comment.refType = {refType}
-										WITH comment, user ORDER BY comment.createdAt DESC limit {limit}
-									OPTIONAL MATCH (comment)<-[:is_child_of]-(child:Comment)-->(childUser:User)
-                                        WITH comment, user, child, childUser ORDER BY child.createdAt DESC limit 100
-									RETURN comment, user, 
-										CASE childUser 
-											WHEN NOT exists(childUser.name) 
-											THEN [] 
-											ELSE collect({comment:child, user:childUser}) 
-										END AS childs
-							        ORDER BY comment.createdAt DESC' );
-
-		$query->setParameter( 'oID', intval($nodeId) );
-		$query->setParameter( 'refType', $type );
-		$query->setParameter( 'limit', intval($limit) );
-		$query->addEntityMapping( 'comment', CommentNode::class );
-		$query->addEntityMapping( 'user', UserNode::class );
-		$query->addEntityMapping( 'childs', null, Query::HYDRATE_MAP_COLLECTION );
-
-		return $query->execute();
-	}
-
 	/**
 	 * @param $parentId
 	 * @param $type
@@ -78,6 +41,60 @@ class CommentNodeRepository extends BaseRepository {
 		$res = $query->getOneOrNullResult();
 
 		return ( ! is_null( $res ) ) ? $res[0] : $res;
+	}
+
+	/**
+	 * @param int $refComId
+	 *
+	 * @return array|null
+	 *
+	 */
+	public function findMoreChildComments( int $refComId ): ?array {
+		$query = $this->entityManager->createQuery(
+			'MATCH (refCom:Comment)-[:is_comment_of]->(o) WHERE id(refCom) = {refComId}
+			 MATCH (refCom)-[:is_child_of]->(parentCom:Comment)<-[:is_child_of]-(sibling:Comment)-[:commented]->(user:User)
+			    WHERE sibling.createdAt < refCom.createdAt AND sibling.refType = refCom.refType
+		     RETURN collect({comment:sibling, user:user}) as comments, count(sibling) as count LIMIT 10' );
+		$query->setParameter( 'refComId', intval( $refComId ) );
+		$query->addEntityMapping( 'comment', CommentNode::class );
+		$query->addEntityMapping( 'user', UserNode::class );
+		$query->addEntityMapping( 'comments', null, Query::HYDRATE_MAP_COLLECTION );
+		$res = $query->getResult();
+
+		return ( ! is_null( $res ) ) ? $res[0] : $res;
+	}
+
+
+	/**
+	 * Returns structure of first level comments + users ordered by createdAt DESC  and some of the related
+	 * second level comments ordered by createdAt ASC
+	 *
+	 * @param int $refComId
+	 *
+	 * @return array|mixed
+	 */
+	public function findMoreParentComments( int $refComId ) {
+		$query = $this->entityManager->createQuery( '
+		MATCH (refCom:Comment)-[:is_comment_of]-(o) WHERE id(refCom) = {refCom}
+		MATCH (o)<-[:is_comment_of]-(comment:Comment)-[]->(user:User) 
+			WHERE comment.level=0 AND comment.refType = refCom.refType AND refCom.createdAt > comment.createdAt
+			WITH comment, user ORDER BY comment.createdAt DESC limit 10
+		OPTIONAL MATCH (comment)<-[:is_child_of]-(child:Comment)-->(childUser:User)
+            WITH comment, user, child, childUser ORDER BY child.createdAt DESC limit 100
+		RETURN comment, user, count(child) as count,
+			CASE childUser 
+				WHEN NOT exists(childUser.name) 
+				THEN [] 
+				ELSE collect({comment:child, user:childUser}) 
+			END AS childs
+        ORDER BY comment.createdAt DESC' );
+
+		$query->setParameter( 'refCom', intval( $refComId ) );
+		$query->addEntityMapping( 'comment', CommentNode::class );
+		$query->addEntityMapping( 'user', UserNode::class );
+		$query->addEntityMapping( 'childs', null, Query::HYDRATE_MAP_COLLECTION );
+
+		return $query->getResult();
 	}
 
 }

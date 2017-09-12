@@ -4,11 +4,15 @@ namespace Nodeart\BuilderBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use GraphAware\Neo4j\OGM\Annotations as OGM;
+use GraphAware\Neo4j\OGM\Common\Collection;
 
 /**
  * @OGM\Node(label="Comment", repository="Nodeart\BuilderBundle\Entity\Repositories\CommentNodeRepository")
  */
 class CommentNode {
+	const COMM_LEVEL_MAIN = 0;
+	const COMM_LEVEL_REPLY = 1;
+
 	const CAT_COMMENT = 'cat_comment';
 	const CAT_MISTAKE = 'cat_mistake';
 	const CAT_SUGGEST = 'cat_suggest';
@@ -108,9 +112,16 @@ class CommentNode {
 	 */
 	protected $user;
 
+	/**
+	 * @OGM\Relationship(type="reported_by", direction="OUTGOING", targetEntity="UserNode", collection=true, mappedBy="reported")
+	 * @var ArrayCollection|null
+	 */
+	protected $reportedBy;
+
 	public function __construct() {
-		$this->childComments = new ArrayCollection();
+		$this->childComments = new Collection();
 		$this->createdAt     = new \DateTime();
+		$this->reportedBy    = new Collection();
 	}
 
 	/**
@@ -206,6 +217,26 @@ class CommentNode {
 	 */
 	public function setSpamCount( int $spamCount ): CommentNode {
 		$this->spamCount = $spamCount;
+
+		return $this;
+	}
+
+	/**
+	 * @return CommentNode
+	 */
+	public function incSpamCount(): CommentNode {
+		$this->spamCount = $this->spamCount + 1;
+
+		return $this;
+	}
+
+	/**
+	 * @return CommentNode
+	 */
+	public function decSpamCount(): CommentNode {
+		if ( $this->spamCount > 0 ) {
+			$this->spamCount = $this->spamCount - 1;
+		}
 
 		return $this;
 	}
@@ -363,4 +394,46 @@ class CommentNode {
 	public function getRefComment() {
 		return $this->refComment;
 	}
+
+	/**
+	 * @return ArrayCollection|null
+	 */
+	public function getReportedBy() {
+		return $this->reportedBy;
+	}
+
+	/**
+	 * @param ArrayCollection|null $reportedBy
+	 */
+	public function setReportedBy( $reportedBy ) {
+		$this->reportedBy = $reportedBy;
+	}
+
+	/**
+	 * @param UserNode $user
+	 *
+	 * @return bool
+	 */
+	public function isReportedBy( UserNode $user ) {
+		return $this->getReportedBy()->contains( $user );
+	}
+
+	/**
+	 * @param UserNode $user
+	 *
+	 * @return bool
+	 */
+	public function addReportedBy( UserNode $user ) {
+		return $this->getReportedBy()->add( $user );
+	}
+
+	/**
+	 * @param UserNode $user
+	 *
+	 * @return bool
+	 */
+	public function removeReportedBy( UserNode $user ) {
+		return $this->getReportedBy()->removeElement( $user );
+	}
+
 }

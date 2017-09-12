@@ -7,13 +7,14 @@
  * Time: 12:51
  */
 
-namespace Nodeart\BuilderBundle\Services;
+namespace Nodeart\BuilderBundle\Services\Pager;
 
 use GraphAware\Neo4j\OGM\EntityManager;
 use GraphAware\Neo4j\OGM\Query;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-class Pager {
+class MediaPager extends Pager {
+
 	const FILTER_MAIN_SEPARATOR = '+';
 	const FILTER_SUB_SEPARATOR = '-';
 	const FILTER_SHOW_ALL = 'all';
@@ -22,30 +23,30 @@ class Pager {
 
 	//constructor
 	public $count = 0;
-	private $range = 3;
+	protected $range = 3;
 
 	//from request
-	private $nam;
-	private $page = 1;
-	private $limit = 8;
+	protected $nam;
+	protected $page = 1;
+	protected $limit = 8;
 
 	//set from controller
-	private $filters = [];
-	private $queryString;
-	private $baseFilters;
-	private $returnParam;
-	private $orderBy = '';
+	protected $filters = [];
+	protected $queryString;
+	protected $baseFilters;
+	protected $returnParam;
+	protected $orderBy = '';
 
 	//calculated inside this class
-	private $returnParamClass;
-	private $filterString = '';
-	private $limitPart;
-	private $offsetPart;
-	private $filterVals = [];
-	private $hasWhere = false;
+	protected $returnParamClass;
+	protected $filterString = '';
+	protected $limitPart;
+	protected $offsetPart;
+	protected $filterVals = [];
+	protected $hasWhere = false;
 
 	//fetched from db with count query
-	private $totalPages = 1;
+	protected $totalPages = 1;
 
 	public function __construct( EntityManager $nam, RequestStack $request ) {
 		$this->nam     = $nam;

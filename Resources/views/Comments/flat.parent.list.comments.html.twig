@@ -1,0 +1,21 @@
+{% use '@Front/Structure/atoms.html.twig' %}
+
+{% for pair in comments %}
+    <div class="comment" id="{{ pair.comment.id }}" data-is-child="false">
+        {{ block('user_comment_contnent') }}
+        {% if pair.childs is defined and pair.childs is not empty %}
+            <div class="comments">
+                {# show older button #}
+                {% if pair.childs|length > 5 %}
+                    <div data-url="{{ path('comments_load_more',{'fromId':pair.childs[:5]|reverse|last.comment.id, 'level':1 }) }}">{{ 'Show older'|trans }}</div>
+                {% endif %}
+                {% for childStruct in pair.childs[:5]|reverse %}
+                    <div class="comment" id="{{ childStruct.comment.id }}" data-is-child="true">
+                        {% set pair = childStruct %}
+                        {{ block('user_comment_contnent') }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+{% endfor %}

@@ -42,7 +42,7 @@ class MediaController extends Controller {
 	 * @return Response
 	 */
 	public function mediaDashboardAction( Request $request ) {
-		$pager = $this->get( 'neo.pager' );
+		$pager = $this->get( 'media.neo.pager' );
 		$pager->setQueryString( 'MATCH (fv:FieldValue)' );
 		$pager->setBaseFilters( ' WHERE fv.webPath is not null' );
 		$pager->setOrderBy( ' ORDER BY fv.createdAt DESC' );

@@ -1,3 +1,5 @@
 {% use '@Front/Structure/atoms.html.twig' %}
 
-{{ block('user_comment') }}
+<div class="comment" id="{{ pair.comment.id }}" data-is-child="{{ (pair.comment.level == 1)? 'true' : 'false' }}">
+    {{ block('user_comment_contnent') }}
+</div>

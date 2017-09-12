@@ -57,8 +57,12 @@ services:
         class: Nodeart\BuilderBundle\Services\ObjectEditControlService
         arguments: ['@service_container']
 
+    media.neo.pager:
+        class: Nodeart\BuilderBundle\Services\Pager\MediaPager
+        arguments: ['@neo.app.manager', '@request_stack']
+
     neo.pager:
-        class: Nodeart\BuilderBundle\Services\Pager
+        class: Nodeart\BuilderBundle\Services\Pager\Pager
         arguments: ['@neo.app.manager', '@request_stack']
 
     template.twig.files.resolver:

@@ -142,6 +142,10 @@ class TwigFunctions extends \Twig_Extension {
 		// if found single non-collection field type - return single value instead of array of values
 		if ( isset( $fields[ $type ] ) ) {
 			$val = ( ! $fields[ $type ]['type']->isCollection() && ( count( $fields[ $type ]['val'] ) == 1 ) ) ? $fields[ $type ]['val'][0] : $fields[ $type ]['val'];
+			// if empty array on single value
+			if ( ! $fields[ $type ]['type']->isCollection() && empty( $val ) ) {
+				$val = null;
+			}
 		} else {
 			$val = null;
 		}

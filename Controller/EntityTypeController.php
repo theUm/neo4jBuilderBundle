@@ -19,7 +19,6 @@ use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\VarDumper\VarDumper;
 
 class EntityTypeController extends Controller {
 	/**
@@ -163,7 +162,6 @@ class EntityTypeController extends Controller {
 			}
 
 			$nm->persist( $entityType );
-			VarDumper::dump( $entityType );
 			$nm->flush();
 
 			$this->addFlash( 'success', 'Тип сохранён' );

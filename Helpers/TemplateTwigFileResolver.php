@@ -33,17 +33,18 @@ class TemplateTwigFileResolver {
 	 * Reads from node its field with template name.
 	 * field name depends on route and config/node_types.yml
 	 *
+	 * @param $route
 	 * @param $entity
 	 * @param bool $typeToSeek
 	 *
 	 * @return string
 	 */
-	public function getTwigPathByType( $entity, $typeToSeek = false ): string {
+	public function getTwigPathByType( $route, $entity, $typeToSeek = false ): string {
 		//base part
 		$fullPath = $this->baseTwigPath;
 		//type part
-		$fullPath       .= $this->transformRouteToPath( $this->route ) . ':';
-		$propertyGetter = 'get' . ucfirst( $this->getTemplateFieldByRoute( $this->route, $typeToSeek ) );
+		$fullPath       .= $this->transformRouteToPath( $route ) . ':';
+		$propertyGetter = 'get' . ucfirst( $this->getTemplateFieldByRoute( $route, $typeToSeek ) );
 		//own template || base template part
 		$fullPath .= ( $entity->{$propertyGetter}() ?? self::DEFAULT_TEMPLATE_FULL_NAME );
 

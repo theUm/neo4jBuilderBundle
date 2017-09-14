@@ -47,8 +47,9 @@ class CommentsQueries implements QueriesInterface {
 
 		$this->countQuery = $this->entityManager->createQuery(
 			'MATCH (o:Object)<-[:is_comment_of]-(comment:Comment) 
-			 WHERE id(o) = {oID}  AND comment.level=0 and comment.refType = {refType}
-			 RETURN count(comment) as count'
+			 WHERE id(o) = {oID} AND comment.refType = {refType} AND comment.level = 0
+             OPTIONAL MATCH (comment)--(childComment:Comment) WHERE childComment.level <> 0
+			 RETURN count(DISTINCT comment) as count, count(DISTINCT childComment) as childsCount'
 		);
 		$this->countQuery->setParameter( 'oID', intval( $nodeId ) );
 		$this->countQuery->setParameter( 'refType', $type );

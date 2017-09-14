@@ -34,6 +34,7 @@ class Pager {
 	 * @var QueriesInterface
 	 */
 	private $queries;
+	private $allCommentsCount;
 
 	public function __construct( EntityManager $nam, RequestStack $request ) {
 		$this->nam     = $nam;
@@ -68,7 +69,9 @@ class Pager {
 
 	private function execCount() {
 
-		$this->count = $this->queries->getCountQuery()->getOneResult()['count'];
+		$countResult            = $this->queries->getCountQuery()->getOneResult();
+		$this->count            = $countResult['count'];
+		$this->allCommentsCount = $countResult['count'] + $countResult['childsCount'];
 
 		if ( $this->count > 0 ) {
 			$this->totalPages = intval( ceil( $this->count / $this->limit ) );
@@ -107,12 +110,13 @@ class Pager {
 
 		$current  = $this->page;
 		$viewData = [
-			'last'       => $this->totalPages,
-			'current'    => $current,
-			'limit'      => $this->limit,
-			'first'      => 1,
-			'pageCount'  => $this->totalPages,
-			'totalCount' => $this->count,
+			'last'         => $this->totalPages,
+			'current'      => $current,
+			'limit'        => $this->limit,
+			'first'        => 1,
+			'pageCount'    => $this->totalPages,
+			'parentsCount' => $this->count,
+			'totalCount'   => $this->allCommentsCount
 		];
 		//$viewData = [];//array_merge($viewData, $this->paginatorOptions, $this->customParameters);
 		if ( $current - 1 > 0 ) {

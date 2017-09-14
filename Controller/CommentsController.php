@@ -14,6 +14,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class CommentsController extends BaseController {
 
@@ -57,7 +58,7 @@ class CommentsController extends BaseController {
 						'status'  => 'failure',
 						'message' => 'Comment form has errors',
 						'errors'  => $form->getErrors()
-					], 400 /*bad request*/ );
+					], Response::HTTP_BAD_REQUEST );
 				}
 			}
 		}
@@ -105,38 +106,57 @@ class CommentsController extends BaseController {
 		return $response;
 	}
 
+//	/**
+//	 * @Route("/comments/more/{fromId}/main", name="comments_load_more_parents", requirements={"fromId": "\d+"})
+//	 * @param int $fromId
+//	 *
+//	 * @return \Symfony\Component\HttpFoundation\Response
+//	 */
+//	public function loadMoreParentCommentsAction( int $fromId ) {
+//		/** @var EntityManager $nm */
+//		$nm = $this->get( 'neo.app.manager' );
+//
+//		/** @var CommentNodeRepository $repo */
+//		$repo = $nm->getRepository( CommentNode::class );
+//		$comments = $repo->findMoreParentComments( $fromId );
+//
+//		if (  count($comments) == 0 ) {
+//			return new JsonResponse( [
+//				'status'  => 'not_found',
+//				'message' => 'No more comments for you!',
+//			], Response::HTTP_NOT_FOUND );
+//		}
+//
+//		$response = $this->render( '@Builder/Comments/flat.parent.list.comments.html.twig', [
+//			'comments' => $comments,
+//		] );
+//		$response->setSharedMaxAge( 120 );
+//
+//		return $response;
+//	}
+
 	/**
-	 * @Route("/comments/more/{fromId}/{level}", name="comments_load_more", requirements={"oId": "\d+", "fromId": "\d+"}, defaults={"level":CommentNode::COMM_LEVEL_REPLY})
+	 * @Route("/comments/more/{fromId}/second", name="comments_load_more_childs", requirements={"fromId": "\d+"})
 	 * @param int $fromId
-	 * @param int $level
-	 * @param Request $request
 	 *
 	 * @return \Symfony\Component\HttpFoundation\Response
 	 */
-	public function loadMoreCommentsAction( int $fromId, int $level = CommentNode::COMM_LEVEL_REPLY, Request $request ) {
-
+	public function loadMoreChildCommentsAction( int $fromId ) {
 		/** @var EntityManager $nm */
 		$nm = $this->get( 'neo.app.manager' );
-
 		/** @var CommentNodeRepository $repo */
 		$repo = $nm->getRepository( CommentNode::class );
 
-		if ( $level == CommentNode::COMM_LEVEL_MAIN ) {
-			$comments = $repo->findMoreParentComments( $fromId );
-			$template = '@Builder/Comments/flat.parent.list.comments.html.twig';
-		} else {
-			$comments = $repo->findMoreChildComments( $fromId );
-			$template = '@Builder/Comments/flat.childs.list.comments.html.twig';
-		}
-		if ( count( $comments ) == 0 ) {
+		$comments = $repo->findMoreChildComments( $fromId );
+		if ( count( $comments['comments'] ) == 0 ) {
 			return new JsonResponse( [
 				'status'  => 'not_found',
 				'message' => 'No more comments for you!',
-			], 404 /*Not found*/ );
+			], Response::HTTP_NOT_FOUND );
 		}
 
-		$response = $this->render( $template, [
-			'comments' => $comments,
+		$response = $this->render( '@Builder/Comments/flat.childs.list.comments.html.twig', [
+			'comments' => $comments['comments'],
 		] );
 		$response->setSharedMaxAge( 120 );
 
@@ -154,7 +174,6 @@ class CommentsController extends BaseController {
 
 		/** @var EntityManager $nm */
 		$nm = $this->get( 'neo.app.manager' );
-
 		/** @var CommentNodeRepository $repo */
 		$repo = $nm->getRepository( CommentNode::class );
 		/** @var CommentNode $comment */
@@ -164,7 +183,7 @@ class CommentsController extends BaseController {
 			return new JsonResponse( [
 				'status'  => 'not_found',
 				'message' => 'Comment not found',
-			], 404 /*Not found*/ );
+			], Response::HTTP_NOT_FOUND );
 		}
 
 		$user = $this->getUser();
@@ -184,7 +203,6 @@ class CommentsController extends BaseController {
 			'status'  => 'updated',
 			'message' => 'Thank you for your submission',
 		] );
-
 	}
 
 }

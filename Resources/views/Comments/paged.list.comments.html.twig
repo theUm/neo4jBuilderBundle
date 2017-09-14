@@ -4,15 +4,17 @@
 {% if pager.totalCount > 0 %}
     {% if app.request.xmlHttpRequest == false %}
         {{ block('dropdown_header') }}
+        <div class="comments_dynamic_part">
     {% endif %}
-    <div class="comments_dynamic_part">
-        <div class="wrapper_for_comments">
-            {% include '@Builder/Comments/flat.parent.list.comments.html.twig' %}
-        </div>
-        <div class="more_comments">
-            {% include '@Builder/Comments/pager.comments.html.twig' %}
-        </div>
+    <div class="wrapper_for_comments">
+        {% include '@Builder/Comments/flat.parent.list.comments.html.twig' %}
     </div>
+    <div class="more_comments">
+        {% include '@Builder/Comments/pager.comments.html.twig' %}
+    </div>
+    {% if app.request.xmlHttpRequest == false %}
+        </div>
+    {% endif %}
 {% else %}
     <div class="ui basic segment no_comments">Никто ещё не оставил комментариев, станьте первым.</div>
 {% endif %}

@@ -54,7 +54,7 @@ class CommentNodeRepository extends BaseRepository {
 			'MATCH (refCom:Comment)-[:is_comment_of]->(o) WHERE id(refCom) = {refComId}
 			 MATCH (refCom)-[:is_child_of]->(parentCom:Comment)<-[:is_child_of]-(sibling:Comment)-[:commented]->(user:User)
 			    WHERE sibling.createdAt < refCom.createdAt AND sibling.refType = refCom.refType
-		     RETURN collect({comment:sibling, user:user}) as comments, count(sibling) as count LIMIT 10' );
+		     RETURN collect({comment:sibling, user:user}) as comments LIMIT 10' );
 		$query->setParameter( 'refComId', intval( $refComId ) );
 		$query->addEntityMapping( 'comment', CommentNode::class );
 		$query->addEntityMapping( 'user', UserNode::class );

@@ -56,13 +56,19 @@ class CommentNode {
 	 * @OGM\Property(type="int")
 	 * @var int
 	 */
-	protected $thumbRating = 0;
+	protected $likes = 0;
 
 	/**
 	 * @OGM\Property(type="int")
 	 * @var int
 	 */
-	protected $spamCount = 0;
+	protected $dislikes = 0;
+
+	/**
+	 * @OGM\Property(type="int")
+	 * @var int
+	 */
+	protected $reports = 0;
 
 	/**
 	 * @OGM\Property(type="int")
@@ -113,15 +119,16 @@ class CommentNode {
 	protected $user;
 
 	/**
-	 * @OGM\Relationship(type="reported_by", direction="OUTGOING", targetEntity="UserNode", collection=true, mappedBy="reported")
-	 * @var ArrayCollection|null
+	 * @var UserCommentReaction[]
+	 *
+	 * @OGM\Relationship(relationshipEntity="UserCommentReaction", type="Reaction", direction="OUTGOING", collection=true, mappedBy="comment")
 	 */
-	protected $reportedBy;
+	protected $reactions;
 
 	public function __construct() {
 		$this->childComments = new Collection();
 		$this->createdAt     = new \DateTime();
-		$this->reportedBy    = new Collection();
+		$this->reactions     = new Collection();
 	}
 
 	/**
@@ -181,62 +188,75 @@ class CommentNode {
 	 */
 	public function setCategory( string $category ): CommentNode {
 		$this->category = $category;
-
 		return $this;
 	}
 
 	/**
 	 * @return int
 	 */
-	public function getThumbRating(): ?int {
-		return $this->thumbRating;
+	public function getLikes(): ?int {
+		return $this->likes;
 	}
 
 	/**
-	 * @param int $thumbRating
+	 * @param int $likes
 	 *
 	 * @return CommentNode
 	 */
-	public function setThumbRating( int $thumbRating ): CommentNode {
-		$this->thumbRating = $thumbRating;
+	public function setLikes( int $likes ): CommentNode {
+		$this->likes = $likes;
 
+		return $this;
+	}
+
+
+	public function changeLikes( int $value ) {
+		$this->likes = $this->likes + $value;
 		return $this;
 	}
 
 	/**
 	 * @return int
 	 */
-	public function getSpamCount(): int {
-		return $this->spamCount;
+	public function getDislikes(): ?int {
+		return $this->dislikes;
 	}
 
 	/**
-	 * @param int $spamCount
+	 * @param int $dislikes
 	 *
 	 * @return CommentNode
 	 */
-	public function setSpamCount( int $spamCount ): CommentNode {
-		$this->spamCount = $spamCount;
+	public function setDislikes( int $dislikes ): CommentNode {
+		$this->dislikes = $dislikes;
+		return $this;
+	}
 
+	public function changeDislikes( int $value ) {
+		$this->dislikes = $this->dislikes + $value;
 		return $this;
 	}
 
 	/**
+	 * @return int
+	 */
+	public function getReports(): ?int {
+		return $this->reports;
+	}
+
+	/**
+	 * @param int $reports
+	 *
 	 * @return CommentNode
 	 */
-	public function incSpamCount(): CommentNode {
-		$this->spamCount = $this->spamCount + 1;
+	public function setReports( int $reports ): CommentNode {
+		$this->reports = $reports;
 
 		return $this;
 	}
 
-	/**
-	 * @return CommentNode
-	 */
-	public function decSpamCount(): CommentNode {
-		if ( $this->spamCount > 0 ) {
-			$this->spamCount = $this->spamCount - 1;
-		}
+	public function changeReports( int $value ) {
+		$this->reports = $this->reports + $value;
 
 		return $this;
 	}
@@ -396,44 +416,48 @@ class CommentNode {
 	}
 
 	/**
-	 * @return ArrayCollection|null
+	 * @param UserCommentReaction $reaction
+	 *
+	 * @return CommentNode
 	 */
-	public function getReportedBy() {
-		return $this->reportedBy;
+	public function addReaction( UserCommentReaction $reaction ): CommentNode {
+		$this->reactions->add( $reaction );
+
+		return $this;
 	}
 
 	/**
-	 * @param ArrayCollection|null $reportedBy
+	 * @param Collection|UserCommentReaction[] $reactions
+	 *
+	 * @return CommentNode
 	 */
-	public function setReportedBy( $reportedBy ) {
-		$this->reportedBy = $reportedBy;
+	public function setReactions( Collection $reactions ): CommentNode {
+		$this->reactions = $reactions;
+
+		return $this;
+	}
+
+	/**
+	 * @return Collection|UserCommentReaction[]
+	 */
+	public function getReactions() {
+		return $this->reactions;
 	}
 
 	/**
 	 * @param UserNode $user
 	 *
-	 * @return bool
+	 * @return UserCommentReaction|null
 	 */
-	public function isReportedBy( UserNode $user ) {
-		return $this->getReportedBy()->contains( $user );
-	}
+	public function getReactionByUser( UserNode $user ) {
+		$userReaction = null;
+		foreach ( $this->getReactions() as $reaction ) {
+			if ( $user === $reaction->getUser() ) {
+				return $reaction;
+			}
+		}
 
-	/**
-	 * @param UserNode $user
-	 *
-	 * @return bool
-	 */
-	public function addReportedBy( UserNode $user ) {
-		return $this->getReportedBy()->add( $user );
-	}
-
-	/**
-	 * @param UserNode $user
-	 *
-	 * @return bool
-	 */
-	public function removeReportedBy( UserNode $user ) {
-		return $this->getReportedBy()->removeElement( $user );
+		return null;
 	}
 
 }

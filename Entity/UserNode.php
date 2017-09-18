@@ -2,9 +2,9 @@
 
 namespace Nodeart\BuilderBundle\Entity;
 
-use Doctrine\Common\Collections\ArrayCollection;
 use FOS\UserBundle\Model\User;
 use GraphAware\Neo4j\OGM\Annotations as OGM;
+use GraphAware\Neo4j\OGM\Common\Collection;
 
 /**
  * @OGM\Node(label="User", repository="Nodeart\BuilderBundle\Entity\Repositories\UserNodeRepository")
@@ -112,18 +112,6 @@ class UserNode extends User {
 	protected $avatar;
 
 	/**
-	 * @OGM\Relationship(type="commented", direction="INCOMING", targetEntity="CommentNode", collection=true, mappedBy="author")
-	 * @var ArrayCollection|CommentNode[]
-	 */
-	protected $comments;
-
-	/**
-	 * @OGM\Relationship(type="reported", direction="INCOMING", targetEntity="CommentNode", collection=true)
-	 * @var ArrayCollection|CommentNode[]
-	 */
-	protected $reported;
-
-	/**
 	 * @var array|null
 	 * @OGM\Property(type="array", nullable=false)
 	 */
@@ -134,11 +122,24 @@ class UserNode extends User {
 	 */
 	protected $groups = [ 'DEFAULT_GROUP' ];
 
+	/**
+	 * @OGM\Relationship(type="commented", direction="INCOMING", targetEntity="CommentNode", collection=true, mappedBy="author")
+	 * @var Collection|CommentNode[]
+	 */
+	protected $comments;
+
+	/**
+	 * @var Collection|UserCommentReaction[]
+	 *
+	 * @OGM\Relationship(relationshipEntity="UserCommentReaction", type="Reaction", direction="OUTGOING", collection=true, mappedBy="user")
+	 */
+	protected $reactions;
+
 	public function __construct() {
 		parent::__construct();
-		$this->roles    = [ self::ROLE_USER ];
-		$this->comments = new ArrayCollection();
-		$this->reported = new ArrayCollection();
+		$this->roles     = [ self::ROLE_USER ];
+		$this->comments  = new Collection();
+		$this->reactions = new Collection();
 	}
 
 	/**
@@ -162,7 +163,7 @@ class UserNode extends User {
 	/**
 	 * @return string
 	 */
-	public function getName(): string {
+	public function getName(): ?string {
 		return $this->name;
 	}
 
@@ -456,49 +457,46 @@ class UserNode extends User {
 	}
 
 	/**
-	 * @return ArrayCollection|CommentNode[]
+	 * @return Collection|CommentNode[]
 	 */
-	public function getComments(): ArrayCollection {
+	public function getComments(): Collection {
 		return $this->comments;
 	}
 
 	/**
-	 * @param ArrayCollection|CommentNode[] $comments
+	 * @param Collection|CommentNode[] $comments
 	 */
 	public function setComments( $comments ) {
 		$this->comments = $comments;
 	}
 
 	/**
-	 * @return ArrayCollection|CommentNode[]
-	 */
-	public function getReported() {
-		return $this->reported;
-	}
-
-	/**
-	 * @param ArrayCollection|CommentNode[] $reported
-	 */
-	public function setReported( $reported ) {
-		$this->reported = $reported;
-	}
-
-	/**
-	 * @param CommentNode $comment
+	 * @param UserCommentReaction $reaction
 	 *
-	 * @return bool
+	 * @return UserNode
 	 */
-	public function addReported( CommentNode $comment ) {
-		return $this->getReported()->add( $comment );
+	public function addReaction( UserCommentReaction $reaction ): UserNode {
+		$this->reactions->add( $reaction );
+
+		return $this;
 	}
 
 	/**
-	 * @param CommentNode $comment
+	 * @param Collection|UserCommentReaction[] $reactions
 	 *
-	 * @return bool
+	 * @return UserNode
 	 */
-	public function removeReported( CommentNode $comment ) {
-		return $this->getReported()->removeElement( $comment );
+	public function setReactions( Collection $reactions ): UserNode {
+		$this->reactions = $reactions;
+
+		return $this;
+	}
+
+	/**
+	 * @return Collection|UserCommentReaction[]
+	 */
+	public function getReactions() {
+		return $this->reactions;
 	}
 
 }

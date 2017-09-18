@@ -1,10 +1,15 @@
 {% use '@Front/Structure/atoms.html.twig' %}
 
 {% if comments|length > 5 %}
-    <div data-url="{{ path('comments_load_more_childs',{'fromId':comments[:5]|last.comment.id}) }}">{{ 'Show older'|trans }}</div>
+    <div data-url="{{ path('comments_load_more_childs',{'fromId':comments[:5]|last.comment.id, 'oId':oId}) }}"
+         class="ui fluid icon button show_old">{{ 'Show older'|trans }}</div>
 {% endif %}
 {% for pair in comments[:5]|reverse %}
     <div class="comment" id="{{ pair.comment.id }}" data-is-child="true">
-        {{ block('user_comment_contnent') }}
+        {% if pair.comment.id in userReactions.reported %}
+            {{ 'Комментарий отмечен как нарушающий правила ресурса'|trans }}
+        {% else %}
+            {{ block('user_comment_contnent') }}
+        {% endif %}
     </div>
 {% endfor %}

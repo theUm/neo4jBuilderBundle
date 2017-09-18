@@ -53,6 +53,7 @@ class CommentNodeRepository extends BaseRepository {
 		$query = $this->entityManager->createQuery(
 			'MATCH (refCom:Comment)-[:is_comment_of]->(o) WHERE id(refCom) = {refComId}
 			 MATCH (refCom)-[:is_child_of]->(parentCom:Comment)<-[:is_child_of]-(sibling:Comment)-[:commented]->(user:User)
+			    AND ( comment.reports < 5  OR comment.reports is null)  
 			    WHERE sibling.createdAt < refCom.createdAt AND sibling.refType = refCom.refType
 		     RETURN collect({comment:sibling, user:user}) as comments LIMIT 10' );
 		$query->setParameter( 'refComId', intval( $refComId ) );
@@ -77,7 +78,7 @@ class CommentNodeRepository extends BaseRepository {
 		$query = $this->entityManager->createQuery( '
 		MATCH (refCom:Comment)-[:is_comment_of]-(o) WHERE id(refCom) = {refCom}
 		MATCH (o)<-[:is_comment_of]-(comment:Comment)-[]->(user:User) 
-			WHERE comment.level=0 AND comment.refType = refCom.refType AND refCom.createdAt > comment.createdAt
+			WHERE comment.level=0 AND comment.refType = refCom.refType AND refCom.createdAt > comment.createdAt AND ( comment.reports < 5  OR comment.reports is null)
 			WITH comment, user ORDER BY comment.createdAt DESC limit 10
 		OPTIONAL MATCH (comment)<-[:is_child_of]-(child:Comment)-->(childUser:User)
             WITH comment, user, child, childUser ORDER BY child.createdAt DESC limit 100
@@ -95,6 +96,25 @@ class CommentNodeRepository extends BaseRepository {
 		$query->addEntityMapping( 'childs', null, Query::HYDRATE_MAP_COLLECTION );
 
 		return $query->getResult();
+	}
+
+	/**
+	 * @param int $oId
+	 * @param int $userId
+	 *
+	 * @return array|null
+	 */
+	public function findObjectUserReactions( int $oId, int $userId ): ?array {
+		$query = $this->entityManager->createQuery(
+			'MATCH (u:User)-[r:Reaction]-(com:Comment)-[]-(o) where id(u) = {uId} and id(o) = {oId} 
+			 RETURN collect(case r.liked when true then id(com) else null END) as liked, 
+			 collect(case r.disliked when true then id(com) else null END) as disliked,
+			 collect (case r.reported when true then id(com) else null END) as reported' );
+		$query->setParameter( 'oId', intval( $oId ) );
+		$query->setParameter( 'uId', intval( $userId ) );
+		$res = $query->getResult();
+
+		return ( ! is_null( $res ) ) ? $res[0] : $res;
 	}
 
 }

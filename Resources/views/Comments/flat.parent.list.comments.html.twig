@@ -2,7 +2,11 @@
 
 {% for pair in comments %}
     <div class="comment" id="{{ pair.comment.id }}" data-is-child="false">
-        {{ block('user_comment_contnent') }}
+        {% if pair.comment.id in userReactions.reported %}
+            {{ 'Комментарий отмечен как нарушающий правила ресурса'|trans }}
+        {% else %}
+            {{ block('user_comment_contnent') }}
+        {% endif %}
         {% if pair.childs is defined and pair.childs is not empty %}
             <div class="comments">
                 {% set comments = pair.childs %}

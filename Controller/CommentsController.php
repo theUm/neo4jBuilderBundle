@@ -6,6 +6,7 @@ use FrontBundle\Controller\Base\BaseController;
 use GraphAware\Neo4j\OGM\EntityManager;
 use Nodeart\BuilderBundle\Entity\CommentNode;
 use Nodeart\BuilderBundle\Entity\Repositories\CommentNodeRepository;
+use Nodeart\BuilderBundle\Entity\UserCommentReaction;
 use Nodeart\BuilderBundle\Form\CommentNodeType;
 use Nodeart\BuilderBundle\Helpers\CommentSaver;
 use Nodeart\BuilderBundle\Services\Pager\Pager;
@@ -17,6 +18,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class CommentsController extends BaseController {
+
+	const COMMENT_REACTION_UPDOOD = '+';
+	const COMMENT_REACTION_DOWNDOOD = '-';
+	const COMMENT_REACTION_WHINE = 'boo';
 
 	/**
 	 * @Route("/comments/add", name="comments_add")
@@ -72,11 +77,10 @@ class CommentsController extends BaseController {
 	 * @param $type string
 	 * @param int $page
 	 * @param int $perPage
-	 * @param Request $request
 	 *
 	 * @return \Symfony\Component\HttpFoundation\Response
 	 */
-	public function listPagedCommentsAction( int $oId, string $type, int $page, int $perPage = 10, Request $request ) {
+	public function listPagedCommentsAction( int $oId, string $type, int $page, int $perPage = 10 ) {
 
 		/** @var EntityManager $nm */
 		$nm = $this->get( 'neo.app.manager' );
@@ -90,58 +94,37 @@ class CommentsController extends BaseController {
 
 		$pager->createQueries( $pagerQueries );
 
+		$userReactions = [];
+		if ( $user = $this->getUser() ) {
+			/** @var CommentNodeRepository $repo */
+			$repo          = $nm->getRepository( CommentNode::class );
+			$userReactions = $repo->findObjectUserReactions( $oId, $user->getId() );
+		}
 
 		$masterRequest = $this->get( 'request_stack' )->getMasterRequest();
 
 		$response = $this->render( 'BuilderBundle:Comments:paged.list.comments.html.twig', [
-			'oId'          => $oId,
-			'type'         => $type,
-			'comments'     => $pager->paginate(),
-			'pager'        => $pager->getPaginationData(),
-			'masterRoute'  => $masterRequest->attributes->get( '_route' ),
-			'masterParams' => $masterRequest->attributes->get( '_route_params' )
+			'oId'           => $oId,
+			'type'          => $type,
+			'comments'      => $pager->paginate(),
+			'pager'         => $pager->getPaginationData(),
+			'userReactions' => $userReactions,
+			'masterRoute'   => $masterRequest->attributes->get( '_route' ),
+			'masterParams'  => $masterRequest->attributes->get( '_route_params' )
 		] );
 		$response->setSharedMaxAge( 120 );
 
 		return $response;
 	}
 
-//	/**
-//	 * @Route("/comments/more/{fromId}/main", name="comments_load_more_parents", requirements={"fromId": "\d+"})
-//	 * @param int $fromId
-//	 *
-//	 * @return \Symfony\Component\HttpFoundation\Response
-//	 */
-//	public function loadMoreParentCommentsAction( int $fromId ) {
-//		/** @var EntityManager $nm */
-//		$nm = $this->get( 'neo.app.manager' );
-//
-//		/** @var CommentNodeRepository $repo */
-//		$repo = $nm->getRepository( CommentNode::class );
-//		$comments = $repo->findMoreParentComments( $fromId );
-//
-//		if (  count($comments) == 0 ) {
-//			return new JsonResponse( [
-//				'status'  => 'not_found',
-//				'message' => 'No more comments for you!',
-//			], Response::HTTP_NOT_FOUND );
-//		}
-//
-//		$response = $this->render( '@Builder/Comments/flat.parent.list.comments.html.twig', [
-//			'comments' => $comments,
-//		] );
-//		$response->setSharedMaxAge( 120 );
-//
-//		return $response;
-//	}
-
 	/**
-	 * @Route("/comments/more/{fromId}/second", name="comments_load_more_childs", requirements={"fromId": "\d+"})
+	 * @Route("/comments/more/{fromId}/second/{oId}", name="comments_load_more_childs", requirements={"fromId": "\d+", "oId": "\d+"})
 	 * @param int $fromId
+	 * @param int $oId
 	 *
-	 * @return \Symfony\Component\HttpFoundation\Response
+	 * @return Response
 	 */
-	public function loadMoreChildCommentsAction( int $fromId ) {
+	public function loadMoreChildCommentsAction( int $fromId, int $oId ) {
 		/** @var EntityManager $nm */
 		$nm = $this->get( 'neo.app.manager' );
 		/** @var CommentNodeRepository $repo */
@@ -155,8 +138,17 @@ class CommentsController extends BaseController {
 			], Response::HTTP_NOT_FOUND );
 		}
 
+		$userReactions = [];
+		if ( $user = $this->getUser() ) {
+			/** @var CommentNodeRepository $repo */
+			$repo          = $nm->getRepository( CommentNode::class );
+			$userReactions = $repo->findObjectUserReactions( $oId, $user->getId() );
+		}
+
 		$response = $this->render( '@Builder/Comments/flat.childs.list.comments.html.twig', [
-			'comments' => $comments['comments'],
+			'comments'      => $comments['comments'],
+			'userReactions' => $userReactions,
+			'oId'           => $oId
 		] );
 		$response->setSharedMaxAge( 120 );
 
@@ -165,44 +157,104 @@ class CommentsController extends BaseController {
 
 
 	/**
-	 * @Route("/comments/report/{commentId}", name="comments_report", requirements={"commentId": "\d+"})
-	 * @param int $commentId
+	 * @Route("/comments/updood/{id}/{action}", name="comments_updood", requirements={"id": "\d+"}, defaults={"action":"+"})
+	 * @param int $id
+	 * @param string $action
 	 *
-	 * @return \Symfony\Component\HttpFoundation\Response
+	 * @return JsonResponse
 	 */
-	public function reportCommentAction( int $commentId ) {
+	public function updoodCommentAction( int $id, string $action ) {
+		$response        = new JsonResponse();
+		$possibleActions = [
+			self::COMMENT_REACTION_UPDOOD,
+			self::COMMENT_REACTION_DOWNDOOD,
+			self::COMMENT_REACTION_WHINE
+		];
+
+		if ( ! in_array( $action, $possibleActions ) ) {
+			$response->setData( [
+				'status'  => 'bad_action',
+				'message' => 'Second url param must one of the following: "' . implode( '", "', $possibleActions ) . '"',
+			] );
+			$response->setStatusCode( Response::HTTP_BAD_REQUEST );
+
+			return $response;
+		}
 
 		/** @var EntityManager $nm */
 		$nm = $this->get( 'neo.app.manager' );
 		/** @var CommentNodeRepository $repo */
 		$repo = $nm->getRepository( CommentNode::class );
 		/** @var CommentNode $comment */
-		$comment = $repo->findOneById( $commentId );
+		$comment = $repo->findOneById( $id );
 
 		if ( ! $comment ) {
-			return new JsonResponse( [
+			$response->setData( [
 				'status'  => 'not_found',
 				'message' => 'Comment not found',
-			], Response::HTTP_NOT_FOUND );
+			] );
+			$response->setStatusCode( Response::HTTP_NOT_FOUND );
+
+			return $response;
+		}
+		$user = $this->getUser();
+
+		// find user reaction, if not found - create new empty one
+		$userReaction = $comment->getReactionByUser( $user );
+		if ( is_null( $userReaction ) ) {
+			$userReaction = new UserCommentReaction( $user, $comment );
+			$user->getReactions()->add( $userReaction );
+			$comment->getReactions()->add( $userReaction );
 		}
 
-		$user = $this->getUser();
-		if ( $comment->isReportedBy( $user ) ) {
-			$comment->getReportedBy()->removeElement( $user );
-			$user->getReported()->removeElement( $comment );
-			$comment->decSpamCount();
-		} else {
-			$comment->addReportedBy( $user );
-			$comment->incSpamCount();
+		$changedValues = [ 'like' => 0, 'dislike' => 0, 'report' => 0 ];
+		switch ( $action ) {
+			case self::COMMENT_REACTION_UPDOOD: {
+				$userReaction->setLiked( ! $userReaction->isLiked() );
+				$changedValues['like'] = $userReaction->isLiked() ? + 1 : - 1;
+				$comment->changeLikes( $changedValues['like'] );
+				// if just liked - remove dislike
+				if ( $userReaction->isDisliked() && $userReaction->isLiked() ) {
+					$changedValues['dislike'] = - 1;
+					$userReaction->setDisliked( false );
+					$comment->changeDislikes( $changedValues['dislike'] );
+				}
+				break;
+			}
+			case self::COMMENT_REACTION_DOWNDOOD: {
+				$userReaction->setDisliked( ! $userReaction->isDisliked() );
+				$changedValues['dislike'] = $userReaction->isdisliked() ? + 1 : - 1;
+				$comment->changeDislikes( $changedValues['dislike'] );
+
+				// if just disliked - remove like
+				if ( $userReaction->isDisliked() && $userReaction->isLiked() ) {
+					$changedValues['like'] = - 1;
+					$userReaction->setLiked( false );
+					$comment->changeLikes( $changedValues['like'] );
+				}
+				break;
+			}
+			case self::COMMENT_REACTION_WHINE: {
+				$userReaction->setWhined( ! $userReaction->isWhined() );
+				$changedValues['report'] = $userReaction->isWhined() ? + 1 : - 1;
+				$comment->changeReports( $changedValues['report'] );
+				break;
+			}
 		}
-		$nm->persist( $comment );
-		$nm->persist( $user );
 		$nm->flush();
 
-		return new JsonResponse( [
-			'status'  => 'updated',
-			'message' => 'Thank you for your submission',
+		$response->setData( [
+			'status'        => 'updated',
+			'action'        => $action,
+			'events'        => $changedValues,
+			'updatedValues' => [
+				'likes'    => $comment->getLikes(),
+				'dislikes' => $comment->getDislikes(),
+				'reports'  => $comment->getReports()
+			],
 		] );
+
+		return $response;
 	}
 
 }

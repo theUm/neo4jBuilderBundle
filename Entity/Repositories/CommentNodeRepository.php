@@ -53,8 +53,8 @@ class CommentNodeRepository extends BaseRepository {
 		$query = $this->entityManager->createQuery(
 			'MATCH (refCom:Comment)-[:is_comment_of]->(o) WHERE id(refCom) = {refComId}
 			 MATCH (refCom)-[:is_child_of]->(parentCom:Comment)<-[:is_child_of]-(sibling:Comment)-[:commented]->(user:User)
-			    AND ( comment.reports < 5  OR comment.reports is null)  
 			    WHERE sibling.createdAt < refCom.createdAt AND sibling.refType = refCom.refType
+			    AND ( sibling.reports < 5  OR sibling.reports is null)
 		     RETURN collect({comment:sibling, user:user}) as comments LIMIT 10' );
 		$query->setParameter( 'refComId', intval( $refComId ) );
 		$query->addEntityMapping( 'comment', CommentNode::class );
@@ -78,7 +78,8 @@ class CommentNodeRepository extends BaseRepository {
 		$query = $this->entityManager->createQuery( '
 		MATCH (refCom:Comment)-[:is_comment_of]-(o) WHERE id(refCom) = {refCom}
 		MATCH (o)<-[:is_comment_of]-(comment:Comment)-[]->(user:User) 
-			WHERE comment.level=0 AND comment.refType = refCom.refType AND refCom.createdAt > comment.createdAt AND ( comment.reports < 5  OR comment.reports is null)
+			WHERE comment.level=0 AND comment.refType = refCom.refType AND refCom.createdAt > comment.createdAt
+			AND ( comment.reports < 5  OR comment.reports is null)
 			WITH comment, user ORDER BY comment.createdAt DESC limit 10
 		OPTIONAL MATCH (comment)<-[:is_child_of]-(child:Comment)-->(childUser:User)
             WITH comment, user, child, childUser ORDER BY child.createdAt DESC limit 100

@@ -30,16 +30,16 @@ class CommentSaver {
 	}
 
 	public function bindForm( FormInterface $form ) {
-		switch ( $form->get( 'refType' )->getData() ) {
-			case CommentNode::REF_TYPE_OBJECT: {
+		switch ( $form->get( 'relationType' )->getData() ) {
+			case CommentNode::RELATION_TYPE_OBJECT: {
 				$this->validator = new ObjectCommentProcessor();
 				break;
 			}
-			case CommentNode::REF_TYPE_USER: {
+			case CommentNode::RELATION_TYPE_USER: {
 				$this->validator = new UserCommentProcessor();
 				break;
 			}
-			case CommentNode::REF_TYPE_TYPE: {
+			case CommentNode::RELATION_TYPE_TYPE: {
 				$this->validator = new TypeCommentProcessor();
 				break;
 			}

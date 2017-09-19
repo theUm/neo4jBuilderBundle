@@ -34,9 +34,10 @@ class CommentsController extends BaseController {
 		$nm   = $this->get( 'neo.app.manager' );
 		$user = $this->getUser();
 
-		$comment     = new CommentNode();
-		$formBuilder = $this->get( 'form.factory' )->createNamedBuilder( 'comment_form', CommentNodeType::class, $comment );
-		$form        = $formBuilder->add( 'submit_button', SubmitType::class, [ 'label' => 'Создать объект' ] )->getForm();
+		$comment            = new CommentNode();
+		$formBuilder        = $this->get( 'form.factory' )->createNamedBuilder( 'comment_form', CommentNodeType::class, $comment );
+		$form               = $formBuilder->add( 'submit_button', SubmitType::class, [ 'label' => 'Создать объект' ] )->getForm();
+		$emptyUserReactions = [ 'liked' => [], 'disliked' => [], 'reported' => [] ];
 
 		$form->handleRequest( $request );
 
@@ -57,7 +58,10 @@ class CommentsController extends BaseController {
 			// in case if ajax: if valid - return single comment template, else return json with error
 			if ( $request->isXmlHttpRequest() ) {
 				if ( $form->isValid() ) {
-					return $this->render( 'BuilderBundle:Comments:single.comment.html.twig', [ 'pair'=>['comment' => $comment, 'user' => $user] ] );
+					return $this->render( 'BuilderBundle:Comments:single.comment.html.twig', [
+						'pair'          => [ 'comment' => $comment, 'user' => $user ],
+						'userReactions' => $emptyUserReactions
+					] );
 				} else {
 					return new JsonResponse( [
 						'status'  => 'failure',
@@ -68,7 +72,10 @@ class CommentsController extends BaseController {
 			}
 		}
 
-		return $this->render( 'default/empty.form.html.twig', [ 'form' => $form->createView() ] );
+		return $this->render( 'default/empty.form.html.twig', [
+			'form'          => $form->createView(),
+			'userReactions' => $emptyUserReactions
+		] );
 	}
 
 	/**

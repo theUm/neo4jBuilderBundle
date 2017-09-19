@@ -17,9 +17,9 @@ class CommentNode {
 	const CAT_MISTAKE = 'cat_mistake';
 	const CAT_SUGGEST = 'cat_suggest';
 
-	const REF_TYPE_USER = 'ref_user';
-	const REF_TYPE_OBJECT = 'ref_object';
-	const REF_TYPE_TYPE = 'ref_type';
+	const RELATION_TYPE_USER = 'ref_user';
+	const RELATION_TYPE_OBJECT = 'ref_object';
+	const RELATION_TYPE_TYPE = 'ref_type';
 
 	/**
 	 * @OGM\GraphId()
@@ -44,13 +44,13 @@ class CommentNode {
 	 * @OGM\Property(type="string")
 	 * @var string
 	 */
-	protected $category = self::CAT_COMMENT;
+	protected $refType = self::CAT_COMMENT;
 
 	/**
 	 * @OGM\Property(type="string")
 	 * @var string
 	 */
-	protected $refType = self::REF_TYPE_OBJECT;
+	protected $relationType = self::RELATION_TYPE_OBJECT;
 
 	/**
 	 * @OGM\Property(type="int")
@@ -171,23 +171,6 @@ class CommentNode {
 	public function setCreatedAt( \DateTime $createdAt ): CommentNode {
 		$this->createdAt = $createdAt;
 
-		return $this;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getCategory(): string {
-		return $this->category;
-	}
-
-	/**
-	 * @param string $category
-	 *
-	 * @return CommentNode
-	 */
-	public function setCategory( string $category ): CommentNode {
-		$this->category = $category;
 		return $this;
 	}
 
@@ -458,6 +441,20 @@ class CommentNode {
 		}
 
 		return null;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getRelationType(): ?string {
+		return $this->relationType;
+	}
+
+	/**
+	 * @param string $relationType
+	 */
+	public function setRelationType( string $relationType ) {
+		$this->relationType = $relationType;
 	}
 
 }

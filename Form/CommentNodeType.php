@@ -23,7 +23,7 @@ class CommentNodeType extends AbstractType {
 				'required'   => true,
 				'empty_data' => null
 			] )
-			->add( 'category', ChoiceType::class, [
+			->add( 'refType', ChoiceType::class, [
 				'label'      => 'Категория',
 				'choices'    => [
 					CommentNode::CAT_COMMENT => CommentNode::CAT_COMMENT,
@@ -33,8 +33,9 @@ class CommentNodeType extends AbstractType {
 				'required'   => true,
 				'empty_data' => CommentNode::CAT_COMMENT,
 			] )
-			->add( 'refType', HiddenType::class, [
-				'disabled' => true
+			->add( 'relationType', HiddenType::class, [
+				'required'   => true,
+				'empty_data' => CommentNode::RELATION_TYPE_OBJECT,
 			] )
 			->add( 'refId', HiddenType::class, [
 				'mapped' => false,

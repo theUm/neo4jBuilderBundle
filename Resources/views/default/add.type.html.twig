@@ -54,7 +54,6 @@
                                             {% set node = child %}
                                             {{ block('node_buttons') }}
                                             <div class=" ui dividing sub header">{{ child.name }}</div>
-                                            {#{{ self.recursiveCategory(child) }}#}
                                         </div>
                                     </div>
                                 </div>
@@ -74,13 +73,10 @@
                         {% for child in rootChilds %}
                             {% if child.id not in renderdedChilds %}
                                 <div class="item">
-                                    {#<i class="minus icon"></i>#}
                                     <div class="fullwidth root-types content">
                                         <div>
                                             {% set node = child %}
-                                            {#{{ block('node_buttons') }}#}
                                             <div class="small ui dividing header">{{ child.name }}</div>
-                                            {#{{ self.recursiveCategory(child) }}#}
                                         </div>
                                     </div>
                                 </div>

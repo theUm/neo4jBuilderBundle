@@ -16,7 +16,7 @@ class ObjectCommentProcessor extends AbstractCommentProcessor {
 		$objectNode = $this->nm->getRepository( ObjectNode::class )->find( $this->getRefId() );
 
 		if ( is_null( $objectNode ) ) {
-			throw new EntityNotFoundException( 'Object with id "' . $this->getRefId() . ' not found"', 404 );
+			throw new EntityNotFoundException( 'Object with id "' . $this->getRefId() . '" not found', 404 );
 		}
 
 		$this->comment->setObject( $objectNode );

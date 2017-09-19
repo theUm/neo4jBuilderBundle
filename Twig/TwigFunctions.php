@@ -234,8 +234,8 @@ class TwigFunctions extends \Twig_Extension {
 	 */
 	public function createCommentForm( string $refType, string $refObjectId ) {
 		$comment     = new CommentNode();
+		$comment->setRefType( $refType );
 		$formBuilder = $this->formFactory->createNamedBuilder( 'comment_form', CommentNodeType::class, $comment );
-		$formBuilder->get( 'refType' )->setData( $refType );
 		$formBuilder->get( 'refId' )->setData( $refObjectId );
 		/** @var Form $form */
 		$form = $formBuilder->add( 'submit_button', SubmitType::class, [ 'label' => '<i class="icon edit"></i>Комментировать' ] )->getForm();

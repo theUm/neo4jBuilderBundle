@@ -3,7 +3,6 @@
 namespace Nodeart\BuilderBundle\Controller;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use GraphAware\Neo4j\OGM\EntityManager;
 use Nodeart\BuilderBundle\Entity\FieldValueNode;
 use Nodeart\BuilderBundle\Entity\ObjectNode;
 use Nodeart\BuilderBundle\Entity\Repositories\FieldValueNodeRepository;
@@ -73,7 +72,6 @@ class DefaultController extends Controller {
 	 * @return \Symfony\Component\HttpFoundation\Response
 	 */
 	public function deleteFVFileAction( int $id ) {
-		/** @var EntityManager $nm */
 		$nm = $this->get( 'neo.app.manager' );
 		/** @var FieldValueNodeRepository $fvRepository */
 		$fvRepository = $nm->getRepository( FieldValueNode::class );
@@ -99,7 +97,6 @@ class DefaultController extends Controller {
 	 * @return \Symfony\Component\HttpFoundation\Response
 	 */
 	public function unlinkFiedlValueAction( int $id, int $objectId ) {
-		/** @var EntityManager $nm */
 		$nm = $this->get( 'neo.app.manager' );
 		/** @var FieldValueNodeRepository $fvRepository */
 		$fvRepository = $nm->getRepository( FieldValueNode::class );
@@ -140,7 +137,6 @@ class DefaultController extends Controller {
 	 * @return \Symfony\Component\HttpFoundation\Response
 	 */
 	public function linkReplaceFieldValuesAction( string $ids, int $objectId, int $typeId = null ) {
-		/** @var EntityManager $nm */
 		$nm = $this->get( 'neo.app.manager' );
 		/** @var FieldValueNodeRepository $fvRepository */
 		$fvRepository = $nm->getRepository( FieldValueNode::class );

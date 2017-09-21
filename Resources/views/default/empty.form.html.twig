@@ -1,0 +1,7 @@
+{% extends '::base.front.html.twig' %}
+{% use '@Front/Structure/atoms.html.twig' %}
+{% block main_content %}
+    {% if form is defined -%}
+        {{ form( form ) }}
+    {%- endif -%}
+{% endblock %}

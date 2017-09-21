@@ -43,7 +43,6 @@ class SearchService {
 				$foundData[] = [
 					'name'  => $record->get( 'name' ),
 					'value' => ( empty( $parentAttrValue ) ) ? $record->get( 'id' ) : $record->get( 'name' ),
-//                    'text' => $record->get('name')
 				];
 			}
 

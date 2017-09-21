@@ -3,7 +3,6 @@
 namespace Nodeart\BuilderBundle\Controller;
 
 use FrontBundle\Controller\Base\BaseController;
-use GraphAware\Neo4j\OGM\EntityManager;
 use Nodeart\BuilderBundle\Entity\CommentNode;
 use Nodeart\BuilderBundle\Entity\Repositories\CommentNodeRepository;
 use Nodeart\BuilderBundle\Entity\UserCommentReaction;
@@ -23,6 +22,9 @@ class CommentsController extends BaseController {
 	const COMMENT_REACTION_DOWNDOOD = '-';
 	const COMMENT_REACTION_WHINE = 'boo';
 
+	const EMPTY_USER_REACTIONS = [ 'liked' => [], 'disliked' => [], 'reported' => [] ];
+
+	//	frond part below
 	/**
 	 * @Route("/comments/add", name="comments_add")
 	 * @param Request $request
@@ -37,8 +39,6 @@ class CommentsController extends BaseController {
 		$comment            = new CommentNode();
 		$formBuilder        = $this->get( 'form.factory' )->createNamedBuilder( 'comment_form', CommentNodeType::class, $comment );
 		$form               = $formBuilder->add( 'submit_button', SubmitType::class, [ 'label' => 'Создать объект' ] )->getForm();
-		$emptyUserReactions = [ 'liked' => [], 'disliked' => [], 'reported' => [] ];
-
 		$form->handleRequest( $request );
 
 		if ( $form->isSubmitted() ) {
@@ -60,7 +60,7 @@ class CommentsController extends BaseController {
 				if ( $form->isValid() ) {
 					return $this->render( 'BuilderBundle:Comments:single.comment.html.twig', [
 						'pair'          => [ 'comment' => $comment, 'user' => $user ],
-						'userReactions' => $emptyUserReactions
+						'userReactions' => self::EMPTY_USER_REACTIONS
 					] );
 				} else {
 					return new JsonResponse( [
@@ -74,7 +74,7 @@ class CommentsController extends BaseController {
 
 		return $this->render( 'default/empty.form.html.twig', [
 			'form'          => $form->createView(),
-			'userReactions' => $emptyUserReactions
+			'userReactions' => self::EMPTY_USER_REACTIONS
 		] );
 	}
 
@@ -88,8 +88,6 @@ class CommentsController extends BaseController {
 	 * @return \Symfony\Component\HttpFoundation\Response
 	 */
 	public function listPagedCommentsAction( int $oId, string $type, int $page, int $perPage = 10 ) {
-
-		/** @var EntityManager $nm */
 		$nm = $this->get( 'neo.app.manager' );
 
 		/** @var Pager $pager */
@@ -101,7 +99,7 @@ class CommentsController extends BaseController {
 
 		$pager->createQueries( $pagerQueries );
 
-		$userReactions = [];
+		$userReactions = self::EMPTY_USER_REACTIONS;
 		if ( $user = $this->getUser() ) {
 			/** @var CommentNodeRepository $repo */
 			$repo          = $nm->getRepository( CommentNode::class );
@@ -132,7 +130,6 @@ class CommentsController extends BaseController {
 	 * @return Response
 	 */
 	public function loadMoreChildCommentsAction( int $fromId, int $oId ) {
-		/** @var EntityManager $nm */
 		$nm = $this->get( 'neo.app.manager' );
 		/** @var CommentNodeRepository $repo */
 		$repo = $nm->getRepository( CommentNode::class );
@@ -145,7 +142,7 @@ class CommentsController extends BaseController {
 			], Response::HTTP_NOT_FOUND );
 		}
 
-		$userReactions = [];
+		$userReactions = self::EMPTY_USER_REACTIONS;
 		if ( $user = $this->getUser() ) {
 			/** @var CommentNodeRepository $repo */
 			$repo          = $nm->getRepository( CommentNode::class );
@@ -188,7 +185,6 @@ class CommentsController extends BaseController {
 			return $response;
 		}
 
-		/** @var EntityManager $nm */
 		$nm = $this->get( 'neo.app.manager' );
 		/** @var CommentNodeRepository $repo */
 		$repo = $nm->getRepository( CommentNode::class );

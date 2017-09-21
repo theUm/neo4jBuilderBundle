@@ -5,6 +5,7 @@ services:
              - { name: 'twig.extension' }
 
     neo.app.manager:
+        class: GraphAware\Neo4j\OGM\EntityManager
         alias: neo4j.entity_manager.default
 
     add.field.form.type:

@@ -198,6 +198,94 @@ class ObjectNodeRepository extends BaseRepository {
 		return $entityTypeFieldsQuery->execute();
 	}
 
+
+	/**
+	 * @param ObjectNode $object
+	 * @param int $limit
+	 * @param int $skip
+	 *
+	 * @return array
+	 */
+	public function findObjectSiblingsWithFields( ObjectNode $object, int $limit = 10, int $skip = 0 ) {
+		$siblingsQuery = $this->entityManager->createQuery(
+			'MATCH (etf:EntityTypeField)--(type:EntityType)<-[:has_type]-(o:Object)
+        	        WHERE id(o) <> {oId} AND type.slug = {slug}
+        	    OPTIONAL MATCH (o)<-[rel:is_field_of]-(fv:FieldValue)-[:is_value_of]->(etf)
+        	    OPTIONAL MATCH (childEtf:EntityTypeField)-[:has_field]->(childEt:EntityType)<-[:has_type]-(childO:Object)
+		            WITH etf, o, collect(fv) as val ORDER BY o.createdAt
+		            RETURN o as object, collect({etfSlug:etf.slug, valsByFields:{fieldType:etf, val:val}}) as objectFields SKIP {skip} LIMIT {limit}'
+		);
+		$siblingsQuery->addEntityMapping( 'object', ObjectNode::class );
+		$siblingsQuery->addEntityMapping( 'fieldType', TypeFieldNode::class );
+		$siblingsQuery->addEntityMapping( 'val', FieldValueNode::class, Query::HYDRATE_COLLECTION );
+		$siblingsQuery->addEntityMapping( 'valsByFields', null, Query::HYDRATE_MAP );
+		$siblingsQuery->addEntityMapping( 'objectFields', null, Query::HYDRATE_MAP_COLLECTION );
+		$siblingsQuery->addEntityMapping( 'objects', null, Query::HYDRATE_MAP_COLLECTION );
+
+		$siblingsQuery->setParameter( 'slug', $object->getEntityType()->getSlug() );
+		$siblingsQuery->setParameter( 'oId', $object->getId() );
+		$siblingsQuery->setParameter( 'limit', $limit );
+		$siblingsQuery->setParameter( 'skip', $skip );
+
+		return $siblingsQuery->execute();
+	}
+
+	/**
+	 * Fetches slice of DB - all or provided child Objects, fields, field values, grouped by EntityType and other nested groups
+	 * I`m so so so sorry
+	 *
+	 * @param string $parentTypeSlug
+	 * @param string $parentSlug
+	 * @param array $childTypeSlugs
+	 * @param int $limit
+	 * @param int $skip
+	 * @param string $isDataType
+	 *
+	 * @return array
+	 */
+	public function findMultipleChildObjectsByParent( string $parentTypeSlug, string $parentSlug, array $childTypeSlugs = [], int $limit = 10, int $skip = 0, $isDataType = 'both' ) {
+		$isDataTypePart        = ( $isDataType == 'both' ) ? '' : ( 'AND type.isDataType = ' . ( $isDataType ) ? 'true' : 'false' );
+		$childTypeSlugsPart    = ( empty( $childTypeSlugs ) ) ? '' : 'AND type.slug in {tSlug}';
+		$entityTypeFieldsQuery = $this->entityManager->createQuery(
+			'MATCH (etf:EntityTypeField)--(type:EntityType)<-[:has_type]-(o:Object)-[:is_child_of]->(parent:Object)-[:has_type]->(parentType:EntityType)
+        	        WHERE parentType.slug = {ptSlug} AND parent.slug = {pSlug} ' . $isDataTypePart . ' ' . $childTypeSlugsPart . ' 
+        	    OPTIONAL MATCH (o)<-[rel:is_field_of]-(fv:FieldValue)-[:is_value_of]->(etf)
+		            WITH type, rel, etf, o, collect(fv) as val ORDER BY etf.order, rel.order
+		            WITH type, {object:o, objectFields:collect({etfSlug:etf.slug, valsByFields:{fieldType:etf, val:val}})} as fieldsByObject
+	            RETURN type.slug as slug, type, collect(fieldsByObject) as objects'
+		);
+
+		$entityTypeFieldsQuery->addEntityMapping( 'type', EntityTypeNode::class );
+		$entityTypeFieldsQuery->addEntityMapping( 'object', ObjectNode::class );
+		$entityTypeFieldsQuery->addEntityMapping( 'fieldType', TypeFieldNode::class );
+		$entityTypeFieldsQuery->addEntityMapping( 'val', FieldValueNode::class, Query::HYDRATE_COLLECTION );
+		$entityTypeFieldsQuery->addEntityMapping( 'valsByFields', null, Query::HYDRATE_MAP );
+		$entityTypeFieldsQuery->addEntityMapping( 'objectFields', null, Query::HYDRATE_MAP_COLLECTION );
+		$entityTypeFieldsQuery->addEntityMapping( 'objects', null, Query::HYDRATE_MAP_COLLECTION );
+
+		$entityTypeFieldsQuery->setParameter( 'ptSlug', $parentTypeSlug );
+		$entityTypeFieldsQuery->setParameter( 'pSlug', $parentSlug );
+		$entityTypeFieldsQuery->setParameter( 'tSlug', $childTypeSlugs );
+		$entityTypeFieldsQuery->setParameter( 'limit', $limit );
+		$entityTypeFieldsQuery->setParameter( 'skip', $skip );
+		$result = $entityTypeFieldsQuery->execute();
+
+		$restructuredArray = [];
+		foreach ( $result as $entityTypeStruct ) {
+			$restructuredArray[ $entityTypeStruct['slug'] ] = [ 'type' => $entityTypeStruct['type'], 'objects' => [] ];
+			foreach ( $entityTypeStruct['objects'] as $objectArray ) {
+				$restructuredArray[ $entityTypeStruct['slug'] ]['objects'][ $objectArray['object']->getId() ] = [ 'object'       => $objectArray['object'],
+				                                                                                                  'objectFields' => []
+				];
+				foreach ( $objectArray['objectFields'] as $fieldArray ) {
+					$restructuredArray[ $entityTypeStruct['slug'] ]['objects'][ $objectArray['object']->getId() ]['objectFields'][ $fieldArray['etfSlug'] ] = $fieldArray['valsByFields'];
+				}
+			}
+		}
+
+		return $restructuredArray;
+	}
+
 	/**
 	 * Searches Objects by type+fieldType+value
 	 *
@@ -329,6 +417,28 @@ class ObjectNodeRepository extends BaseRepository {
             RETURN pet LIMIT 1'
 		);
 		$query->addEntityMapping( 'pet', TypeFieldNode::class );
+		$query->setParameter( 'oId', $objectNode->getId() );
+		$query->setParameter( 'slug', $slug );
+		$result = $query->getOneOrNullResult();
+
+		return ( $result ) ? $result[0] : $result;
+	}
+
+	/**
+	 * Seeks specific object`s parent type by slug
+	 *
+	 * @param ObjectNode $objectNode
+	 * @param string $slug
+	 *
+	 * @return array|mixed
+	 */
+	public function getParentObjectByTypeSlug( ObjectNode $objectNode, $slug ) {
+		$query = $this->entityManager->createQuery(
+			'MATCH (pobj:Object)-[:has_type]-(pet:EntityType)<-[:is_child_of]-(et:EntityType)<-[:has_type]-(o:Object)
+            WHERE id(o) = {oId} AND pet.slug = {slug} AND (pobj)-[:is_child_of]-(o)
+            RETURN pobj LIMIT 1'
+		);
+		$query->addEntityMapping( 'pobj', ObjectNode::class );
 		$query->setParameter( 'oId', $objectNode->getId() );
 		$query->setParameter( 'slug', $slug );
 		$result = $query->getOneOrNullResult();

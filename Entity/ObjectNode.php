@@ -44,6 +44,13 @@ class ObjectNode {
 	protected $twigFilePath = null;
 
 	/**
+	 * @var \DateTime
+	 * @OGM\Property()
+	 * @OGM\Convert(type="datetime")
+	 */
+	protected $createdAt;
+
+	/**
 	 * @OGM\Relationship(type="has_type", direction="OUTGOING", targetEntity="EntityTypeNode", collection=false)
 	 * @var EntityTypeNode
 	 */
@@ -88,7 +95,8 @@ class ObjectNode {
 		$this->childObjects  = new ArrayCollection();
 		$this->parentObjects = new ArrayCollection();
 		$this->fieldVals     = new ArrayCollection();
-		$this->comments     = new ArrayCollection();
+		$this->comments      = new ArrayCollection();
+		$this->createdAt     = new \DateTime();
 	}
 
 	/**
@@ -197,13 +205,33 @@ class ObjectNode {
 			'name'         => $this->getName(),
 			'slug'         => $this->getSlug(),
 			'description'  => $this->getDescription(),
-			'twigFilePath' => $this->getTwigFilePath()
+			'twigFilePath' => $this->getTwigFilePath(),
+			'createdAt'    => $this->getCreatedAt()->getTimestamp()
 		];
 		if ( ! $withoutId ) {
 			$fieldsArray['id'] = $this->getId();
 		}
 
 		return $fieldsArray;
+	}
+
+
+	/**
+	 * @return \DateTime
+	 */
+	public function getCreatedAt(): ?\DateTime {
+		return $this->createdAt;
+	}
+
+	/**
+	 * @param \DateTime $createdAt
+	 *
+	 * @return ObjectNode
+	 */
+	public function setCreatedAt( \DateTime $createdAt ): ObjectNode {
+		$this->createdAt = $createdAt;
+
+		return $this;
 	}
 
 	/**

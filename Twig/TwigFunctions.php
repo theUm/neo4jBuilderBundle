@@ -30,6 +30,11 @@ class TwigFunctions extends \Twig_Extension {
 
 
 	private $objectsCache = [];
+	/**
+	 * First level of array ([objId]): result of getObjectSiblings(), second level in array ([objId]['childDataObjects']) is child data objects
+	 * @var array
+	 */
+	private $siblingsCache = [];
 
 	public function __construct( EntityManager $nm, CacheManager $liipImagineCacheManager, Packages $package, FormFactory $formFactory ) {
 		$this->nm          = $nm;
@@ -52,11 +57,18 @@ class TwigFunctions extends \Twig_Extension {
 			new \Twig_SimpleFunction( 'getFieldsBySlugs', [ $this, 'getFieldsBySlugs' ] ),
 
 			// gets object`s child objects list of specific EntityType
+			new \Twig_SimpleFunction( 'getMultipleChildObjectsByParent', [ $this, 'getMultipleChildObjectsByParent' ] ),
+			// gets object`s siblings (same EntityType)
+			new \Twig_SimpleFunction( 'getObjectSiblings', [ $this, 'getObjectSiblings' ] ),
+
+			// gets object`s child objects list of specific EntityType
 			new \Twig_SimpleFunction( 'getChildObjectsByType', [ $this, 'getChildObjectsByType' ] ),
 			// gets object`s child objects AND their FIELDS & VALUES of single specific EntityType
 			new \Twig_SimpleFunction( 'getChildObjectsValsByParent', [ $this, 'getChildObjectsValsByParent' ] ),
 			// gets specific parent type by slug
 			new \Twig_SimpleFunction( 'getParentTypeBySlug', [ $this, 'getParentTypeBySlug' ] ),
+			// gets specific parent object type by type slug. returns object or null
+			new \Twig_SimpleFunction( 'getParentObjectByTypeSlug', [ $this, 'getParentObjectByTypeSlug' ] ),
 
 			// shorthand to get webpath && thumbnail fieldValue. analog of {{ asset(getField(object, 'FIELD_NAME').webPath)|imagine_filter('FILTER_NAME') }}
 			new \Twig_SimpleFunction( 'getFieldThumbs', [ $this, 'getFieldThumbs' ] ),
@@ -153,7 +165,10 @@ class TwigFunctions extends \Twig_Extension {
 		return $val ?? new FieldValueNode();
 	}
 
-	public function getSingleFieldThumb( FieldValueNode $val, string $thumbFilterName ) {
+	public function getSingleFieldThumb( $val, string $thumbFilterName ) {
+		if ( empty( $val ) ) {
+			return '';
+		}
 		//if this is image && webpath is not empty - get thumbnail
 		if ( ( 0 === strpos( $val->getMimeType(), 'image/' ) ) && ! empty( $val->getWebPath() ) ) {
 			return $this->getAssetThumbnail( $val->getWebPath(), $thumbFilterName );
@@ -198,6 +213,48 @@ class TwigFunctions extends \Twig_Extension {
 	 * Bridge through ObjectRepository method and twig
 	 *
 	 * @param ObjectNode $objectNode
+	 * @param array $childSlugs
+	 * @param int $limit
+	 * @param int $skip
+	 *
+	 * @return array
+	 */
+	public function getMultipleChildObjectsByParent( $objectNode, array $childSlugs = [], int $limit = 10, int $skip = 0 ) {
+		if ( ! isset( $this->objectsCache[ $objectNode->getId() ]['childDataObjects'] ) ) {
+			$childObjectsStruct = $this->oRepository->findMultipleChildObjectsByParent( $objectNode->getEntityType()->getSlug(), $objectNode->getSlug(), $childSlugs, $limit, $skip );
+		} else {
+			$childObjectsStruct = $this->objectsCache[ $objectNode->getId() ]['childDataObjects'];
+		}
+
+		return $childObjectsStruct;
+	}
+
+	/**
+	 * Find object siblings with fields struct
+	 *
+	 * @param ObjectNode $objectNode
+	 * @param int $limit
+	 * @param int $skip
+	 *
+	 * @return array
+	 */
+	public function getObjectSiblings( $objectNode, int $limit = 5, int $skip = 0 ) {
+		if ( ! isset( $this->siblingsCache[ $objectNode->getId() ] ) ) {
+			$siblings = $this->oRepository->findObjectSiblingsWithFields( $objectNode, $limit, $skip );
+			foreach ( $siblings as $sibling ) {
+				$this->siblingsCache[ $objectNode->getId() ] = $sibling;
+			}
+		} else {
+			$siblings = $this->siblingsCache[ $objectNode->getId() ];
+		}
+
+		return $siblings;
+	}
+
+	/**
+	 * Bridge through ObjectRepository method and twig
+	 *
+	 * @param ObjectNode $objectNode
 	 * @param EntityTypeNode $childType
 	 * @param int $limit
 	 * @param int $skip
@@ -210,6 +267,10 @@ class TwigFunctions extends \Twig_Extension {
 
 	public function getParentTypeBySlug( $objectNode, $parentTypeSlug ) {
 		return $this->oRepository->getParentTypeBySlug( $objectNode, $parentTypeSlug );
+	}
+
+	public function getParentObjectByTypeSlug( $objectNode, $parentTypeSlug ) {
+		return $this->oRepository->getParentObjectByTypeSlug( $objectNode, $parentTypeSlug );
 	}
 
 	/**

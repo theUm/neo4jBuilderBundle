@@ -20,6 +20,9 @@ use FOS\UserBundle\Util\PasswordUpdaterInterface;
 use Nodeart\BuilderBundle\Entity\UserNode;
 
 class OGMUserManager extends BaseUserManager {
+	const DO_NOT_REFRESH = false;
+	const DO_REFRESH = true;
+
 	/**
 	 * @var ObjectManager
 	 */
@@ -58,7 +61,7 @@ class OGMUserManager extends BaseUserManager {
 	 * @todo: so I`m casting proxy entity onto UserNode entity
 	 * {@inheritdoc}
 	 */
-	public function findUserBy( array $criteria ) {
+	public function findUserBy( array $criteria, $cast = true ) {
 		if ( key( $criteria ) === 'id' ) {
 			/** @var UserNode $res */
 			$res = $this->getRepository()->find( $criteria['id'] );
@@ -66,10 +69,12 @@ class OGMUserManager extends BaseUserManager {
 			/** @var UserNode $res */
 			$res = $this->getRepository()->findOneBy( $criteria );
 		}
-		$res = serialize( $res );
-		$res = str_replace( 'C:53:"neo4j_ogm_proxy_Nodeart_BuilderBundle_Entity_UserNode"', 'C:37:"Nodeart\BuilderBundle\Entity\UserNode"', $res );
-		$res = unserialize( $res );
 
+		if ( $cast ) {
+			$res = serialize( $res );
+			$res = str_replace( 'C:53:"neo4j_ogm_proxy_Nodeart_BuilderBundle_Entity_UserNode"', 'C:37:"Nodeart\BuilderBundle\Entity\UserNode"', $res );
+			$res = unserialize( $res );
+		}
 		return $res;
 	}
 
@@ -107,13 +112,22 @@ class OGMUserManager extends BaseUserManager {
 	}
 
 	/**
+	 * @param $user UserInterface|null
+	 *
+	 * @return null|object
+	 */
+	public function reFetchUser( $user ) {
+		return ( is_null( $user ) ) ? null : $this->getRepository()->find( $user->getId() );
+	}
+
+	/**
 	 * {@inheritdoc}
 	 */
-	public function updateUser( UserInterface $user, $andFlush = true ) {
+	public function updateUser( UserInterface $user, $andFlush = true, $refreshUser = self::DO_REFRESH ) {
+
 		//reload user from DB due to $this->findUserBy() serialization work mechanics
-		if ( ! is_null( $user->getId() ) ) {
-			/** @var UserNode $user */
-			$user = $this->getRepository()->findOneBy( [ 'email' => $user->getEmail() ] );
+		if ( ! is_null( $user->getId() ) && $refreshUser ) {
+			$user = $this->reFetchUser( $user );
 		}
 
 		$this->updateCanonicalFields( $user );

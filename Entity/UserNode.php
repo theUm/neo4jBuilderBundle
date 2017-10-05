@@ -9,7 +9,7 @@ use GraphAware\Neo4j\OGM\Common\Collection;
 /**
  * @OGM\Node(label="User", repository="Nodeart\BuilderBundle\Entity\Repositories\UserNodeRepository")
  */
-class UserNode extends User {
+class UserNode extends User implements \Serializable {
 	const ROLE_USER = 'ROLE_USER';
 	const ROLE_ADMIN = 'ROLE_ADMIN';
 	const ROLE_CONTENT_MANAGER = 'ROLE_CONTENT_MANAGER';
@@ -123,6 +123,39 @@ class UserNode extends User {
 	protected $groups = [ 'DEFAULT_GROUP' ];
 
 	/**
+	 * @OGM\Property(key="google_id", type="string")
+	 * @var string
+	 */
+	protected $googleId;
+
+	/**
+	 * @OGM\Property(key="vk_id", type="string")
+	 * @var string
+	 */
+	protected $vkId;
+
+	/**
+	 * @OGM\Property(key="fb_id", type="string")
+	 * @var string
+	 */
+	protected $fbId;
+
+	/**
+	 * @var string
+	 */
+	protected $googleAccessToken;
+
+	/**
+	 * @var string
+	 */
+	protected $vkAccessToken;
+
+	/**
+	 * @var string
+	 */
+	protected $fbAccessToken;
+
+	/**
 	 * @OGM\Relationship(type="commented", direction="INCOMING", targetEntity="CommentNode", collection=true, mappedBy="author")
 	 * @var Collection|CommentNode[]
 	 */
@@ -199,7 +232,7 @@ class UserNode extends User {
 	/**
 	 * @return string
 	 */
-	public function getUsernameCanonical(): string {
+	public function getUsernameCanonical(): ?string {
 		return $this->usernameCanonical;
 	}
 
@@ -235,7 +268,7 @@ class UserNode extends User {
 	/**
 	 * @return string
 	 */
-	public function getEmailCanonical(): string {
+	public function getEmailCanonical(): ?string {
 		return $this->emailCanonical;
 	}
 
@@ -289,7 +322,7 @@ class UserNode extends User {
 	/**
 	 * @return string
 	 */
-	public function getPassword(): string {
+	public function getPassword(): ?string {
 		return $this->password;
 	}
 
@@ -408,7 +441,11 @@ class UserNode extends User {
 			$this->email,
 			$this->emailCanonical,
 			// notice roles. they also here
-			$this->roles
+			$this->roles,
+			//and social ids
+			$this->googleId,
+			$this->fbId,
+			$this->vkId
 		) );
 	}
 
@@ -417,17 +454,6 @@ class UserNode extends User {
 	 */
 	public function unserialize( $serialized ) {
 		$data = unserialize( $serialized );
-
-		if ( 13 === count( $data ) ) {
-			// Unserializing a User object from 1.3.x
-			unset( $data[4], $data[5], $data[6], $data[9], $data[10] );
-			$data = array_values( $data );
-		} elseif ( 11 === count( $data ) ) {
-			// Unserializing a User from a dev version somewhere between 2.0-alpha3 and 2.0-beta1
-			unset( $data[4], $data[7], $data[8] );
-			$data = array_values( $data );
-		}
-
 		list(
 			$this->password,
 			$this->salt,
@@ -438,7 +464,11 @@ class UserNode extends User {
 			$this->email,
 			$this->emailCanonical,
 			// notice roles. they also here
-			$this->roles
+			$this->roles,
+			//and social ids
+			$this->googleId,
+			$this->fbId,
+			$this->vkId
 			) = $data;
 	}
 
@@ -497,6 +527,103 @@ class UserNode extends User {
 	 */
 	public function getReactions() {
 		return $this->reactions;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getGoogleId(): ?string {
+		return $this->googleId;
+	}
+
+	/**
+	 * @param string $googleId
+	 */
+	public function setGoogleId( $googleId ) {
+		$this->googleId = $googleId;
+	}
+
+	/**
+	 * @param string $googleAccessToken
+	 *
+	 * @return User
+	 */
+	public function setGoogleAccessToken( $googleAccessToken ) {
+		$this->googleAccessToken = $googleAccessToken;
+
+		return $this;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getGoogleAccessToken() {
+		return $this->googleAccessToken;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getVkAccessToken(): ?string {
+		return $this->vkAccessToken;
+	}
+
+	/**
+	 * @param string $vkAccessToken
+	 */
+	public function setVkAccessToken( $vkAccessToken ) {
+		$this->vkAccessToken = $vkAccessToken;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getVkId(): ?string {
+		return $this->vkId;
+	}
+
+	/**
+	 * @param string $vkId
+	 */
+	public function setVkId( $vkId ) {
+		$this->vkId = $vkId;
+	}
+
+
+	/**
+	 * @return string
+	 */
+	public function getFbId(): ?string {
+		return $this->fbId;
+	}
+
+	/**
+	 * @param string $fbId
+	 *
+	 * @return UserNode
+	 */
+	public function setFbId( $fbId ): UserNode {
+		$this->fbId = $fbId;
+
+		return $this;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getFbAccessToken(): ?string {
+		return $this->fbAccessToken;
+	}
+
+	/**
+	 * @param string $fbAccessToken
+	 *
+	 * @return UserNode
+	 */
+	public function setFbAccessToken( $fbAccessToken ): UserNode {
+		$this->fbAccessToken = $fbAccessToken;
+
+		return $this;
 	}
 
 }

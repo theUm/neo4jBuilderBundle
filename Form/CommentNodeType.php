@@ -47,11 +47,11 @@ class CommentNodeType extends AbstractType {
 				'mapped'   => false,
 				'label'    => 'comment_subscribe',
 				'required' => false
-			] )
-			->add( 'legal', CheckboxType::class, [
-				'mapped' => false,
-				'label'  => 'comment_legal_info'
 			] );
+//			->add( 'legal', CheckboxType::class, [
+//				'mapped' => false,
+//				'label'  => 'comment_legal_info'
+//			] );
 	}
 
 	/**

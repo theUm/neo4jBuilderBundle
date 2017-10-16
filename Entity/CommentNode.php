@@ -21,6 +21,20 @@ class CommentNode {
 	const RELATION_TYPE_OBJECT = 'ref_object';
 	const RELATION_TYPE_TYPE = 'ref_type';
 
+	const STATUS_INITIAL = 0;
+	const STATUS_APPROVED = 1;
+	const STATUS_DISAPPROVED = 2;
+	const STATUS_SPAM = 3;
+	const STATUS_DELETED = 4;
+
+	const STATUSES = [
+		self::STATUS_INITIAL => 'initial',
+		self::STATUS_APPROVED => 'approved',
+		self::STATUS_DISAPPROVED => 'disapproved',
+		self::STATUS_SPAM => 'spam',
+		self::STATUS_DELETED => 'deleted',
+	];
+
 	/**
 	 * @OGM\GraphId()
 	 * @var int
@@ -36,7 +50,7 @@ class CommentNode {
 	/**
 	 * @var \DateTime
 	 * @OGM\Property()
-	 * @OGM\Convert(type="datetime")
+	 * @OGM\Convert(type="datetime", options={})
 	 */
 	protected $createdAt;
 
@@ -51,6 +65,13 @@ class CommentNode {
 	 * @var string
 	 */
 	protected $relationType = self::RELATION_TYPE_OBJECT;
+
+
+	/**
+	 * @OGM\Property(type="int")
+	 * @var int
+	 */
+	protected $status = self::STATUS_INITIAL;
 
 	/**
 	 * @OGM\Property(type="int")
@@ -455,6 +476,24 @@ class CommentNode {
 	 */
 	public function setRelationType( string $relationType ) {
 		$this->relationType = $relationType;
+	}
+
+	/**
+	 * @param int $status
+	 *
+	 * @return CommentNode
+	 */
+	public function setStatus( int $status ): CommentNode {
+		$this->status = $status;
+
+		return $this;
+	}
+
+	/**
+	 * @return int|null
+	 */
+	public function getStatus(): ?int {
+		return $this->status;
 	}
 
 }

@@ -46,7 +46,7 @@ trait FileFieldTrait {
 	 * @var \DateTime
 	 *
 	 * @OGM\Property()
-	 * @OGM\Convert(type="datetime")
+	 * @OGM\Convert(type="datetime", options={})
 	 */
 	protected $createdAt;
 

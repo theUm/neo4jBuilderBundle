@@ -42,6 +42,16 @@ class FieldValueNode {
 	protected $objects;
 
 	/**
+	 * copy of fileTrait`s "createdAt" field,
+	 * OGM\Convert does not work with traits at the moment
+	 * @var \DateTime
+	 *
+	 * @OGM\Property(nullable=true)
+	 * @OGM\Convert(type="datetime", options={})
+	 */
+	protected $createdAt;
+
+	/**
 	 * @return int
 	 */
 	public function getId() {

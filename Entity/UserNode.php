@@ -84,7 +84,7 @@ class UserNode extends User implements \Serializable {
 	/**
 	 * @var \DateTime
 	 * @OGM\Property()
-	 * @OGM\Convert(type="datetime")
+	 * @OGM\Convert(type="datetime", options={})
 	 */
 	protected $lastLogin;
 
@@ -99,7 +99,7 @@ class UserNode extends User implements \Serializable {
 	/**
 	 * @var \DateTime
 	 * @OGM\Property()
-	 * @OGM\Convert(type="datetime")
+	 * @OGM\Convert(type="datetime", options={})
 	 */
 	protected $passwordRequestedAt;
 

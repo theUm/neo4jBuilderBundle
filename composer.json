@@ -27,10 +27,6 @@
     {
       "type": "vcs",
       "url": "https://github.com/toooni/BreadcrumbsBundle"
-    },
-    {
-      "type": "vcs",
-      "url": "https://github.com/theUm/neo4j-php-ogm"
     }
   ],
   "require": {
@@ -46,8 +42,8 @@
     "sensio/framework-extra-bundle": "^3.0.2",
     "incenteev/composer-parameter-handler": "^2.0",
     "symfony/var-dumper": "^3.1",
-    "graphaware/neo4j-php-ogm": "dev-php7.1-quickfix",
-    "neo4j/neo4j-bundle": "^0.3.1",
+    "graphaware/neo4j-php-ogm": "@rc",
+    "neo4j/neo4j-bundle": "^0.3",
     "whiteoctober/breadcrumbs-bundle": "dev-jsonld",
     "liip/imagine-bundle": "^1.8",
     "friendsofsymfony/user-bundle": "^2.0"

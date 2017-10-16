@@ -47,7 +47,7 @@
     "incenteev/composer-parameter-handler": "^2.0",
     "symfony/var-dumper": "^3.1",
     "graphaware/neo4j-php-ogm": "dev-php7.1-quickfix",
-    "neo4j/neo4j-bundle": "dev-master",
+    "neo4j/neo4j-bundle": "^0.3.1",
     "whiteoctober/breadcrumbs-bundle": "dev-jsonld",
     "liip/imagine-bundle": "^1.8",
     "friendsofsymfony/user-bundle": "^2.0"

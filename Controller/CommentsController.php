@@ -6,6 +6,7 @@ use FrontBundle\Controller\Base\BaseController;
 use Nodeart\BuilderBundle\Entity\CommentNode;
 use Nodeart\BuilderBundle\Entity\Repositories\CommentNodeRepository;
 use Nodeart\BuilderBundle\Entity\UserCommentReaction;
+use Nodeart\BuilderBundle\Entity\UserNode;
 use Nodeart\BuilderBundle\Form\CommentNodeType;
 use Nodeart\BuilderBundle\Helpers\CommentSaver;
 use Nodeart\BuilderBundle\Services\Pager\Pager;
@@ -22,7 +23,7 @@ class CommentsController extends BaseController {
 	const COMMENT_REACTION_DOWNDOOD = '-';
 	const COMMENT_REACTION_WHINE = 'boo';
 
-	const EMPTY_USER_REACTIONS = [ 'liked' => [], 'disliked' => [], 'reported' => [] ];
+	const COMMENT_MAX_WHINES = 5;
 
 	//	frond part below
 	/**
@@ -50,6 +51,9 @@ class CommentsController extends BaseController {
 				     ->bindComment( $comment )
 				     ->processForm();
 
+				if ( $user->hasRole( UserNode::ROLE_ADMIN ) || $user->hasRole( UserNode::ROLE_CONTENT_MANAGER ) ) {
+					$comment->setStatus( CommentNode::STATUS_APPROVED );
+				}
 				$comment->setAuthor( $user );
 				$nm->persist( $comment );
 				$nm->flush();
@@ -95,7 +99,7 @@ class CommentsController extends BaseController {
 		$pager->setLimit( $perPage );
 
 		$pagerQueries = new CommentsQueries( $nm );
-		$pagerQueries->setParams( [ $oId, $type ] );
+		$pagerQueries->setParams( [ 'oId' => $oId, 'type' => $type ] );
 
 		$pager->createQueries( $pagerQueries );
 
@@ -241,6 +245,9 @@ class CommentsController extends BaseController {
 				$userReaction->setWhined( ! $userReaction->isWhined() );
 				$changedValues['report'] = $userReaction->isWhined() ? + 1 : - 1;
 				$comment->changeReports( $changedValues['report'] );
+				if ( $comment->getReports() > self::COMMENT_MAX_WHINES ) {
+					$comment->setStatus( CommentNode::STATUS_SPAM );
+				}
 				break;
 			}
 		}

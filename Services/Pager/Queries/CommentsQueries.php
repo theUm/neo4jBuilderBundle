@@ -34,16 +34,15 @@ class CommentsQueries implements QueriesInterface {
 	 * @var EntityManager
 	 */
 	private $entityManager;
+
 	private $params = [];
+	private $filters = [];
 
 	public function __construct( $nm ) {
 		$this->entityManager = $nm;
 	}
 
 	public function createCountQuery() {
-
-		$nodeId = $this->params[0];
-		$type   = $this->params[1];
 
 		$this->countQuery = $this->entityManager->createQuery(
 			'MATCH (o:Object)<-[:is_comment_of]-(comment:Comment) 
@@ -52,8 +51,8 @@ class CommentsQueries implements QueriesInterface {
              AND ( childComment.reports < 5  OR childComment.reports is null) 
 			 RETURN count(DISTINCT comment) as count, count(DISTINCT childComment) as childsCount'
 		);
-		$this->countQuery->setParameter( 'oID', intval( $nodeId ) );
-		$this->countQuery->setParameter( 'refType', $type );
+		$this->countQuery->setParameter( 'oID', intval( $this->getParam( 'oId' ) ) );
+		$this->countQuery->setParameter( 'refType', $this->getParam( 'type' ) );
 	}
 
 	public function getCountQuery(): Query {
@@ -70,10 +69,6 @@ class CommentsQueries implements QueriesInterface {
 	 * @param null $fromId
 	 */
 	public function createQuery( $limit, $skip, $fromId = null ) {
-
-		$nodeId = $this->params[0];
-		$type   = $this->params[1];
-
 		$this->query = $this->entityManager->createQuery();
 
 		$cql = 'MATCH (o)<-[:is_comment_of]-(comment:Comment)-[]->(user:User) 
@@ -105,8 +100,8 @@ class CommentsQueries implements QueriesInterface {
 		}
 
 		$this->query->setCQL( $cql );
-		$this->query->setParameter( 'oID', intval( $nodeId ) );
-		$this->query->setParameter( 'refType', $type );
+		$this->query->setParameter( 'oID', intval( $this->getParam( 'oId' ) ) );
+		$this->query->setParameter( 'refType', $this->getParam( 'type' ) );
 		$this->query->setParameter( 'limit', intval( $limit ) );
 		$this->query->addEntityMapping( 'comment', CommentNode::class );
 		$this->query->addEntityMapping( 'user', UserNode::class );
@@ -121,4 +116,47 @@ class CommentsQueries implements QueriesInterface {
 		$this->params = $array;
 	}
 
+	public function setParam( $paramName, $paramValue ) {
+		$this->params[ $paramName ] = $paramValue;
+
+		return $this;
+	}
+
+	public function getParam( $paramName ) {
+		return $this->params[ $paramName ];
+	}
+
+	public function processOrder( array $getParams ) {
+		// TODO: Implement processFilters() method.
+	}
+
+	public function setOrder( string $paramName, $sorting = self::SORT_DESC ): QueriesInterface {
+		// TODO: Implement setOrder() method.
+		return $this;
+	}
+
+	public function getOrder(): array {
+		// TODO: Implement getOrder() method.
+		return [];
+	}
+
+	/**
+	 * @param string $filterName
+	 * @param string $value
+	 * @param string $operator
+	 *
+	 * @return QueriesInterface
+	 */
+	public function setFilter( string $filterName, string $operator = '=', $value ): QueriesInterface {
+		$this->filters[ $filterName ] = [ 'val' => $value, 'op' => $operator ];
+
+		return $this;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getFilters(): array {
+		return $this->filters;
+	}
 }

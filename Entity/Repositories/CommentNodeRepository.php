@@ -118,4 +118,19 @@ class CommentNodeRepository extends BaseRepository {
 		return ( ! is_null( $res ) ) ? $res[0] : $res;
 	}
 
+	/**
+	 * @param int $status
+	 * @param array $ids
+	 *
+	 * @return array|null updated nodes
+	 */
+	public function updateCommentStatuses( int $status, array $ids ):?array {
+		$query = $this->entityManager->createQuery( 'MATCH (n:Comment) WHERE id (n) in {ids} SET n.status = {status} RETURN collect(id(n)) as ids' );
+		$query->setParameter( 'status', $status );
+		$query->setParameter( 'ids', $ids );
+		$res = $query->getOneResult();
+
+		return $res;
+	}
+
 }

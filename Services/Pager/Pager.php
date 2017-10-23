@@ -17,15 +17,14 @@ class Pager {
 	public $request;
 
 	//constructor
-	public $count = 0;
+	public $count = null;
 	protected $range = 3;
 
 	//from request
 	protected $nam;
 	protected $page = 1;
 	protected $limit = 10;
-
-
+	protected $orderParams = [];
 
 	//fetched from db with count query
 	protected $totalPages = 1;
@@ -71,8 +70,7 @@ class Pager {
 
 		$countResult            = $this->queries->getCountQuery()->getOneResult();
 		$this->count            = $countResult['count'];
-		$this->allCommentsCount = $countResult['count'] + $countResult['childsCount'];
-
+		$this->allCommentsCount = $countResult['count'] + ( isset( $countResult['childsCount'] ) ? $countResult['childsCount'] : 0 );
 		if ( $this->count > 0 ) {
 			$this->totalPages = intval( ceil( $this->count / $this->limit ) );
 
@@ -84,7 +82,7 @@ class Pager {
 
 
 	private function exec() {
-		return $this->queries->getQuery()->getResult();
+		return ( $this->count > 0 ) ? $this->queries->getQuery()->getResult() : [];
 	}
 
 	/**
@@ -116,7 +114,9 @@ class Pager {
 			'first'        => 1,
 			'pageCount'    => $this->totalPages,
 			'parentsCount' => $this->count,
-			'totalCount'   => $this->allCommentsCount
+			'totalCount'   => $this->allCommentsCount,
+			'orderParams'  => $this->queries->getOrder(),
+			'filters'      => $this->queries->getFilters()
 		];
 		//$viewData = [];//array_merge($viewData, $this->paginatorOptions, $this->customParameters);
 		if ( $current - 1 > 0 ) {
@@ -141,9 +141,5 @@ class Pager {
 
 	public function createQueries( QueriesInterface $queries ) {
 		$this->queries = $queries;
-	}
-
-	public function passParams( $array ) {
-		$this->queries->setParams( $array );
 	}
 }

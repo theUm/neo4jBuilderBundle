@@ -1,0 +1,161 @@
+{% extends '::crud_page.html.twig' %}
+{% use '@Front/Structure/atoms.html.twig' %}
+{% use '@Front/Structure/components.html.twig' %}
+
+{% block content %}
+    <div class="twelve wide column">
+        <h1 class="ui header">{{ 'Редактировать комментарии'|trans ~ ' (' ~ pager.totalCount ~ ')' }}</h1>
+        <div class="ui middle aligned segments">
+            {% set maxCommentLenght = 150 %}
+            {% set currentPageParams = masterParams|merge(pager.orderParams) %}
+            {% set statusesDefinition = constant('Nodeart\\BuilderBundle\\Entity\\CommentNode::STATUSES') %}
+            <div class="ui segment">
+                {{ block('comments_table_actions') }}
+            </div>
+            <div class="ui segment wrapper_for_comments">
+                {{ block('comments_table') }}
+                {% include '@Builder/Comments/admin/pager.comments.html.twig' %}
+            </div>
+        </div>
+    </div>
+    <div class="twelve wide column">
+        <a class="ui left floated button primary" href="{{ path('builder_add_types',{}) }}">{{ "Назад"|trans }}</a>
+    </div>
+{% endblock %}
+
+{% block comments_table_actions %}
+    <div class="ui selection dropdown mass_edit_comments">
+        <input type="hidden" name="actions">
+        <i class="dropdown icon"></i>
+        <div class="default text">{{ 'Actions'|trans }}</div>
+        <div class="menu">
+            {% for statusCode, status in statusesDefinition %}
+                <div class="item"
+                     data-value="{{ path('comments_mass_action_update', {'status':statusCode}) }}">{{ status|trans }}</div>
+            {% endfor %}
+        </div>
+    </div>
+    <button type="button" class="ui primary button" id="mass_edit_comments">{{ "Apply action"|trans }}</button>
+
+    <div class="ui selection dropdown filter_comments">
+        <input type="hidden" name="actions"
+               value="{{ path('comments_list_manage', {"statusFilter":pager.filters.status.val|default(-1)}) }}">
+        <i class="dropdown icon"></i>
+        <div class="default text">{{ 'Filters'|trans }}</div>
+        <div class="menu">
+            <div class="item" data-value="{{ path('comments_list_manage') }}">{{ "Все"|trans }}</div>
+            {% for statusCode, status in statusesDefinition %}
+                <div class="item {{ (pager.filters.status.val|default(-1) == statusCode) ? 'active':'' }}"
+                     data-value="{{ path('comments_list_manage', {'statusFilter':statusCode}) }}">{{ status|trans }}</div>
+            {% endfor %}
+        </div>
+    </div>
+    <button type="button" class="ui button" id="filter_comments">{{ "Filter"|trans }}</button>
+
+    <div id="comments_update_result" class="ui hidden basic button"></div>
+{% endblock %}
+
+{% block comments_table %}
+    <table class="ui grid-like small compact table">
+        <thead>
+        <tr>
+            <th class="two wide">
+                <div class="ui fitted right-spaced checkbox ">
+                    <input type="checkbox" name="mark_all_visible" id="markAll">
+                    <label></label>
+                </div>
+                {% set param = 'user__username' %}
+                {{ block('field_order_icons') }}
+            </th>
+            <th class="nine wide">
+                {% set param = 'comment' %}
+                {{ block('field_order_icons') }}
+            </th>
+            <th class="one wide">
+                {% set param = 'createdAt' %}
+                {{ block('field_order_icons') }}
+            </th>
+            <th class="one wide right aligned">
+                {% set param = 'likes' %}
+                {{ block('field_order_icons') }}
+            </th>
+            <th class="one wide center aligned">
+                {% set param = 'dislikes' %}
+                {{ block('field_order_icons') }}
+            </th>
+            <th class="one wide left aligned">
+                {% set param = 'reports' %}
+                {{ block('field_order_icons') }}
+            </th>
+            <th class="one wide left aligned">
+                {% set param = 'status' %}
+                {{ block('field_order_icons') }}
+            </th>
+            <th class="one wide center aligned">
+                {% set param = 'refType' %}
+                {{ block('field_order_icons') }}
+            </th>
+            <th class="one wide right aligned">
+                <a href="{{ path(app.request.attributes.get('_route')) }}" class="ui small icon button"><i
+                            class="delete icon"></i>{{ "Reset order"|trans }}</a>
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for row in comments %}
+            {{ block('comments_table_row') }}
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
+
+{% block comments_table_row %}
+    <tr>
+        <td>
+            <div class="ui fitted right-spaced data checkbox item">
+                <input type="checkbox" name="{{ row.comment.id }}">
+                <label></label>
+            </div>
+            {{ row.user.username }}
+        </td>
+        <td title="{{ row.comment.comment }}">{{ row.comment.comment|length > maxCommentLenght ? row.comment.comment|slice(0, maxCommentLenght) ~ '...' : row.comment.comment }}</td>
+        <td>{{ row.comment.createdAt|date( (date("today") > row.comment.createdAt)? 'd.m.Y H:i:s' : 'H:i:s') }}</td>
+        <td class="right aligned">{{ row.comment.likes }}</td>
+        <td class="center aligned">{{ row.comment.dislikes }}</td>
+        <td class="left aligned">{{ row.comment.reports }}</td>
+        <td class="status-cell comm-{{ row.comment.id }}">{{ ( statusesDefinition[row.comment.status])|default('initial')|trans }}</td>
+        <td>{{ row.comment.refType|trans }}</td>
+        <td class="right aligned">
+            <div class="ui icon buttons">
+                <a class="ui button" title="{{ 'Объект'|trans }}"
+                   href="{{ path('comments_redirect_ref_id', {'id':row.ref.identity, 'type': row.comment.refType}) }}"
+                   target="_blank"><i class="external icon"></i></a>
+                <a class="ui button" title="{{ 'Редактировать'|trans }}"><i class="edit icon"></i></a>
+                <a class="ui red-hovered button" title="{{ 'Скрыть'|trans }}"><i class="delete icon"></i></a>
+            </div>
+        </td>
+    </tr>
+{% endblock %}
+
+{% block field_order_icons %}
+    {% set currSortingDefined = pager.orderParams[param] is defined %}
+
+    {# sorting order after click #}
+    {% set sorting = (currSortingDefined and pager.orderParams[param] == "DESC")? "ASC":"DESC" %}
+
+    {# order params with inverted current sorting #}
+    <a class="item {{ (currSortingDefined)? "active":"" }}"
+       href="{{ path(app.request.attributes.get('_route'), currentPageParams|merge({(param):sorting})) }}">
+        {{ param|trans }}
+        {% if sorting == "DESC" %}
+            <i class="ui angle up icon"></i>
+        {% else %}
+            <i class="ui angle down icon"></i>
+        {% endif %}
+    </a>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('app/js/table.js') }}"></script>
+{% endblock %}

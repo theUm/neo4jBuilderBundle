@@ -13,6 +13,9 @@ use GraphAware\Neo4j\OGM\Query;
 
 interface QueriesInterface {
 
+	const SORT_ASC = 'ASC';
+	const SORT_DESC = 'DESC';
+
 	public function createCountQuery();
 
 	public function getCountQuery(): Query;
@@ -21,6 +24,15 @@ interface QueriesInterface {
 
 	public function getQuery(): Query;
 
-	public function setParams( array $array );
+	public function processOrder( array $getParams );
 
+	/**
+	 * @return array
+	 */
+	public function getOrder(): array;
+
+	/**
+	 * @return array
+	 */
+	public function getFilters(): array;
 }

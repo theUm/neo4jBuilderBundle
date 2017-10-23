@@ -206,7 +206,7 @@ class ObjectNode {
 			'slug'         => $this->getSlug(),
 			'description'  => $this->getDescription(),
 			'twigFilePath' => $this->getTwigFilePath(),
-			'createdAt'    => $this->getCreatedAt()->getTimestamp()
+			'createdAt'    => is_null( $this->getCreatedAt() ) ? $this->getCreatedAt()->getTimestamp() : null
 		];
 		if ( ! $withoutId ) {
 			$fieldsArray['id'] = $this->getId();

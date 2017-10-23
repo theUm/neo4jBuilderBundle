@@ -42,7 +42,7 @@
     "sensio/framework-extra-bundle": "^3.0.2",
     "incenteev/composer-parameter-handler": "^2.0",
     "symfony/var-dumper": "^3.1",
-    "graphaware/neo4j-php-ogm": "@rc",
+    "graphaware/neo4j-php-ogm": "^@rc",
     "neo4j/neo4j-bundle": "^0.3",
     "whiteoctober/breadcrumbs-bundle": "dev-jsonld",
     "liip/imagine-bundle": "^1.8",

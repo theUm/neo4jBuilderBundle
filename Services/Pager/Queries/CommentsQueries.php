@@ -46,11 +46,12 @@ class CommentsQueries implements QueriesInterface {
 
 		$this->countQuery = $this->entityManager->createQuery(
 			'MATCH (o:Object)<-[:is_comment_of]-(comment:Comment) 
-			 WHERE id(o) = {oID} AND comment.refType = {refType} AND comment.level = 0 AND ( comment.reports < 5  OR comment.reports is null) 
+			 WHERE id(o) = {oID} AND comment.refType = {refType} AND comment.level = 0 AND comment.status = {statusCode} 
              OPTIONAL MATCH (comment)--(childComment:Comment) WHERE childComment.level <> 0
-             AND ( childComment.reports < 5  OR childComment.reports is null) 
+             AND comment.status = {statusCode}
 			 RETURN count(DISTINCT comment) as count, count(DISTINCT childComment) as childsCount'
 		);
+		$this->countQuery->setParameter( 'statusCode', CommentNode::STATUS_APPROVED );
 		$this->countQuery->setParameter( 'oID', intval( $this->getParam( 'oId' ) ) );
 		$this->countQuery->setParameter( 'refType', $this->getParam( 'type' ) );
 	}
@@ -72,9 +73,11 @@ class CommentsQueries implements QueriesInterface {
 		$this->query = $this->entityManager->createQuery();
 
 		$cql = 'MATCH (o)<-[:is_comment_of]-(comment:Comment)-[]->(user:User) 
-										WHERE id(o) = {oID}  AND comment.level=0 AND comment.refType = {refType} %olderThan%
+										WHERE id(o) = {oID}  AND comment.level=0 AND comment.refType = {refType}
+										AND comment.status = {statusCode}  %olderThan% 
 										WITH comment, user ORDER BY comment.createdAt DESC %skip% limit {limit} 
 									OPTIONAL MATCH (comment)<-[:is_child_of]-(child:Comment)-->(childUser:User)
+									    WHERE child.status = {statusCode}
                                         WITH comment, user, child, childUser ORDER BY child.createdAt DESC limit 100
 									RETURN comment, user, count(child) as count,  collect(
 										CASE childUser WHEN NOT exists(childUser.name)
@@ -101,6 +104,7 @@ class CommentsQueries implements QueriesInterface {
 
 		$this->query->setCQL( $cql );
 		$this->query->setParameter( 'oID', intval( $this->getParam( 'oId' ) ) );
+		$this->query->setParameter( 'statusCode', CommentNode::STATUS_APPROVED );
 		$this->query->setParameter( 'refType', $this->getParam( 'type' ) );
 		$this->query->setParameter( 'limit', intval( $limit ) );
 		$this->query->addEntityMapping( 'comment', CommentNode::class );

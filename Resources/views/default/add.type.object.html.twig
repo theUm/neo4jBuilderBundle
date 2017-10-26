@@ -10,23 +10,7 @@
             {{ form_row(form.isCommentable) }}
             {{ form_row(form.description) }}
         {% endif %}
-        <div class="ui top attached tabular menu">
-            {% for groupName, fields in fieldsByGroups %}
-                <a class="item{% if loop.first %} active{% endif %}" data-tab="{{ groupName }}">{{ groupName }}</a>
-            {% endfor %}
-            <a class="item" data-tab="__links">{{ 'Связи и шаблон'|trans }}</a>
-        </div>
-        {% for groupName, fields in fieldsByGroups %}
-            <div class="ui bottom attached tab segment{% if loop.first %} active{% endif %}" data-tab="{{ groupName }}">
-                {% for groupName, field in fields %}
-                    {{ form_row(form[field['type'].id]) }}
-                {% endfor %}
-            </div>
-        {% endfor %}
-        {% do form.submit_button.setRendered %}
-        <div class="ui bottom attached tab segment" data-tab="__links">
-            {{ form_rest(form) }}
-        </div>
+        {{ block('form_tabable_dropdown') }}
         <button type="submit" id="{{ form.submit_button.vars.id }}" name="{{ form.submit_button.vars.full_name }}"
                 class="primary ui button">{{ form.submit_button.vars.label }}</button>
         {{ form_end(form) }}

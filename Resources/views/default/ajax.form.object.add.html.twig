@@ -26,27 +26,31 @@
         {{ form_row(form.description) }}
         {{ form_row(form.isCommentable) }}
     {% endif -%}
-    <div class="ui top attached tabular menu">
-        {% for groupName, fields in fieldsByGroups %}
-            <a class="item{% if loop.first %} active{% endif %}"
-               data-tab="{{ groupName }}_{{ entityType.id }}_{{ dataId }}">{{ groupName }}</a>
-        {% endfor %}
-        <a class="item{% if fieldsByGroups is empty %} active{% endif %}"
-           data-tab="__links_{{ entityType.id }}_{{ dataId }}">{{ 'Связи и шаблон'|trans }}</a>
+    <div class="ui fullwidth tabable search selection dropdown ui-dynamic-dropdown">
+        <input type="hidden" name="actions" value="{{ fieldsByGroups|keys|first|default('Связи и шаблон'|trans) }}">
+        <i class="dropdown icon"></i>
+        <div class="text">{{ fieldsByGroups|keys|first|default('Связи и шаблон'|trans) }}</div>
+        <div class="menu">
+            {% for groupName, fields in fieldsByGroups %}
+                <div class="item {% if loop.first %} active{% endif %}" data-change-tab="{{ groupName }}">{{ groupName }}</div>
+            {% endfor %}
+            <div class="item {% if fieldsByGroups is empty %} active{% endif %}" data-change-tab="__links">{{ 'Связи и шаблон'|trans }}</div>
+        </div>
     </div>
     {% for groupName, fields in fieldsByGroups %}
         <div class="ui bottom attached tab segment{% if loop.first %} active{% endif %}"
-             data-tab="{{ groupName }}_{{ entityType.id }}_{{ dataId }}">
+             data-change-tab="{{ groupName }}">
             {% for groupName, field in fields %}
                 {{ form_row(form[field['type'].id]) }}
+                {{ form_errors(form[field['type'].id]) }}
             {% endfor %}
         </div>
     {% endfor %}
     {% do form.submit_button.setRendered %}
-    <div class="ui bottom attached tab segment{% if fieldsByGroups is empty %} active{% endif %}"
-         data-tab="__links_{{ entityType.id }}_{{ dataId }}">
-        {{ form_rest(form) }}
-    </div>
+        <div class="ui bottom attached tab segment{% if fieldsByGroups is empty %} active{% endif %}"
+             data-change-tab="__links">
+            {{ form_rest(form) }}
+        </div>
     <button type="submit" id="{{ form.submit_button.vars.id }}" name="{{ form.submit_button.vars.full_name }}"
             class="primary ui button">
         {%- if objectNodeId is defined and objectNodeId is not empty -%}{{ 'Редактировать объект'|trans }}{%- else -%}{{ 'Создать объект'|trans }}{% endif -%}

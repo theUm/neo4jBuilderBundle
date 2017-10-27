@@ -212,7 +212,7 @@ class ObjectNodeRepository extends BaseRepository {
         	        WHERE id(o) <> {oId} AND type.slug = {slug}
         	    OPTIONAL MATCH (o)<-[rel:is_field_of]-(fv:FieldValue)-[:is_value_of]->(etf)
         	    OPTIONAL MATCH (childEtf:EntityTypeField)-[:has_field]->(childEt:EntityType)<-[:has_type]-(childO:Object)
-		            WITH etf, o, collect(fv) as val ORDER BY o.createdAt
+		            WITH etf, o, collect(DISTINCT fv) as val ORDER BY o.createdAt
 		            RETURN o as object, collect({etfSlug:etf.slug, valsByFields:{fieldType:etf, val:val}}) as objectFields SKIP {skip} LIMIT {limit}'
 		);
 		$siblingsQuery->addEntityMapping( 'object', ObjectNode::class );

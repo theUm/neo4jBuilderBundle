@@ -84,6 +84,8 @@ class TwigFunctions extends \Twig_Extension {
 			new \Twig_SimpleFilter( 'escapeCyr', array( $this, 'escapeCyrillic' ) ),
 			// thumbnail for single fieldValue
 			new \Twig_SimpleFilter( 'getSingleFieldThumb', array( $this, 'getSingleFieldThumb' ) ),
+            // reformats fetched objects with fields structure
+            new \Twig_SimpleFilter( 'reformatFields', array( $this, 'reformatFields' ) ),
 		];
 	}
 
@@ -303,4 +305,24 @@ class TwigFunctions extends \Twig_Extension {
 
 		return $form->createView();
 	}
+
+    /**
+     * Restructures array for further usage
+     *
+     * @param array $struct
+     *
+     * @return array
+     */
+    public function reformatFields( array $struct ) {
+        foreach ( $struct as &$row ) {
+            $newObjFields = [];
+            foreach ( $row['objectFields'] as $field ) {
+                $newObjFields[ $field['etfSlug'] ] = $field['valsByFields'];
+            }
+            $row['objectFields'] = $newObjFields;
+        }
+
+        return $struct;
+    }
+
 }

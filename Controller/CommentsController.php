@@ -51,10 +51,16 @@ class CommentsController extends BaseController {
 				     ->bindComment( $comment )
 				     ->processForm();
 
-				if ( $user->hasRole( UserNode::ROLE_ADMIN ) || $user->hasRole( UserNode::ROLE_CONTENT_MANAGER ) ) {
+                if (
+                    $user->isApproved()
+                    || ( $this->getParameter( 'neo4j_builder_comments_only_approved' ) == false )
+                    || $user->hasRole( UserNode::ROLE_ADMIN )
+                    || $user->hasRole( UserNode::ROLE_CONTENT_MANAGER )
+                ) {
 					$comment->setStatus( CommentNode::STATUS_APPROVED );
 				}
-				$comment->setAuthor( $user );
+
+                $comment->setAuthor( $user );
 				$nm->persist( $comment );
 				$nm->flush();
 			}

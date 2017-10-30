@@ -1,0 +1,30 @@
+<div class="ui pagination menu">
+    {% if pager.previous is defined and pager.first < pager.pagesInRange|first %}
+        <a class="item"
+           href="{{ path(masterRoute, currentPageParams|merge({page:1})) }}">
+            <i class="angle double left icon"></i></a>
+        <a class="previous_item item"
+           href="{{ path(masterRoute, currentPageParams|merge({page:pager.previous})) }}">
+            <i class="angle left icon"></i>
+        </a>
+        <div class="disabled item">...</div>
+    {% endif %}
+    {% for page in pager.pagesInRange %}
+        {% if page == pager.current %}
+            <span class="active item">{{ page }}</span>
+        {% else %}
+            <a class="item"
+               href="{{ path(masterRoute, currentPageParams|merge({page:page})) }}">{{ page }}</a>
+        {% endif %}
+    {% endfor %}
+    {% if pager.next is defined and pager.last > pager.pagesInRange|last %}
+        <div class="disabled item">...</div>
+        <a class="next_item item"
+           href="{{ path(masterRoute, currentPageParams|merge({page:pager.next})) }}">
+            <i class="angle right icon"></i>
+        </a>
+        <a class="item"
+           href="{{ path(masterRoute, currentPageParams|merge({page:pager.last})) }}"><i
+                    class="angle double right icon"></i></a>
+    {% endif %}
+</div>

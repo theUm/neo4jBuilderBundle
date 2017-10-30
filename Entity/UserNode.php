@@ -58,6 +58,12 @@ class UserNode extends User implements \Serializable {
 	 */
 	protected $enabled;
 
+    /**
+     * @OGM\Property(type="boolean")
+     * @var bool
+     */
+    protected $approved = false;
+
 	/**
 	 * The salt to use for hashing.
 	 *
@@ -83,7 +89,7 @@ class UserNode extends User implements \Serializable {
 
 	/**
 	 * @var \DateTime
-	 * @OGM\Property()
+     * @OGM\Property(nullable=true)
 	 * @OGM\Convert(type="datetime", options={})
 	 */
 	protected $lastLogin;
@@ -358,7 +364,7 @@ class UserNode extends User implements \Serializable {
 	/**
 	 * @return \DateTime
 	 */
-	public function getLastLogin(): \DateTime {
+    public function getLastLogin(): ?\DateTime {
 		return $this->lastLogin;
 	}
 
@@ -625,5 +631,19 @@ class UserNode extends User implements \Serializable {
 
 		return $this;
 	}
+
+    /**
+     * @return bool
+     */
+    public function isApproved(): ?bool {
+        return $this->approved;
+    }
+
+    /**
+     * @param bool $approved
+     */
+    public function setApproved( bool $approved ) {
+        $this->approved = $approved;
+    }
 
 }

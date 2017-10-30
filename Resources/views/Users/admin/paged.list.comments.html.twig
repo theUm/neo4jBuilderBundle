@@ -1,0 +1,149 @@
+{% extends '::crud_page.html.twig' %}
+{% use '@Front/Structure/atoms.html.twig' %}
+{% use '@Front/Structure/components.html.twig' %}
+
+{% block content %}
+    <div class="twelve wide column">
+        <h1 class="ui header">{{ 'Редактировать пользователей'|trans ~ ' (' ~ pager.totalCount ~ ')' }}</h1>
+        <div class="ui middle aligned segments">
+            {% set maxCommentLenght = 150 %}
+            {% set currentPageParams = masterParams|merge(pager.orderParams) %}
+            <div class="ui segment">
+                {{ block('comments_table_actions') }}
+            </div>
+            <div class="ui segment wrapper_for_comments">
+                {{ block('comments_table') }}
+                {% include '@Builder/Comments/admin/pager.comments.html.twig' %}
+            </div>
+        </div>
+    </div>
+    <div class="twelve wide column">
+        <a class="ui left floated button primary" href="{{ path('builder_add_types',{}) }}">{{ "Назад"|trans }}</a>
+    </div>
+{% endblock %}
+
+{% block comments_table_actions %}
+    {# actions dropdown #}
+    <div class="ui selection dropdown mass_edit_comments">
+        <input type="hidden" name="actions">
+        <i class="dropdown icon"></i>
+        <div class="default text">{{ 'Actions'|trans }}</div>
+        <div class="menu">
+            {% for status in constant('Nodeart\\BuilderBundle\\Controller\\AdminUsersController::POSSIBLE_ACTIONS') %}
+                <div class="item"
+                     data-value="{{ path('users_mass_action_update', {'action':status}) }}">{{ status|trans }}</div>
+            {% endfor %}
+        </div>
+    </div>
+    <button type="button" class="ui primary button" id="mass_edit_comments">{{ "Apply action"|trans }}</button>
+    <div id="comments_update_result" class="ui hidden basic button"></div>
+{% endblock %}
+
+{% block comments_table %}
+    <table class="ui grid-like small compact table">
+        <thead>
+        <tr>
+            <th class="three wide">
+                <div class="ui fitted right-spaced checkbox ">
+                    <input type="checkbox" name="mark_all_visible" id="markAll">
+                    <label></label>
+                </div>
+                {% set param = 'username' %}
+                {{ block('field_order_icons') }}
+            </th>
+            <th class="two wide">
+                {% set param = 'email' %}
+                {{ block('field_order_icons') }}
+            </th>
+            <th class="two wide">
+                {% set param = 'createdAt' %}
+                {{ block('field_order_icons') }}
+            </th>
+            <th class="one wide">
+                {% set param = 'enabled' %}
+                {% set paramLabel = 'Is enabled' %}
+                {{ block('field_order_icons') }}
+            </th>
+            <th class="one wide">
+                {% set param = 'approved' %}
+                {% set paramLabel = 'Is approved' %}
+                {{ block('field_order_icons') }}
+            </th>
+            <th class="one wide">
+                {% set param = 'comments' %}
+                {{ block('field_order_icons') }}
+            </th>
+            <th class="one wide">
+                {% set param = 'likes' %}
+                {{ block('field_order_icons') }}
+            </th>
+            <th class="one wide">
+                {% set param = 'dislikes' %}
+                {{ block('field_order_icons') }}
+            </th>
+            <th class="one wide">
+                {% set param = 'reports' %}
+                {{ block('field_order_icons') }}
+            </th>
+            <th class="one wide">
+                {% set param = 'reactions' %}
+                {{ block('field_order_icons') }}
+            </th>
+            <th class="one wide right aligned">
+                <a href="{{ path(app.request.attributes.get('_route')) }}" class="ui small icon button"><i
+                            class="delete icon"></i>{{ "Reset order"|trans }}</a>
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for row in comments %}
+            {{ block('comments_table_row') }}
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
+
+{% block comments_table_row %}
+    <tr>
+        <td>
+            <div class="ui fitted right-spaced data checkbox item">
+                <input type="checkbox" name="{{ row.user.id }}">
+                <label></label>
+            </div>
+            {{ row.user.id }}
+            <b>{{ row.user.username }}</b>
+        </td>
+        <td>{{ row.user.email }}</td>
+        <td>{{ (row.user.lastLogin is not null)? row.user.lastLogin|date('d.m.Y H:i') : '' }}</td>
+        <td>{{ row.user.enabled ? "Да"|trans : "Нет"|trans }}</td>
+        <td>{{ row.user.approved ? "Да"|trans : "Нет"|trans }}</td>
+        <td>{{ row.comments }}</td>
+        <td>{{ row.likes }}</td>
+        <td>{{ row.dislikes }}</td>
+        <td>{{ row.reports }}</td>
+        <td>{{ row.reactions }}</td>
+    </tr>
+{% endblock %}
+
+{% block field_order_icons %}
+    {% set currSortingDefined = pager.orderParams[param] is defined %}
+
+    {# sorting order after click #}
+    {% set sorting = (currSortingDefined and pager.orderParams[param] == "DESC")? "ASC":"DESC" %}
+
+    {# order params with inverted current sorting #}
+    <a class="item {{ (currSortingDefined)? "active":"" }}"
+       href="{{ path(app.request.attributes.get('_route'), currentPageParams|merge({(param):sorting})) }}">
+        {{ param|trans }}
+        {% if sorting == "DESC" %}
+            <i class="ui angle up icon"></i>
+        {% else %}
+            <i class="ui angle down icon"></i>
+        {% endif %}
+    </a>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('app/js/table.js') }}"></script>
+{% endblock %}

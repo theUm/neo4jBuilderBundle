@@ -2,7 +2,7 @@
     <div class="ui card" id="media_{{ pic.id }}">
         <div class="image">
             <img src="{{ pic|getSingleFieldThumb('gallery_grid') }}"
-                 onerror="this.src='{{ asset('app/img/noim.png') }}';">
+                 onerror="this.src='{{ asset('bundles/builder/img/noim.png') }}';">
         </div>
         <div class="content media-sidebar"
              data-url="{{ path('media_ajax_edit', {'id':pic.id}) }}"

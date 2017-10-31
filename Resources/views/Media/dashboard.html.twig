@@ -48,7 +48,7 @@
                                     <div class="ui card" id="media_{{ pic.id }}">
                                         <div class="image">
                                             <img src="{{ pic|getSingleFieldThumb('gallery_grid') }}"
-                                                 onerror="this.src='{{ asset('app/img/noim.png') }}';">
+                                                 onerror="this.src='{{ asset('bundles/builder/img/noim.png') }}';">
                                         </div>
                                         <div class="content media-sidebar"
                                              data-url="{{ path('media_ajax_edit', {'id':pic.id}) }}"
@@ -91,7 +91,8 @@
 {% endblock %}
 
 {% block javascripts %}
-    <script src="{{ asset('app/js/calendar.min.js') }}"></script>
-    <script src="{{ asset('app/js/form.js') }}"></script>
-    <script src="{{ asset('app/js/media-dashboard.js') }}"></script>
+    <script src="{{ asset('bundles/builder/js/calendar.min.js') }}"></script>
+    {#<script src="{{ asset('calendar.min.js') }}"></script>#}
+    <script src="{{ asset('bundles/builder/js/form.js') }}"></script>
+    <script src="{{ asset('bundles/builder/js/media-dashboard.js') }}"></script>
 {% endblock %}

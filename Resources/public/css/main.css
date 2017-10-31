@@ -1,0 +1,351 @@
+#wrapper {
+    background: #FFF;
+}
+
+body.black {
+    background: #050505;
+    color: #f1f1f1;
+}
+
+.black .ui.centered.grid {
+    background: #151515;
+}
+
+.black .ui.header {
+    color: rgba(255, 255, 255, .87);
+}
+
+@media (min-width: 768px) {
+    @-webkit-keyframes fade-in {
+        0% {
+            opacity: 0;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+    @keyframes fade-in {
+        0% {
+            opacity: 0;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+    .sf-toolbar {
+        opacity: 0;
+        -webkit-animation: fade-in 1s .2s forwards;
+        animation: fade-in 1s .2s forwards;
+    }
+}
+
+.conent-block table {
+    width: 100%;
+    border: 1px solid black;
+}
+
+.orange {
+    color: darkorange;
+}
+
+.blueish, .ui.table thead tr.blueish th {
+    color: #276F86;
+}
+
+.fullwidth {
+    width: 100%;
+}
+
+.fullwidth.content {
+    min-height: 6em;
+}
+
+.main.container {
+    margin-top: 5em;
+    margin-bottom: 1em;
+}
+
+.flashbag-container {
+    width: 20%;
+    position: fixed;
+    font-size: 90%;
+    z-index: 10;
+    height: 0;
+}
+
+.flashbag-container .ui.message {
+    margin: 1em;
+}
+
+#form_dyn_fields .field {
+    margin: 0;
+}
+
+#type_fields_dyn_fields > div > button {
+    /*margin: 1em 0;*/
+}
+
+.ui.toggle.checkbox {
+    z-index: 0;
+}
+
+.monospace {
+    font-family: monospace, monospace;
+}
+
+.ui.form .almost-padless {
+    padding: 0.3em;
+}
+
+#form_dyn_fields > .field {
+    margin-bottom: 2em;
+}
+
+.x-scroll {
+    overflow-x: auto;
+}
+
+.x-hidden, .x-hidden .segment {
+    overflow-x: hidden;
+}
+
+.child-left.ui.icon.buttons .ui.button {
+    float: left;
+}
+
+.ui.list i.list.icon {
+    padding: 0;
+    margin: 0;
+}
+
+.recursive.list .fullwidth.content {
+    width: 130vh;
+    min-height: 3em;
+}
+
+.recursive.list .fullwidth.root-types.content {
+    min-height: 1em;
+}
+
+.recursive.list .accordion .fullwidth.content {
+    width: 100%;
+    padding-left: 3em;
+}
+
+.recursive.list .list {
+    padding: 0;
+}
+
+.ui.recursive.list .tiny.ui.button > .icon {
+    margin: 0;
+}
+
+.red-colored {
+    color: rgba(255, 0, 0, .6);
+}
+
+.ui.header .red-colored.sub.header {
+    color: rgba(255, 0, 0, .6);
+}
+
+#obj_fields .ui.pointing.label, .ui[class*="pointing above"].label {
+    margin-top: 0;
+}
+
+.ui.hidden.form {
+    display: none;
+}
+
+.bottom-padded.segment {
+    padding-bottom: 4rem;
+}
+
+label.search.selection {
+    display: inline-block;
+    margin-right: 0.6rem;
+    /*margin-bottom: 0.6rem;*/
+}
+
+.ui.bottom-marged.label {
+    margin-bottom: 0.5rem;
+}
+
+.negative.marginless.message {
+    margin: 0;
+}
+
+.primary.ui.submit.button {
+    margin-bottom: 1em;
+}
+
+/* custom style for disabled accordion items */
+.ui.accordion > .disabled.title {
+    cursor: default;
+    /*color: rgba(0, 0, 0, 0.4) !important;*/
+    /*opacity: 0.3 !important;*/
+    /*background: #dcddde none !important;*/
+    box-shadow: none !important;
+    pointer-events: none;
+}
+
+/********************* lammer Ivan added ))) *********************/
+.ui.inverted.menu {
+    background: #333;
+    box-shadow: 0 3px 3px 3px rgba(0, 0, 0, .4);
+    -moz-box-shadow: 0 3px 3px 3px rgba(0, 0, 0, .4);
+    -webkit-box-shadow: 0 3px 3px 3px rgba(0, 0, 0, .4);
+}
+
+.ui.menu .dropdown.item .menu {
+    -webkit-box-shadow: 0 18px 20px -3px #333;
+    -moz-box-shadow: 0 18px 20px -3px #333;
+    box-shadow: 0 18px 20px -3px #333;
+}
+
+hr {
+    width: 100%;
+    margin: 10px 0;
+    display: inline-block;
+}
+
+#form_Удалить {
+    float: right;
+}
+
+.ui.red.delete-this.button {
+    float: right;
+}
+
+.ui.left.floated.button.primary.backward {
+    clear: both;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.ui.tabular.menu .active.item {
+    background: #eff8ff;
+}
+
+/********************* end lammer Ivan added ))) *********************/
+
+/*.padless.row.field {*/
+/*padding: 0;*/
+/*}*/
+
+.fullscreen.modal .white.container {
+    background-color: white;
+    color: black;
+    padding: 1em;
+}
+
+.fullscreen.modal .editable-actions.actions > .button {
+    margin-left: 0;
+    margin-right: .75em;
+}
+
+.hidden.html.code {
+    display: none;
+}
+
+.ui.segment.draggable {
+    cursor: row-resize;
+}
+
+.ui.segment.sortable-ghost {
+    opacity: 0.4;
+    background-color: #ff392b;
+    margin-left: 1em;
+}
+
+.ui.form #type_fields .field {
+    margin: 0 0 0.1em;
+}
+
+.ui.form .compact.fields {
+    margin: 0;
+}
+
+.ui.card .content.media-sidebar {
+    cursor: pointer;
+}
+
+.ui.card .content.media-sidebar .header {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-height: 2.4em;
+}
+
+.thumbnail.sidebar .ui.header {
+    margin-top: 0;
+    text-align: center;
+}
+
+.thumbnail.sidebar .corner.label .icon {
+    cursor: pointer;
+}
+
+/* @todo remove this hack after menu fix */
+.top-margined {
+    margin-top: 5em !important;
+}
+
+/* css alternative to <img onerror="this.src='placeholder_image';"> */
+/*
+.media-dashboard.cards .image{
+    min-height: 15em;
+}
+.media-dashboard.cards .image img:after{
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 15em;
+    height: 15em;
+    background-image: url(https://semantic-ui.com/images/wireframe/image.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+    content: '';
+}*/
+
+.ui.visible.right.overlay.sidebar {
+    z-index: 101;
+}
+
+.load-all.button {
+    margin-left: 1em;
+}
+
+.ui.card.active {
+    border: 2px inset #2185d0;
+}
+
+.ui.right-spaced.checkbox {
+    margin-right: 1em;
+}
+
+.grid-like.table .ui.angle.icon {
+    display: none;
+    position: absolute;
+}
+
+.grid-like.table a:hover > .ui.angle.icon {
+    display: inline;
+}
+
+.grid-like.table a.active > .ui.angle.icon {
+    display: inline;
+}
+
+.red-hovered.button:hover {
+    background-color: #db2828;
+    color: white;
+}
+
+#comments_update_result.hidden {
+    display: none;
+}
+
+td.status-cell {
+    font-weight: bold;
+}

@@ -117,14 +117,21 @@
                 newWrapper.find('.ui.regular.dropdown').dropdown({
                     onChange: function (value) {
                         togglePredefined(this, (value !== 'predefSelect2'));
+                        toggleIsMultiple(this, value);
                     }
                 });
             });
 
-            $('.ui.regular.dropdown').dropdown({
+            let fieldTypeSelectDropdown = $('.ui.regular.dropdown.fieldTypeDropdown');
+            fieldTypeSelectDropdown.dropdown({
                 onChange: function (value) {
                     togglePredefined(this, (value !== 'predefSelect2'));
+                    toggleIsMultiple(this, value);
                 }
+            });
+
+            fieldTypeSelectDropdown.each(function (key, el) {
+                toggleIsMultiple(el, $(el).dropdown('get value'));
             });
 
             function togglePredefined(el, toggleTo) {
@@ -135,6 +142,15 @@
                     dropdown.find('input').val('');
                     dropdown.find('.ui.label').remove();
                     dropdown.dropdown('refresh');
+                }
+            }
+
+            function toggleIsMultiple(el, value) {
+                let isMultipleCheckbox = $(el).parents('.field').find('.isMultiple');
+                let isChecked = isMultipleCheckbox.checkbox('is checked');
+                let cantBeMultiple = (['checkbox', 'textArea', 'date', 'time', 'datetime', 'file', 'wysiwyg', 'labeled_number'].indexOf(value) !== -1);
+                if (isChecked && cantBeMultiple) {
+                    isMultipleCheckbox.checkbox('set unchecked');
                 }
             }
 

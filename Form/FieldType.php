@@ -69,13 +69,14 @@ class FieldType extends AbstractType {
 				'base_field_selector' => '.slug-base',
 			] )
 			->add( 'fieldType', ChoiceType::class, [
-				'label'       => 'Тип поля',
-				'choices'     => array_combine( $fieldTypes, $fieldTypes ),
-				'choice_attr' => function ( $val, $key, $index ) {
+                'label'       => 'Тип поля',
+                'attr'        => [ 'class' => 'fieldTypeDropdown' ],
+                'choices'     => array_combine( $fieldTypes, $fieldTypes ),
+                'choice_attr' => function ( $val, $key, $index ) {
 					//todo: if field has multi vals - ignore it (for now)
 					return ( $this->fnb->isFieldHasRel( $val, FormNodeBridge::REL_IS_VARIANT_OF ) ) ? [ 'disabled' => 'disabled' ] : [];
 				},
-				'required'    => true
+                'required'    => true
 			] )
 			->add( 'isCollection', CheckboxType::class, [
 				'label'    => 'Множество значений',

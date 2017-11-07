@@ -10,14 +10,17 @@ use Nodeart\BuilderBundle\Entity\EntityTypeNode;
 use Nodeart\BuilderBundle\Entity\FieldValueNode;
 use Nodeart\BuilderBundle\Entity\ObjectNode;
 use Nodeart\BuilderBundle\Entity\Repositories\ObjectNodeRepository;
+use Nodeart\BuilderBundle\Entity\TypeFieldNode;
 use Nodeart\BuilderBundle\Form\CommentNodeType;
+use Nodeart\BuilderBundle\Twig\Utils\TypeFieldValuePairTransformer;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Form;
 use Symfony\Component\Form\FormFactory;
 
 class TwigFunctions extends \Twig_Extension {
-	/** @var EntityManager */
+
+    /** @var EntityManager */
 	private $nm;
 	/** @var CacheManager */
 	private $liipCM;
@@ -35,8 +38,12 @@ class TwigFunctions extends \Twig_Extension {
 	 * @var array
 	 */
 	private $siblingsCache = [];
+    /**
+     * @var \Twig_Environment
+     */
+    private $environment;
 
-	public function __construct( EntityManager $nm, CacheManager $liipImagineCacheManager, Packages $package, FormFactory $formFactory ) {
+    public function __construct( EntityManager $nm, CacheManager $liipImagineCacheManager, Packages $package, FormFactory $formFactory ) {
 		$this->nm          = $nm;
 		$this->liipCM      = $liipImagineCacheManager;
 		$this->package     = $package;
@@ -55,6 +62,13 @@ class TwigFunctions extends \Twig_Extension {
 			new \Twig_SimpleFunction( 'getFieldType', [ $this, 'getFieldType' ] ),
 			// gets objects`s fields and values array filtered by provided field slugs. May couse additional query to DB.
 			new \Twig_SimpleFunction( 'getFieldsBySlugs', [ $this, 'getFieldsBySlugs' ] ),
+            // same as getFieldsBySlugs, but only for one field. May couse additional query to DB.
+            new \Twig_SimpleFunction( 'getFieldBySlug', [ $this, 'getFieldBySlug' ] ),
+
+            // transforms fieldValueNode to string
+            new \Twig_SimpleFunction( 'transformPair', [ $this, 'stringifyFieldPair' ] ),
+            // get/fetch fields and transform them to strings if it is possible
+            new \Twig_SimpleFunction( 'getCardFields', [ $this, 'getCardFields' ], [ 'needs_environment' => true ] ),
 
 			// gets object`s child objects list of specific EntityType
 			new \Twig_SimpleFunction( 'getMultipleChildObjectsByParent', [ $this, 'getMultipleChildObjectsByParent' ] ),
@@ -89,6 +103,67 @@ class TwigFunctions extends \Twig_Extension {
 		];
 	}
 
+    public function getCardFields( \Twig_Environment $environment, ObjectNode $object, array $fields, $typeKey = 'type', $valueKey = 'val' ) {
+        $this->environment = $environment;
+        $cardFields        = [ 'main' => [], 'col1' => [], 'col2' => [] ];
+
+        foreach ( $fields['main'] as $field ) {
+            $cardFields['main'][] = $this->transformFieldToCardView( $field, $typeKey, $valueKey, $object );
+        }
+
+        foreach ( $fields['col1'] as $field ) {
+            $cardFields['col1'][] = $this->transformFieldToCardView( $field, $typeKey, $valueKey, $object );
+        }
+
+        foreach ( $fields['col2'] as $field ) {
+            $cardFields['col2'][] = $this->transformFieldToCardView( $field, $typeKey, $valueKey, $object );
+        }
+
+        return $cardFields;
+    }
+
+    private function transformFieldToCardView( $field, $typeKey, $valueKey, $object ) {
+        if ( ! is_array( $field ) ) {
+            $pair = $this->getFieldBySlug( $object, $field );
+
+            return $this->stringifyFieldPair( $pair, $typeKey, $valueKey );
+        } else {
+            $nameHtml  = $this->environment->createTemplate( $field[ $typeKey ] );
+            $valueHtml = $this->environment->createTemplate( $field[ $valueKey ] );
+
+            return [ 'type' => $nameHtml, 'val' => $valueHtml, 'isTemplate' => true ];
+        }
+    }
+
+    /**
+     * Filters existent or makes query resulting to array of object fields and values with provided field slugs
+     *
+     * @param $pair
+     * @param string $etIndex
+     * @param string $fvIndex
+     *
+     * @return array
+     */
+    public function stringifyFieldPair( $pair, $etIndex = 'fieldType', $fvIndex = 'val' ) {
+        /** @var TypeFieldNode $fieldType */
+        $fieldType   = $pair[ $etIndex ];
+        $fieldValues = $pair[ $fvIndex ];
+
+        if ( $fieldType->isCollection() ) {
+            $transformedFieldValStrings[ $fieldType->getSlug() ] = [];
+            foreach ( $fieldValues as $fielVal ) {
+                $transformedFieldValStrings[ $fieldType->getSlug() ][] = TypeFieldValuePairTransformer::transformValueToView( $fielVal, $fieldType );
+            }
+            $transformedFieldValStrings = join( ', ', $transformedFieldValStrings[ $fieldType->getSlug() ] );
+        } else {
+            $transformedFieldValStrings = TypeFieldValuePairTransformer::transformValueToView( array_shift( $fieldValues ), $fieldType );
+        }
+
+        $res = [ 'type' => $fieldType, 'val' => $transformedFieldValStrings, 'isTemplate' => false ];
+
+        return $res;
+    }
+
 	/**
 	 * Filters existent or makes query resulting to array of object fields and values with provided field slugs
 	 *
@@ -105,6 +180,23 @@ class TwigFunctions extends \Twig_Extension {
 			return array_intersect_key( $this->getFields( $objectNode ), array_flip( $slugs ) );
 		}
 	}
+
+    /**
+     *
+     * @param ObjectNode $objectNode
+     * @param string $slug
+     *
+     * @return array
+     * @throws \Exception
+     */
+    public function getFieldBySlug( ObjectNode $objectNode, string $slug ) {
+        $fields = $this->getFields( $objectNode );
+        if ( ! isset( $fields[ $slug ] ) ) {
+            throw new \Exception( sprintf( 'Field with slug "%s" not found in object "%s"', $slug, $objectNode->getName() ) );
+        }
+
+        return $fields[ $slug ];
+    }
 
 	public function getFields( ObjectNode $objectNode ) {
 		if ( isset( $this->objectsCache[ $objectNode->getId() ] ) ) {
@@ -167,13 +259,13 @@ class TwigFunctions extends \Twig_Extension {
 		return $val ?? new FieldValueNode();
 	}
 
-	public function getSingleFieldThumb( $val, string $thumbFilterName ) {
+    public function getSingleFieldThumb( $val, string $thumbFilterName, string $propertyName = 'getWebPath' ) {
 		if ( empty( $val ) ) {
 			return '';
 		}
 		//if this is image && webpath is not empty - get thumbnail
-		if ( ( 0 === strpos( $val->getMimeType(), 'image/' ) ) && ! empty( $val->getWebPath() ) ) {
-			return $this->getAssetThumbnail( $val->getWebPath(), $thumbFilterName );
+        if ( ( 0 === strpos( $val->getMimeType(), 'image/' ) ) && ! empty( $val->$propertyName() ) ) {
+            return $this->getAssetThumbnail( $val->$propertyName(), $thumbFilterName );
 		} else {
 			return '';
 		}

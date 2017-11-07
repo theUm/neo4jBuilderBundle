@@ -76,7 +76,6 @@ class FieldValueNodeRepository extends BaseRepository {
 			}
 			$dataQueryPart['values'] = [ 'data' => $valueNode->getData() ];
 
-
 			if (!empty($valueNode->getDataLabel())) {
 				if ( $forSetQueryPart ) {
 					$dataQueryPart['params'] .= ', '.$prefix . 'dataLabel={dataLabel}';

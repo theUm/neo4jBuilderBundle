@@ -146,7 +146,7 @@
             }
 
             function toggleIsMultiple(el, value) {
-                let isMultipleCheckbox = $(el).parents('.field').find('.isMultiple');
+                let isMultipleCheckbox = $(el).parent().parent().parent().find('.isMultiple');
                 let isChecked = isMultipleCheckbox.checkbox('is checked');
                 let cantBeMultiple = (['checkbox', 'textArea', 'date', 'time', 'datetime', 'file', 'wysiwyg', 'labeled_number'].indexOf(value) !== -1);
                 if (isChecked && cantBeMultiple) {

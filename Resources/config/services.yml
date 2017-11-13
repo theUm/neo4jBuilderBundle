@@ -99,3 +99,6 @@ services:
 
     Nodeart\BuilderBundle\Helpers\CommentSaver:
         arguments: ['@neo.app.manager']
+
+    Nodeart\BuilderBundle\Helpers\RepositoryHelper:
+        arguments: ['@neo.app.manager']

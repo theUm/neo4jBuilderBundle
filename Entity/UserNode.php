@@ -34,6 +34,13 @@ class UserNode extends User implements \Serializable {
 	 */
 	protected $username;
 
+
+    /**
+     * @OGM\Property(type="string")
+     * @var string
+     */
+    protected $bio;
+
 	/**
 	 * @OGM\Property(type="string")
 	 * @var string
@@ -174,11 +181,18 @@ class UserNode extends User implements \Serializable {
 	 */
 	protected $reactions;
 
+    /**
+     * @OGM\Relationship(type="bookmarked", direction="INCOMING", targetEntity="BookmarkNode", collection=true, mappedBy="user")
+     * @var Collection|BookmarkNode[]
+     */
+    protected $bookmarks;
+
 	public function __construct() {
 		parent::__construct();
 		$this->roles     = [ self::ROLE_USER ];
 		$this->comments  = new Collection();
 		$this->reactions = new Collection();
+        $this->bookmarks = new Collection();
 	}
 
 	/**
@@ -644,6 +658,38 @@ class UserNode extends User implements \Serializable {
      */
     public function setApproved( bool $approved ) {
         $this->approved = $approved;
+    }
+
+    /**
+     * @param Collection|BookmarkNode[] $bookmarks
+     *
+     * @return UserNode
+     */
+    public function setBookmarks( $bookmarks ) {
+        $this->bookmarks = $bookmarks;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|BookmarkNode[]
+     */
+    public function getBookmarks() {
+        return $this->bookmarks;
+    }
+
+    /**
+     * @return string
+     */
+    public function getBio(): ?string {
+        return $this->bio;
+    }
+
+    /**
+     * @param string $bio
+     */
+    public function setBio( string $bio ) {
+        $this->bio = $bio;
     }
 
 }

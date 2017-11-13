@@ -12,6 +12,7 @@ use Nodeart\BuilderBundle\Form\FieldType;
 use Nodeart\BuilderBundle\Form\Type\AjaxCheckboxType;
 use Nodeart\BuilderBundle\Services\EntityTypeChildsUnlinker;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -134,8 +135,25 @@ class EntityTypeController extends Controller {
 		}
 		$previousNodeIds = array_keys( $previousNodes );
 
+        $fileFields     = $entityType->getEntityTypeFields();
+        $fileFieldNames = [];
+
+        // list of file fields
+        /** @var TypeFieldNode $typeField */
+        foreach ( $fileFields as $typeField ) {
+            if ( $typeField->getFieldType() == 'file' ) {
+                $fileFieldNames[ $typeField->getName() ] = $typeField->getSlug();
+            }
+        }
+
 		$form = $this->createForm( EntityTypeNodeType::class, $entityType )
-		             ->add( 'hasParents', AjaxCheckboxType::class, [
+                     ->add( 'mainPictureField', ChoiceType::class, [
+                         'label'      => 'Главная картинка',
+                         'required'   => false,
+                         'choices'    => $fileFieldNames,
+                         'empty_data' => ''
+                     ] )
+                     ->add( 'hasParents', AjaxCheckboxType::class, [
 			             'is_multiple'       => true,
 			             'label'             => 'Принадлежит типам:',
 			             'data'              => $previousNodeIds,

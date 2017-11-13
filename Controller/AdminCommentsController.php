@@ -80,7 +80,7 @@ class AdminCommentsController extends BaseController {
 
 
 	/**
-	 * Detects Node type and redirects to it `show` page, based on "type" param
+     * Detects Node type and redirects to its `show` page, based on "type" param
 	 *
 	 * @Route("/builder/comments/r/{id}/{type}", name="comments_redirect_ref_id")
 	 * @param int $id

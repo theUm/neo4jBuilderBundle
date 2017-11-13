@@ -42,6 +42,12 @@ class EntityTypeNode {
 	 */
 	protected $isDataType = false;
 
+    /**
+     * @OGM\Property(type="string")
+     * @var string
+     */
+    protected $mainPictureField = '';
+
 	/**
 	 * @OGM\Property(type="string", nullable=true)
 	 * @var string
@@ -294,5 +300,19 @@ class EntityTypeNode {
 	public function setTwigSingleObjectPath( $twigSingleObjectPath ) {
 		$this->twigSingleObjectPath = $twigSingleObjectPath;
 	}
+
+    /**
+     * @return string
+     */
+    public function getMainPictureField(): ?string {
+        return $this->mainPictureField;
+    }
+
+    /**
+     * @param string $mainPictureField
+     */
+    public function setMainPictureField( string $mainPictureField ) {
+        $this->mainPictureField = $mainPictureField;
+    }
 
 }

@@ -197,11 +197,11 @@ class ManageCommentsQueries implements QueriesInterface {
 		return $this->params[ $paramName ];
 	}
 
-	protected function setParams( array $array ) {
+    public function setParams( array $array ) {
 		$this->params = $array;
 	}
 
-	protected function setParam( $paramName, $paramValue ) {
+    public function setParam( $paramName, $paramValue ) {
 		$this->params[ $paramName ] = $paramValue;
 
 		return $this;

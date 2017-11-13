@@ -31,6 +31,14 @@ class ObjectNode {
 	 */
 	protected $description;
 
+    /**
+     * Short plain text used to display short content in cards/lists
+     *
+     * @OGM\Property(type="string")
+     * @var string
+     */
+    protected $excerpt;
+
 	/**
 	 * @OGM\Property(type="string")
 	 * @var string
@@ -335,4 +343,18 @@ class ObjectNode {
 	public function setComments( $comments ) {
 		$this->comments = $comments;
 	}
+
+    /**
+     * @return string
+     */
+    public function getExcerpt(): ?string {
+        return $this->excerpt;
+    }
+
+    /**
+     * @param string $excerpt
+     */
+    public function setExcerpt( string $excerpt ) {
+        $this->excerpt = $excerpt;
+    }
 }

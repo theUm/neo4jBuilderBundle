@@ -516,13 +516,14 @@ class ObjectNodeRepository extends BaseRepository {
 	}
 
     public function topSearchByName( string $name ) {
+        $name  = str_replace( ' ', '|', $name );
         $query = $this->entityManager->createQuery(
             "MATCH (o:Object)--(et:EntityType) where et.isDataType = false and o.name =~ {name}
             WITH o, et ORDER BY o.name
             RETURN collect(o) as objects, et ORDER BY et.name LIMIT 10" );
         $query->addEntityMapping( 'objects', ObjectNode::class, Query::HYDRATE_COLLECTION );
         $query->addEntityMapping( 'et', EntityTypeNode::class );
-        $query->setParameter( 'name', '(?i).*' . $name . '.*' );
+        $query->setParameter( 'name', '(?i).*(' . $name . ').*' );
 
         return $query->getResult();
     }

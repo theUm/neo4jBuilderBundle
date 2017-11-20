@@ -80,8 +80,8 @@ class CommentsQueries implements QueriesInterface {
 									    WHERE child.status = {statusCode}
                                         WITH comment, user, child, childUser ORDER BY child.createdAt DESC limit 100
 									RETURN comment, user, count(child) as count,  collect(
-										CASE childUser WHEN NOT exists(childUser.name)
-									    THEN null
+                                        CASE childUser WHEN null
+                                        THEN null
 									    ELSE {comment:child, user:childUser} END
 									) AS childs
 							        ORDER BY comment.createdAt DESC';

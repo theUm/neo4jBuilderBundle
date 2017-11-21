@@ -131,6 +131,23 @@ class TypeFieldNode {
 	 */
 	protected $required = false;
 
+    /**
+     * @OGM\Property(type="boolean")
+     * @var boolean
+     */
+    protected $comparable = true;
+
+    /**
+     * @OGM\Property(type="boolean")
+     * @var boolean
+     */
+    protected $mainFilter = false;
+    /**
+     * @OGM\Property(type="boolean")
+     * @var boolean
+     */
+    protected $hideInFilters = true;
+
 	public function __construct( $name = null ) {
 		$this->name        = $name;
 		$this->fieldValues = new ArrayCollection();
@@ -159,9 +176,9 @@ class TypeFieldNode {
 		$this->fieldValues = $fieldValues;
 	}
 
-	/*
-	 * That`s hella bad code over there ;(
-	 */
+    /*
+     * That`s hella bad code over there ;(
+     */
 	public function toArray( $withEntityType = false, $withoutId = false ) {
 		$fieldsArray = [
 			'name'                    => $this->getName(),
@@ -177,6 +194,11 @@ class TypeFieldNode {
 			'hasOwnUrl'               => $this->hasOwnUrl(),
 			'required'                => $this->isRequired(),
 			'order'                   => $this->getOrder(),
+
+            //filter-related fields
+            'comparable' => $this->isComparable(),
+            'mainFilter' => $this->isMainFilter(),
+            'hideInFilters' => $this->isHideInFilters(),
 
 			// template fields
 			'twigListFieldVal'        => $this->getTwigListFieldVal(),
@@ -267,14 +289,16 @@ class TypeFieldNode {
 	/**
 	 * @return bool
 	 */
-	public function isMainField() {
+    public function isMainField(): ?bool
+    {
 		return $this->isMainField;
 	}
 
 	/**
 	 * @return string|null
 	 */
-	public function getMetaDesc() {
+    public function getMetaDesc(): ?string
+    {
 		return $this->metaDesc;
 	}
 
@@ -288,7 +312,8 @@ class TypeFieldNode {
 	/**
 	 * @return string
 	 */
-	public function getTabGroup() {
+    public function getTabGroup(): ?string
+    {
 		return $this->tabGroup;
 	}
 
@@ -455,4 +480,58 @@ class TypeFieldNode {
 	public function setOwnUrl( bool $ownUrl ) {
 		$this->hasOwnUrl = $ownUrl;
 	}
+
+    /**
+     * @return bool
+     */
+    public function isComparable(): ?bool
+    {
+        return $this->comparable;
+    }
+
+    /**
+     * @param bool $comparable
+     * @return TypeFieldNode
+     */
+    public function setComparable(bool $comparable): TypeFieldNode
+    {
+        $this->comparable = $comparable;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isMainFilter(): ?bool
+    {
+        return $this->mainFilter;
+    }
+
+    /**
+     * @param bool $mainFilter
+     * @return TypeFieldNode
+     */
+    public function setMainFilter(bool $mainFilter): TypeFieldNode
+    {
+        $this->mainFilter = $mainFilter;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isHideInFilters(): ?bool
+    {
+        return $this->hideInFilters;
+    }
+
+    /**
+     * @param bool $hideInFilters
+     * @return TypeFieldNode
+     */
+    public function setHideInFilters(bool $hideInFilters): TypeFieldNode
+    {
+        $this->hideInFilters = $hideInFilters;
+        return $this;
+    }
 }

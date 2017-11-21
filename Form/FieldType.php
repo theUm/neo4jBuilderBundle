@@ -127,7 +127,19 @@ class FieldType extends AbstractType {
 			->add( 'required', CheckboxType::class, [
 				'label'    => 'Обязательное поле?',
 				'required' => false,
-			] );
+            ])
+            ->add('comparable', CheckboxType::class, [
+                'label' => 'Доступно для сравнения',
+                'required' => false,
+            ])
+            ->add('mainFilter', CheckboxType::class, [
+                'label' => 'Основной фильтр',
+                'required' => false,
+            ])
+            ->add('hideInFilters', CheckboxType::class, [
+                'label' => 'Не показывать в фильтрах',
+                'required' => false,
+            ]);;
 
 		$this->templateTwigFileResolver->addTemplateFields( $builder, 'EntityTypeField' );
 

@@ -465,7 +465,9 @@ class UserNode extends User implements \Serializable {
 			//and social ids
 			$this->googleId,
 			$this->fbId,
-			$this->vkId
+            $this->vkId,
+            // even avatar
+            $this->avatar
 		) );
 	}
 
@@ -488,7 +490,9 @@ class UserNode extends User implements \Serializable {
 			//and social ids
 			$this->googleId,
 			$this->fbId,
-			$this->vkId
+            $this->vkId,
+            // even avatar
+            $this->avatar
 			) = $data;
 	}
 

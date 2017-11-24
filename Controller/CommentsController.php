@@ -13,6 +13,7 @@ use Nodeart\BuilderBundle\Services\Pager\Pager;
 use Nodeart\BuilderBundle\Services\Pager\Queries\CommentsQueries;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -44,8 +45,12 @@ class CommentsController extends BaseController {
 
 		if ( $form->isSubmitted() ) {
 
+            if (empty(trim($form->get('comment')->getData()))) {
+                $form->get('comment')->addError(new FormError('Comment should not be empty'));
+            }
+
 			// standart form validation
-			if ( $form->isValid() ) {
+            if ($form->isValid()) {
 				$this->get( CommentSaver::class )
 				     ->bindForm( $form )
 				     ->bindComment( $comment )

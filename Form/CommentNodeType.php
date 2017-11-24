@@ -10,6 +10,7 @@ use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 class CommentNodeType extends AbstractType {
 	/**
@@ -21,7 +22,8 @@ class CommentNodeType extends AbstractType {
 			->add( 'comment', TextareaType::class, [
 				'label'      => 'Комментарий',
 				'required'   => true,
-				'empty_data' => null
+                'empty_data' => null,
+                'constraints' => [new NotBlank()],
 			] )
 			->add( 'refType', ChoiceType::class, [
 				'label'      => 'Категория',

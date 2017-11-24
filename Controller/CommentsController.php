@@ -78,10 +78,14 @@ class CommentsController extends BaseController {
 						'userReactions' => self::EMPTY_USER_REACTIONS
 					] );
 				} else {
+                    $errorMessages = [];
+                    foreach ($form->getErrors(true) as $formError) {
+                        $errorMessages[] = $formError->getMessage();
+                    }
 					return new JsonResponse( [
 						'status'  => 'failure',
 						'message' => 'Comment form has errors',
-						'errors'  => $form->getErrors()
+                        'errors' => $errorMessages
 					], Response::HTTP_BAD_REQUEST );
 				}
 			}

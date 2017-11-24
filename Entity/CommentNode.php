@@ -162,7 +162,8 @@ class CommentNode {
 	/**
 	 * @return string
 	 */
-	public function getComment(): string {
+    public function getComment(): ?string
+    {
 		return $this->comment;
 	}
 
@@ -171,7 +172,8 @@ class CommentNode {
 	 *
 	 * @return CommentNode
 	 */
-	public function setComment( string $comment ): CommentNode {
+    public function setComment(?string $comment): CommentNode
+    {
 		$this->comment = $comment;
 
 		return $this;

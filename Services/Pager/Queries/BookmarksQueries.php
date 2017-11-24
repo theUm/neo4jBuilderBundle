@@ -89,7 +89,7 @@ class BookmarksQueries implements QueriesInterface {
         $this->query = $this->entityManager->createQuery();
 
         $cql = 'MATCH (%alias%:Bookmark)--(u:User) where id(u) = {uId} 
-                RETURN %alias% SKIP {skip} LIMIT {limit}';
+                RETURN %alias% SKIP {skip} LIMIT {limit} ORDER BY %alias%.createdAt DESC';
 
         $cql = str_replace( '%alias%', self::MAIN_ALIAS, $cql );
 

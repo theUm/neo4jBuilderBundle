@@ -349,3 +349,20 @@ hr {
 td.status-cell {
     font-weight: bold;
 }
+
+.invisible.button {
+    display: none;
+    color: white !important;
+    border: none;
+    box-shadow: none;
+}
+
+/*.title:hover .invisible.button {*/
+/*display: inline-block;*/
+/*color: #000000;*/
+/*box-shadow: 0 0 0 1px rgba(34,36,38,.35) inset, 0 0 0 0 rgba(34,36,38,.15) inset;*/
+/*}*/
+
+.save-tab.button {
+    margin-left: 2em;
+}

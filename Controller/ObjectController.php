@@ -9,6 +9,7 @@ use Nodeart\BuilderBundle\Entity\Repositories\ObjectNodeRepository;
 use Nodeart\BuilderBundle\Form\ObjectNodeType;
 use Nodeart\BuilderBundle\Services\EntityTypeChildsUnlinker;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Form;
@@ -104,11 +105,18 @@ class ObjectController extends Controller {
 		$formFieldsService = $this->get( 'object.form.fields' );
 		$formFieldsService->setObject( $objectNode );
 		$formFieldsService->setEntityType( $entityType );
-		$formFieldsService->setParentObjId( $parentObjId );
 		$formFieldsService->setParentObj( $parentObjectNode );
+        $formFieldsService->setParentObjId($parentObjId);
 
 		$formFieldsService->hideFieldsForDataType( $formBuilder );
-		$formFieldsService->addParentTypesFields( $formBuilder );
+        if (!is_null($parentObjId)) {
+            //add just single parent object form field
+            $formFieldsService->addSingleParentTypeField($formBuilder);
+        } else {
+            //add all possible parent object form fields
+            $formFieldsService->addParentTypesFields($formBuilder);
+        }
+
 		$dynamicFieldsIds = $formFieldsService->addFormFields( $formBuilder );
 
 		$formBuilder->setAction( $this->generateUrl( 'builder_add_type_object', [
@@ -116,7 +124,7 @@ class ObjectController extends Controller {
 			'parentObjId' => $parentObjId
 		] ) );
 		/** @var Form $form */
-		$form = $formBuilder->add( 'submit_button', SubmitType::class, [ 'label' => 'Создать объект' ] )->getForm();
+        $form = $formBuilder->getForm();
 
 		$form->handleRequest( $request );
 
@@ -147,12 +155,26 @@ class ObjectController extends Controller {
 				$url = $this->generateUrl( ( $entityType->isDataType() ? 'builder_edit_object' : 'builder_edit_big_object' ), [ 'id' => $objectNodeId ] );
 
 				return $this->redirect( $url );
-			}
+            } else {
+                $url = $this->generateUrl('builder_edit_object', ['id' => $objectNodeId]);
+                return $this->redirect($url);
+            }
 		}
 
-		$template = $request->isXmlHttpRequest() ? 'BuilderBundle:default:ajax.form.object.add.html.twig' : 'BuilderBundle:default:add.type.object.html.twig';
+        if ($request->isXmlHttpRequest()) {
+            $template = 'BuilderBundle:Object:main.object.form.segment.html.twig';
+//            if ($entityType->isDataType()){
+//                $template = 'BuilderBundle:Object:ajax.data-object.form.edit.html.twig';
+//            } else {
+//                $template = 'BuilderBundle:Object:main.object.form.segment.html.twig';
+//            }
+        } else {
+            $template = 'BuilderBundle:Object:add.object.html.twig';
+        }
 
 		return $this->render( $template, [
+            'objectEntity' => $objectNode,
+            'relatedObjects' => [],
 			'entityType'     => $entityType,
 			'form'           => $form->createView(),
 			'fieldsByGroups' => $formFieldsService->getFieldValuesByGroups(),
@@ -179,12 +201,7 @@ class ObjectController extends Controller {
 			throw $this->createNotFoundException( 'There is no such Object' );
 		}
 
-		$formBuilder = $objectService->prepareForm( $objectNode );
-		$formBuilder->
-		add( 'submit_button', SubmitType::class, [
-			'attr'  => [ 'class' => 'left floated primary' ],
-			'label' => 'Редактировать объект'
-		] );
+        $formBuilder = $objectService->prepareForm($objectNode, !$request->isXmlHttpRequest());
 		$formBuilder->setAction( $this->generateUrl( $request->get( '_route' ), [ 'id' => $id ] ) );
 		/** @var Form $form */
 		$form = $formBuilder->getForm();
@@ -195,10 +212,13 @@ class ObjectController extends Controller {
 		}
 
 		if ( $request->isXmlHttpRequest() ) {
-			$template = 'BuilderBundle:default:ajax.form.object.add.html.twig';
+            if ($objectNode->getEntityType()->isDataType()) {
+                $template = 'BuilderBundle:Object:ajax.data-object.form.edit.html.twig';
+            } else {
+                $template = 'BuilderBundle:Object:main.object.form.segment.html.twig';
+            }
 		} else {
-			$template = ( $request->get( '_route' ) === 'builder_edit_big_object' ) ?
-				'BuilderBundle:default:edit-big.object.html.twig' : 'BuilderBundle:default:edit.object.html.twig';
+            $template = 'BuilderBundle:Object:edit-big.object.html.twig';
 		}
 
 		return $this->render( $template, [
@@ -219,23 +239,23 @@ class ObjectController extends Controller {
 	 */
 	private function createDeleteForm( ObjectNode $node ) {
 		/** @var Form $form */
-		$form = $this->createFormBuilder( null, [ 'attr' => [ 'class' => 'ui delete form' ] ] )
+        $form = $this->get('form.factory')->createNamedBuilder('delete_' . $node->getId(), FormType::class, null, ['attr' => ['class' => 'ui delete form', 'name' => 'form_' . $node->getId()]])
 		             ->setAction( $this->generateUrl( 'builder_delete_object', [ 'id' => $node->getId() ] ) )
-		             ->setMethod( 'DELETE' )
 		             ->getForm();
 		$form
-			->add( 'id', HiddenType::class, [ 'data' => $node->getId() ] );
+            ->add('id', HiddenType::class, ['data' => $node->getId()]);
 
 		return $form;
 	}
 
-	/**
-	 * @Route("/builder/object/{id}/delete", name="builder_delete_object")
-	 * @param int $id
-	 * @param Request $request
-	 *
-	 * @return \Symfony\Component\HttpFoundation\Response
-	 */
+    /**
+     * @Route("/builder/object/{id}/delete", name="builder_delete_object")
+     * @param int $id
+     * @param Request $request
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \GraphAware\Neo4j\Client\Exception\Neo4jExceptionInterface
+     */
 	public function deleteObjectAction( int $id, Request $request ) {
 		$nm = $this->get( 'neo.app.manager' );
 		/** @var ObjectNodeRepository $oRepository */
@@ -251,7 +271,7 @@ class ObjectController extends Controller {
 		$jsonResponse = [ 'status' => 'cant delete!' ];
 
 		$form = $this->createDeleteForm( $objectNode );
-		$form->add( 'delete', SubmitType::class, [ 'label' => 'Удалить' ] );
+        $form->add('submit', SubmitType::class, ['attr' => ['class' => 'red']]);
 		$form->handleRequest( $request );
 
 		/** @var EntityTypeChildsUnlinker $unlinker */
@@ -262,7 +282,7 @@ class ObjectController extends Controller {
 			 * Unlink fieldValues that are related to other EntityTypes
 			 */
 			$unlinker
-				//->unlinkObjectRelatedObjects($objectNode)
+//				->unlinkObjectRelatedObjects($objectNode)
 				->unlinkFieldValues( $objectNode )
 				->deleteObjectWithChilds( $objectNode );
 

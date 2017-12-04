@@ -56,18 +56,21 @@ class EntityTypeChildsUnlinker {
 		return $ids;
 	}
 
-	/**
-	 * @param $entity
-	 *
-	 * @return EntityTypeChildsUnlinker
-	 */
+    /**
+     * @param $entity
+     *
+     * @return EntityTypeChildsUnlinker
+     * @throws \GraphAware\Neo4j\Client\Exception\Neo4jExceptionInterface
+     */
 	public function unlinkFieldValues( $entity ) {
-		switch ( get_class( $entity ) ) {
-			case ( EntityTypeNode::class ): {
+        switch ($entity) {
+            case ($entity instanceof EntityTypeNode):
+                {
 				$this->unlinkEntityTypeFieldValues( $entity );
 				break;
 			}
-			case ( ObjectNode::class ): {
+            case ($entity instanceof ObjectNode):
+                {
 				$this->unlinkObjectFieldValues( $entity );
 				break;
 			}
@@ -76,11 +79,12 @@ class EntityTypeChildsUnlinker {
 		return $this;
 	}
 
-	/**
-	 * @param EntityTypeNode $entityType
-	 *
-	 * @return EntityTypeChildsUnlinker
-	 */
+    /**
+     * @param EntityTypeNode $entityType
+     *
+     * @return EntityTypeChildsUnlinker
+     * @throws \GraphAware\Neo4j\Client\Exception\Neo4jExceptionInterface
+     */
 	private function unlinkEntityTypeFieldValues( EntityTypeNode $entityType ) {
 		$this->nmDriver->run( "
             MATCH (et:EntityType)<-[r2:has_field]-(etf:EntityTypeField)<-[r:is_value_of]
@@ -94,11 +98,12 @@ class EntityTypeChildsUnlinker {
 		return $this;
 	}
 
-	/**
-	 * @param ObjectNode $object
-	 *
-	 * @return EntityTypeChildsUnlinker
-	 */
+    /**
+     * @param ObjectNode $object
+     *
+     * @return EntityTypeChildsUnlinker
+     * @throws \GraphAware\Neo4j\Client\Exception\Neo4jExceptionInterface
+     */
 	private function unlinkObjectFieldValues( ObjectNode $object ) {
 		$this->nmDriver->run( "
             MATCH (o:Object)<-[r:is_field_of]-(fv:FieldValue)-[:is_field_of]->(o2:Object)

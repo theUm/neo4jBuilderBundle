@@ -1,0 +1,68 @@
+{% use 'BuilderBundle:Object:base.object.fields.html.twig' %}
+{{ form_start(form) }}
+{% if not entityType.dataType %}
+    {{ form_row(form.name) }}
+    {{ form_row(form.slug) }}
+{% endif %}
+{#{% do form.submit_button.setRendered %}#}
+{{ block('form_tabable_dropdown') }}
+{{ form_end(form) }}
+
+{# childTypes #}
+{% if objectEntity.id is not null and not entityType.isDataType and not app.request.isXmlHttpRequest() %}
+    <div class="ui accordion field">
+        {% for childType in entityType.childTypes if childType.dataType %}
+            {% set accordion_title = childType.name %}
+            {{ block('accordion_title_ajax_form') }}
+            <div class="content field">
+                <div class="ui bottom attached tab" data-change-tab="{{ childType.slug }}">
+                    <div class="ui segment grayish grid">
+                        <div class="ui two wide stretched column">
+
+                        </div>
+                        {# existed objects dropdown select #}
+                        <div class="ui twelve wide stretched column">
+                            <div class="ui fullwidth child-object tabable search selection dropdown">
+                                <input type="hidden" name="actions" value="">
+                                <div class="text">{{ 'Выбрать'|trans }}</div>
+                                <i class="dropdown icon"></i>
+                                <div class="menu">
+                                    {% if childType.id in relatedObjects|keys %}
+                                        {% for childObject in relatedObjects[childType.id] %}
+                                            <div class="item"
+                                                 data-change-tab="{{ 'obj_'~childType.slug~'_'~childObject.id }}"
+                                                 data-url="{{ path('builder_edit_object',{ 'id': childObject.id}) }}"
+                                            >{{ getMainFields(childObject, false)|default('обьект ['~childType.name~']') }}</div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ui four wide stretched column">
+                            <div id="{{ 'obj_'~childType.slug~'_new' }}" class="item add-new-button"
+                                 data-change-tab="{{ 'obj_'~childType.slug~'_new' }}"
+                                 data-url="{{ path('builder_add_type_object',{ 'id': childType.id, 'parentObjId': objectEntity.id}) }}">
+                                <button class="ui icon button"><i class="icon plus"></i>{{ 'Добавить'|trans }}</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if childType.id in relatedObjects|keys %}
+                        {% for childObject in relatedObjects[childType.id] %}
+                            <div class="ui bottom attached tab segment"
+                                 data-change-tab="{{ 'obj_'~childType.slug~'_'~childObject.id }}"
+                                 data-url="{{ path('builder_edit_object',{ 'id': childObject.id}) }}"></div>
+                        {% endfor %}
+                    {% endif %}
+                    <div class="ui bottom attached tab segment"
+                         data-change-tab="{{ 'obj_'~childType.slug~'_new' }}"
+                         data-url="{{ path('builder_add_type_object',{ 'id': childType.id, 'parentObjId': objectEntity.id}) }}"
+                         data-new="true"></div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+{% if delete_form is defined %}
+    {{ form(delete_form) }}
+{% endif %}

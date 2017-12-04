@@ -1,0 +1,37 @@
+{% extends '::crud_page.html.twig' %}
+
+{% use 'BuilderBundle:Object:base.object.fields.html.twig' %}
+
+{% block content %}
+    {{ parent() }}
+    <div class="sixteen wide column">
+        {{ block('crud_modal') }}
+        <div class="ui grid">
+            {# 12 wide main content #}
+            <div class="sixteen wide stretched column">
+                {# main tab content #}
+                {{ block('main_tab_segment') }}
+
+                {# bottom buttons #}
+                <div class="ui row">
+                    <a class="ui left floated button" href="{{ path('builder_add_types',{}) }}">Назад</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block main_tab_segment %}
+    <div class="ui tab segment active" data-tab="main_object_form">
+        <h1 class="ui header">{{ "Создать объект типа [%type]"|trans({'%type' : entityType.name})|raw }}</h1>
+        {{ include('BuilderBundle:Object:main.object.form.segment.html.twig') }}
+    </div>
+{% endblock %}
+
+{% block crud_modal_header %}
+    {{- "Удалить обьект?"|trans -}}
+{% endblock %}
+
+{% block crud_modal_content %}
+    <p>{{ "Удалив обьект вы также удалите ВСЕ значения полей этого обьекта. Cвязанные с другими обьектами поля не будут удалены. Действие необратимо!"|trans }}</p>
+{% endblock %}

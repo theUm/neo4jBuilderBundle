@@ -1,9 +1,7 @@
-{% extends '::crud_page.html.twig' %}
-
 {% block form_tabable_dropdown %}
     <div class="ui accordion field">
         {# wysiwyg + comment fields #}
-        {% if not objectEntity.entityType.isDataType %}
+        {% if not entityType.isDataType %}
             {% set accordion_title = "Контент"|trans %}
             {{ block('accordion_title') }}
             <div class="content field">
@@ -44,6 +42,8 @@
 {% endblock %}
 
 {% block accordion_title_content %}
-    <i class="icon dropdown"></i>{{ accordion_title }}
-    <button type="button" class="mini compact basic ui save-tab button">Сохранить?</button>
+    <i class="icon dropdown"></i>
+    {{ accordion_title }}
+    <button type="button" class="ui mini compact basic invisible save-tab button">Сохранить?</button>
+    <button type="button" class="ui mini compact basic red invisible delete-this button">Удалить?</button>
 {% endblock %}

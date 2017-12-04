@@ -26,7 +26,6 @@
         {{ form_row(form.description) }}
         {{ form_row(form.isCommentable) }}
     {% endif -%}
-    {% do form.submit_button.setRendered %}
     {% if not entityType.isDataType %}
         <div class="ui fullwidth tabable search selection dropdown ui-dynamic-dropdown">
             <input type="hidden" name="actions" value="{{ fieldsByGroups|keys|first|default('Связи и шаблон'|trans) }}">
@@ -56,14 +55,6 @@
         </div>
     {% else %}
         {{ form_rest(form) }}
-    {% endif %}
-    <button type="submit" id="{{ form.submit_button.vars.id }}" name="{{ form.submit_button.vars.full_name }}"
-            class="primary ui button">
-        {%- if objectNodeId is defined and objectNodeId is not empty -%}{{ 'Редактировать объект'|trans }}{%- else -%}{{ 'Создать объект'|trans }}{% endif -%}
-    </button>
-    {% if delete_form is defined %}
-        <button type="button" id="{{ form.vars.id }}" name="delete_{{ form.vars.id }}"
-                class="ui red delete-this button">{{ 'Удалить' }}</button>
     {% endif %}
     {{ form_end(form) }}
     {% if delete_form is defined %}

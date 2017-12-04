@@ -12,6 +12,7 @@ use Nodeart\BuilderBundle\Entity\ObjectNode;
 use Nodeart\BuilderBundle\Entity\Repositories\ObjectNodeRepository;
 use Nodeart\BuilderBundle\Entity\TypeFieldNode;
 use Nodeart\BuilderBundle\Form\CommentNodeType;
+use Nodeart\BuilderBundle\Helpers\FieldAndValue;
 use Nodeart\BuilderBundle\Twig\Utils\TypeFieldValuePairTransformer;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -87,6 +88,9 @@ class TwigFunctions extends \Twig_Extension {
 			// shorthand to get webpath && thumbnail fieldValue. analog of {{ asset(getField(object, 'FIELD_NAME').webPath)|imagine_filter('FILTER_NAME') }}
 			new \Twig_SimpleFunction( 'getFieldThumbs', [ $this, 'getFieldThumbs' ] ),
 
+            // shorthand to get webpath && thumbnail fieldValue. analog of {{ asset(getField(object, 'FIELD_NAME').webPath)|imagine_filter('FILTER_NAME') }}
+            new \Twig_SimpleFunction('getMainFields', [$this, 'getMainFields']),
+
 			// create form to post comment
 			new \Twig_SimpleFunction( 'createCommentForm', [ $this, 'createCommentForm' ] ),
 		];
@@ -120,6 +124,35 @@ class TwigFunctions extends \Twig_Extension {
         }
 
         return $cardFields;
+    }
+
+    public function getMainFields(ObjectNode $object, $asArray = true, $delimiter = ',')
+    {
+        $mainFieldVals = [];
+        $fields = $this->getFields($object);
+        /** @var FieldAndValue $fieldAndValue */
+        foreach ($fields as $fieldSlug => $fieldAndValue) {
+            /** @var TypeFieldNode $typeNode */
+            $typeNode = $fieldAndValue['type'];
+            if ($typeNode->isMainField() && !is_null($fieldAndValue['val'])) {
+                $values = $fieldAndValue['val'];
+                if (is_array($values)) {
+                    $valuesData = [];
+                    /** @var FieldValueNode $fieldValue */
+                    foreach ($values as $fieldValue) {
+                        $valuesData[] = $fieldValue->getData();
+                    }
+                    $mainFieldVals = array_merge($mainFieldVals, $valuesData);
+                } else {
+                    $mainFieldVals[] = $values->getData();
+                }
+            }
+        }
+
+        if (!$asArray) {
+            $mainFieldVals = join($delimiter, $mainFieldVals);
+        }
+        return $mainFieldVals;
     }
 
     private function transformFieldToCardView( $field, $typeKey, $valueKey, $object ) {

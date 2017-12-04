@@ -12,6 +12,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
 
 class ObjectNodeType extends AbstractType {
@@ -21,10 +22,11 @@ class ObjectNodeType extends AbstractType {
 		$this->templateTwigFileResolver = $templateTwigFileResolver;
 	}
 
-	/**
-	 * @param FormBuilderInterface $builder
-	 * @param array $options
-	 */
+    /**
+     * @param FormBuilderInterface $builder
+     * @param array $options
+     * @throws \Exception
+     */
 	public function buildForm( FormBuilderInterface $builder, array $options ) {
 		$builder
 			->add( 'name', TextType::class, [
@@ -34,10 +36,13 @@ class ObjectNodeType extends AbstractType {
 					'class'     => 'slug-base'
 				],
 				'required'   => true,
-				'empty_data' => null
+                'constraints' => [
+                    new NotBlank()
+                ],
 			] )
 			->add( 'slug', SluggableText::class, [
 				'label'               => 'Slug (Имя в ссылках)',
+                'error_bubbling' => false,
 				'attr'                => [
 					'maxlength' => 32,
 				],
@@ -46,10 +51,10 @@ class ObjectNodeType extends AbstractType {
 					new Regex( [
 						'pattern' => '/[0-9a-zA-Z]+/',
 						'message' => 'Numbers and latin characters only!'
-					] )
+                    ]),
+                    new NotBlank(),
 				],
 				'required'            => true,
-				'empty_data'          => null,
 				'base_field_selector' => '.slug-base',
 			] )
 			->add( 'description', WysiwygType::class, [

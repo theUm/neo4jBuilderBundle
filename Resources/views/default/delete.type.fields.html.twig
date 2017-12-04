@@ -10,7 +10,12 @@
                 </div>
             </div>
         </h1>
-        {{ form(form) }}
+        {% do form.submit.setRendered %}
+        {{ form_start(form) }}
         <a class="ui left floated button primary" href="{{ path('builder_add_types',{}) }}">{{ "Назад"|trans }}</a>
+        <button class="ui left floated red button"
+                href="{{ path('builder_add_types',{}) }}">{{ "Удалить"|trans }}</button>
+        {{ form_rest(form) }}
+        {{ form_end(form) }}
     </div>
 {%- endblock %}

@@ -37,12 +37,14 @@ class ObjectEditControlService {
 		return $this->oRepository->findOneById( $id );
 	}
 
-	/**
-	 * @param ObjectNode $objectNode
-	 *
-	 * @return \Symfony\Component\Form\FormBuilderInterface
-	 */
-	public function prepareForm( ObjectNode $objectNode ) {
+    /**
+     * @param ObjectNode $objectNode
+     *
+     * @return \Symfony\Component\Form\FormBuilderInterface
+     * @throws \Exception
+     */
+    public function prepareForm(ObjectNode $objectNode, $withParentFields = false)
+    {
 		$formBuilder = $this->container->get( 'form.factory' )
 		                               ->createNamedBuilder( 'obj_fields', ObjectNodeType::class, $objectNode, [
 			                               'attr' => [
@@ -52,7 +54,10 @@ class ObjectEditControlService {
 		                               ] );
 
 		$this->formFieldsService->setObject( $objectNode );
-		$this->formFieldsService->addParentTypesFields( $formBuilder );
+        // hide relations fields for data objects
+        if ($withParentFields) {
+            $this->formFieldsService->addParentTypesFields($formBuilder);
+        }
 		$this->formFieldsService->hideFieldsForDataType( $formBuilder );
 
 		$this->dynamicFieldsIds = $this->formFieldsService->addFormFields( $formBuilder );
@@ -69,17 +74,18 @@ class ObjectEditControlService {
 		//$this->nm->getNM()->persist($this->getObject());
 		//$this->nm->getNM()->flush();
 
-		//update links to parent objects
-		$pickedParentsIds = $this->formFieldsService->getPickedParentIds( $form );
-		$this->oRepository->updateParenthesisRelationsByIds(
-			$this->getObject()->getId(),
-			$pickedParentsIds,
-			$this->formFieldsService->getCurrentParentObjectsIds(),
-			ObjectNodeRepository::LINK_TO_PARENTS );
 
-		if ( ! $silent ) {
-			$this->container->get( 'session' )->getFlashBag()->add( 'success', 'Объект успешно изменён' );
-		}
+        if (!$silent && !$this->formFieldsService->getObject()->getEntityType()->isDataType()) {
+            //update links to parent objects
+            $pickedParentsIds = $this->formFieldsService->getPickedParentIds( $form );
+            $this->oRepository->updateParenthesisRelationsByIds(
+                $this->getObject()->getId(),
+                $pickedParentsIds,
+                $this->formFieldsService->getCurrentParentObjectsIds(),
+                ObjectNodeRepository::LINK_TO_PARENTS );
+
+            $this->container->get( 'session' )->getFlashBag()->add( 'success', 'Объект успешно изменён' );
+        }
 		// update FieldsValues in separate queries
 		$this->formFieldsService->handleDynamicFields( $form, $this->dynamicFieldsIds );
 		if ( ! $silent ) {

@@ -257,6 +257,19 @@ class ObjectFormFieldsService {
 		}
 	}
 
+
+    public function addSingleParentTypeField(FormBuilderInterface $form)
+    {
+        $form->add($this->parentObjectNode->getEntityType()->getSlug(), NodeCheckboxType::class, [
+            'label' => 'Принадлежит объектам типа',
+            'label_attr' => ['tooltip' => $this->parentObjectNode->getEntityType()->getName()],
+            'data' => [$this->parentObjectNode],
+            'is_multiple' => true,
+            'local_search_data' => [$this->parentObjectNode],
+            'is_hidden' => true
+        ]);
+    }
+
 	public function setParentsToObject( Form $form ) {
 		//reset parent objects
 		$parentObjects = [];
@@ -454,6 +467,7 @@ class ObjectFormFieldsService {
 			$formBuilder->remove( 'name' );
 			$formBuilder->remove( 'slug' );
 			$formBuilder->remove( 'description' );
+            $formBuilder->remove('isCommentable');
 		}
 	}
 

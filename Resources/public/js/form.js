@@ -1,9 +1,13 @@
 $(document).ready(function () {
-    function initCalendars(context) {
+    function wrapContext(context) {
         if (!context) {
             context = 'body';
         }
-        context = $(context);
+        return $(context);
+    }
+
+    function initCalendars(context) {
+        context = wrapContext(context);
         const defaultDate = function (date) {
             if (!date) return '';
             return ('0' + date.getDate()).slice(-2) + '.'
@@ -48,63 +52,15 @@ $(document).ready(function () {
         }
     }
 
-    // finds '.delete-this.button', binds on it ajax form submission
-    window.initPopupConfirmation = function (context) {
-        if (!context) {
-            context = 'body';
-        }
-        context = $(context);
-        context.find('.delete-this.button').click(function (e) {
-            $('.ui.basic.test.modal')
-                .modal({
-                    onApprove: function () {
-                        let listUrl = e.currentTarget.dataset.url;
-                        let deleteForm = $(e.currentTarget).parent().siblings('form')[0];
-                        let deleteFormJq = $(deleteForm);
-                        let thisContentTab = deleteFormJq.parent();
-                        $.ajax({
-                            type: deleteFormJq.attr('method'),
-                            url: deleteFormJq.attr('action'),
-                            data: new FormData(deleteForm),
-                            processData: false,
-                            contentType: false
-                        }).done(function (data) {
-                            if (!!data.status && data.status === 'deleted') {
-                                //after deletion we need to redirect user to objects list or to remove deleted data-object
-                                if ((typeof thisContentTab.data('tab') === "undefined") || (thisContentTab.data('tab') === 'main_object_form')) {
-                                    window.location = listUrl;
-                                } else {
-                                    let newFlashMessage = $('<div class="ui success message"/>');
-                                    newFlashMessage.append($('<i class="close icon"/>'));
-                                    newFlashMessage.append($('<div class="header"/>').html('Обьект удалён!'));
-                                    newFlashMessage.appendTo('.flashbag-container');
-                                    newFlashMessage.click(function () {
-                                        $(this).remove();
-                                    });
-                                    thisContentTab.siblings('.menu').find('.item.active').remove();
-                                    thisContentTab.siblings('.menu').find('.item').last().click();
-                                    thisContentTab.remove();
-                                }
-                            }
-                        });
-                    }
-                })
-                .modal('show');
-        });
-    };
-
     if ($('.ui.calendar').length) {
         initCalendars();
     }
 
     let initDetachFileFields = function (context) {
-        if (!context) {
-            context = 'body';
-        }
-        context = $(context);
+        context = wrapContext(context);
         context.find('.detach-file').click(
-            function (ev) {
-                ev.preventDefault();
+            function (e) {
+                e.preventDefault();
                 let galleryButton = $(this);
                 $.ajax({
                     type: 'POST',
@@ -122,10 +78,7 @@ $(document).ready(function () {
     initDetachFileFields();
 
     let initFilePickerButton = function (context) {
-        if (!context) {
-            context = 'body';
-        }
-        context = $(context);
+        context = wrapContext(context);
         let modalContainer = $('.filepicker.modal');
         let selectedFieldValueIds = [];
         let modalContent = modalContainer.find('.content-data');
@@ -219,10 +172,7 @@ $(document).ready(function () {
     initFilePickerButton();
 
     window.initSemanticSearch = function initSemanticSearch(context) {
-        if (!context) {
-            context = 'body';
-        }
-        context = $(context);
+        context = wrapContext(context);
         context.find('.semantic-search').each(
             function () {
                 $(this).on('keyup keypress', function (e) {
@@ -282,19 +232,92 @@ $(document).ready(function () {
         );
     };
 
+
+    // finds '.delete-this.button', binds on it ajax form submission
+    window.initPopupConfirmation = function (context) {
+        context = wrapContext(context);
+        context.find('.delete-this.button').click(function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            $('.ui.basic.test.modal')
+                .modal({
+                    onApprove: function () {
+                        let redTargetButton = $(e.currentTarget);
+                        let deleteForm;
+                        if (redTargetButton.parent().data('formType') === 'main-form') {
+                            // deleteForm = $(this).parents('form');
+                            console.log('preventing from delete main form')
+                        } else {
+                            deleteForm = redTargetButton.parent().next().find('.segment.active>form.delete');
+                        }
+                        if (deleteForm.length > 0) {
+                            $.ajax({
+                                type: deleteForm.attr('method'),
+                                url: deleteForm.attr('action'),
+                                data: new FormData(deleteForm[0]),
+                                processData: false,
+                                contentType: false
+                            }).done(function (data) {
+                                if (!!data.status && data.status === 'deleted') {
+                                    console.log(data);
+                                    let currentDropdown = deleteForm.parent().siblings('.grayish.grid').find('.tabable.dropdown');
+                                    currentDropdown.find('.menu.transition.hidden .item.active.selected').remove();
+                                    currentDropdown.dropdown('clear');
+                                    deleteForm.parent().empty();
+                                    createFlashMessage('Обьект удалён!');
+                                }
+                            });
+                        }
+                    }
+                })
+                .modal('show');
+        });
+    };
+
+    function createFlashMessage(message, type = 'success') {
+        let newFlashMessage = $('<div class="ui ' + type + ' message"/>');
+        newFlashMessage.append($('<i class="close icon"/>'));
+        newFlashMessage.append($('<div class="header"/>').html(message));
+        newFlashMessage.appendTo('.flashbag-container');
+        newFlashMessage.click(function () {
+            $(this).remove();
+        });
+    }
+
     function initTabableDropdown(context) {
-        if (!context) {
-            context = 'body';
-        }
-        context = $(context);
-        context.find('.tabable.dropdown')
-            .dropdown({
+        context = wrapContext(context);
+        let dropdown = context.find('.tabable.dropdown');
+        dropdown.dropdown({
                 onChange: function (value, text, $selectedItem) {
-                    let siblings = $(this).siblings('.tab.segment');
-                    siblings.toggleClass('active', false);
-                    $(this).siblings('.tab[data-change-tab="' + $selectedItem.data('changeTab') + '"]').toggleClass('active', true);
+                    if ($selectedItem) {
+                        // find container of tabable dropdown and then find corresponding to tabableDropdown tab
+                        changeTab($selectedItem);
+                    }
                 }
+        });
+        context.find('.add-new-button')
+            .click(function () {
+                dropdown.dropdown('clear').dropdown('refresh');
+                changeTab($(this));
             });
+    }
+
+    function changeTab(el) {
+        // find container of tabable dropdown and then find corresponding to tabableDropdown tab
+        let selectedTabContentEl = el.closest('.ui.accordion.field').find('.tab[data-change-tab="' + el.data('changeTab') + '"]');
+        // console.log(selectedTabContentEl);
+        if (el.data('url') !== undefined) {
+            //do ajax
+            $.ajax(el.data('url')).done(function (responseHTML) {
+                selectedTabContentEl.html(responseHTML);
+                initNewFields(selectedTabContentEl);
+            });
+        }
+        let siblings = $(this).siblings('.tab.segment');
+        siblings.toggleClass('active', false);
+        selectedTabContentEl.siblings().toggleClass('active', false);
+        selectedTabContentEl.toggleClass('active', true);
     }
 
     initTabableDropdown();
@@ -339,10 +362,7 @@ $(document).ready(function () {
     $('.checkbox input').toggleClass('hidden', false);
 
     function initSluggableFields(context) {
-        if (!context) {
-            context = 'body';
-        }
-        context = $(context);
+        context = wrapContext(context);
         context.find('.sluggable.field').each(
             function () {
                 try {
@@ -377,12 +397,8 @@ $(document).ready(function () {
         });
 
     function initContentToolsButtons(context) {
-        if (!context) {
-            context = 'body';
-        }
-        context = $(context);
-
         const editor = ContentTools.EditorApp.get();
+        context = wrapContext(context);
 
         /** styles are commented now because of
          * @link https://github.com/GetmeUK/ContentTools/issues/362
@@ -461,62 +477,86 @@ $(document).ready(function () {
         initContentToolsButtons();
     }
 
-    //functions
+
+    //all field funcions initialization
     let initNewFields = function (context) {
-        context = $(context);
+        context = wrapContext(context);
         context.find('.tabular.menu .item').tab();
+        context.find('.checkbox').checkbox();
+        context.find('.checkbox input').toggleClass('hidden', false);
+        context.find('.ui.accordion').accordion();
+
         initTabableDropdown(context);
         initCalendars(context);
         initDetachFileFields(context);
         initFilePickerButton(context);
         initSluggableFields(context);
         initContentToolsButtons(context);
-        window.initSemanticSearch(context);
-
-        context.find('.checkbox').checkbox();
-        context.find('.checkbox input').toggleClass('hidden', false);
-        context.find('.ui.accordion').accordion();
-        context.find("form[name='obj_fields']").on('submit', function (e) {
-            e.preventDefault();
-            let target = $(e.target);
-            target.toggleClass('hidden', true);
-            target.parent().toggleClass('loading', true);
-            $.ajax({
-                type: $(this).attr('method'),
-                url: $(this).attr('action'),
-                data: new FormData(this),
-                processData: false,
-                contentType: false
-            }).done(function (data) {
-                let thisTabContent = target.parent();
-
-                let newForm = $.parseHTML(data)[0];
-                let newObjId = newForm.dataset.id;
-                let newObjName = newForm.dataset.name;
-                let newUrl = newForm.dataset.url;
-
-                //if form has ID data attribute  then we just created object. Leta add it to tab menu & menu content div
-                if (!target.data('id') && newObjId) {
-                    let newTab = $('<div class="item" data-tab="woob_obj_rootType_' + newObjId + '"/>').text((newObjName) ? newObjName : ('tid ' + newObjId));
-                    newTab.insertBefore(thisTabContent.siblings('.menu').find('.item').last());
-                    let newTabContent = $('<div class="ui bottom attached tab segment" data-tab="woob_obj_rootType_' + newObjId + '" data-url="' + newUrl + '"/>');
-                    newTabContent.append(newForm);
-                    thisTabContent.parent().append(newTabContent);
-                    initNewFields(newTabContent);
-                    //clear "+" tab content
-                    thisTabContent.html('');
-                    newTab.tab();
-                    newTab.click();
-                } else {
-                    thisTabContent.html(data);
-                    initNewFields(thisTabContent);
-                    thisTabContent.siblings('.menu').find('.item.active').tab();
-                }
-                thisTabContent.toggleClass('loading', false);
-                sessionStorage.clear();
-            });
-        });
 
         window.initPopupConfirmation(context);
+        initTabSaveButtons(context);
+        initFieldAccordions(context);
+        window.initSemanticSearch(context);
     };
+
+    function submitAjaxForm($form) {
+        let form = $form[0];
+        $form.toggleClass('hidden', true);
+        $form.parent().toggleClass('loading', true);
+        $.ajax({
+            type: $form.attr('method'),
+            url: $form.attr('action'),
+            data: new FormData(form),
+            processData: false,
+            contentType: false
+        }).done(function (data) {
+            $form.html(data);
+            initNewFields($form.parent().parent());
+            $form.toggleClass('hidden', false);
+            // if we just created new object - refresh dropdown
+            console.log($form.parent().siblings().first());
+            if ($form.parent().data('new') === true) {
+                $form.parent().siblings().first().find('.dropdown').dropdown('clear').dropdown('refresh');
+            }
+
+            $form.parent().toggleClass('loading', false);
+            sessionStorage.clear();
+        });
+    }
+
+    function initTabSaveButtons(context) {
+        context = wrapContext(context);
+        context.find('.save-tab').click(function (e) {
+            console.log('save clicked');
+            e.preventDefault();
+            e.stopPropagation();
+            let editableForm;
+            if ($(this).parent().data('formType') === 'main-form') {
+                editableForm = $(this).parents('form');
+            } else {
+                editableForm = $(this).parent().next().find('.segment.active>form').not('.delete');
+            }
+            if (editableForm.length > 0) {
+                submitAjaxForm(editableForm);
+            }
+        });
+    }
+
+    initTabSaveButtons();
+
+    function initFieldAccordions(context) {
+
+        context = wrapContext(context);
+        console.log('init accs', context);
+        context.find('.ui.accordion.field').accordion({
+            'onOpen': function () {
+                console.log('onopen!');
+                $(this).parents('.segment').find('.accordion>.title>.button').addClass('invisible');
+                $(this).prev().find('.invisible.button').removeClass('invisible');
+            }
+        });
+    }
+
+    initFieldAccordions();
+
 });

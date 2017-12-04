@@ -103,6 +103,7 @@ class NodeCheckboxType extends AbstractType {
 			'label_attr'        => [ 'tooltip' => '' ],
 			'placeholder'       => '',
 			'updateChilds'      => false,
+            'is_hidden' => false,
 			//semantic ui dropdown options
 			'maxSelections'     => 1,
 			'allowAdditions'    => false,
@@ -122,6 +123,7 @@ class NodeCheckboxType extends AbstractType {
 		$view->vars['local_search_data'] = $options['local_search_data'];
 		$view->vars['delimiter']         = $options['delimiter'];
 		$view->vars['placeholder']       = $options['placeholder'];
+        $view->vars['is_hidden'] = $options['is_hidden'];
 		if ( $options['is_multiple'] ) {
 			$options['maxSelections'] = false;
 		}

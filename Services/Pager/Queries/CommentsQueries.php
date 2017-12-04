@@ -72,7 +72,7 @@ class CommentsQueries implements QueriesInterface {
 	public function createQuery( $limit, $skip, $fromId = null ) {
 		$this->query = $this->entityManager->createQuery();
 
-		$cql = 'MATCH (o)<-[:is_comment_of]-(comment:Comment)-[]->(user:User) 
+        $cql = 'MATCH (o)<-[:is_comment_of]-(comment:Comment)-[:commented]->(user:User) 
 										WHERE id(o) = {oID}  AND comment.level=0 AND comment.refType = {refType}
 										AND comment.status = {statusCode}  %olderThan% 
 										WITH comment, user ORDER BY comment.createdAt DESC %skip% limit {limit} 

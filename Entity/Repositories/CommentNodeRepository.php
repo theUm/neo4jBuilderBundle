@@ -77,7 +77,7 @@ class CommentNodeRepository extends BaseRepository {
 	public function findMoreParentComments( int $refComId ) {
 		$query = $this->entityManager->createQuery( '
 		MATCH (refCom:Comment)-[:is_comment_of]-(o) WHERE id(refCom) = {refCom}
-		MATCH (o)<-[:is_comment_of]-(comment:Comment)-[]->(user:User) 
+		MATCH (o)<-[:is_comment_of]-(comment:Comment)-[:commented]->(user:User) 
 			WHERE comment.level=0 AND comment.refType = refCom.refType AND refCom.createdAt > comment.createdAt
 			AND ( comment.reports < 5  OR comment.reports is null)
 			WITH comment, user ORDER BY comment.createdAt DESC limit 10

@@ -213,7 +213,7 @@ hr {
 }
 
 .ui.red.delete-this.button {
-    float: right;
+    /*float: right;*/
 }
 
 .ui.left.floated.button.primary.backward {

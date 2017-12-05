@@ -77,7 +77,7 @@ class TypeFieldNode {
 	protected $metaDesc = '';
 
 	/**
-	 * @OGM\Property(key="tab_group", type="string", nullable=false)
+     * @OGM\Property(type="string", nullable=false)
 	 * @var string
 	 */
 	protected $tabGroup = 'default';

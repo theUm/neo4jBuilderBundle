@@ -10,5 +10,5 @@ $('.hamburger').on('click', function () {
 
 $('.ui.rating').rating();
 $('.checkbox').checkbox();
-$('.ui.accordion').not('.ui.accordion.field').accordion();
+$('.ui.accordion').accordion();
 $('.ui.regular.dropdown').dropdown();

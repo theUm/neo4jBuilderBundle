@@ -4,46 +4,54 @@
         {% if not entityType.isDataType %}
             {% set accordion_title = "Контент"|trans %}
             {{ block('accordion_title') }}
-            <div class="content field">
+            <div class="content field" data-form-type="main-form">
                 {{ form_row(form.isCommentable) }}
                 {{ form_row(form.description) }}
+                {{ block('accordion_content_save_button') }}
             </div>
         {% endif %}
         {% for groupName, fields in fieldsByGroups %}
             {% set accordion_title = groupName|capitalize %}
             {{ block('accordion_title') }}
-            <div class="content field">
+            <div class="content field" data-form-type="main-form">
                 {% for groupName, field in fields %}
                     {{ form_row(form[field['type'].id]) }}
                     {{ form_errors(form[field['type'].id]) }}
                 {% endfor %}
+                {{ block('accordion_content_save_button') }}
             </div>
         {% endfor %}
 
         {# связи и шаблон #}
         {% set accordion_title = 'Связи и шаблон'|trans %}
         {{ block('accordion_title') }}
-        <div class="content field">
+        <div class="content field" data-form-type="main-form">
             {{ form_rest(form) }}
+            {{ block('accordion_content_save_button') }}
         </div>
     </div>
 {% endblock %}
 
 {% block accordion_title %}
-    <div class="title" data-form-type="main-form">
-        {{ block('accordion_title_content') }}
+    <div class="title">
+        <i class="icon dropdown"></i>
+        {{ accordion_title }}
+        {# data-form-type="main-form" #}
+        {#{{ block('accordion_title_content') }}#}
     </div>
 {% endblock %}
 
 {% block accordion_title_ajax_form %}
     <div class="title" data-form-type="remote-form">
+        {# #}
         {{ block('accordion_title_content') }}
     </div>
 {% endblock %}
 
-{% block accordion_title_content %}
-    <i class="icon dropdown"></i>
-    {{ accordion_title }}
-    <button type="button" class="ui mini compact basic invisible save-tab button">Сохранить?</button>
-    <button type="button" class="ui mini compact basic red invisible delete-this button">Удалить?</button>
+{% block accordion_content_save_button %}
+    <button type="button" class="ui compact basic primary save-tab button">Сохранить</button>
+{% endblock %}
+
+{% block accordion_content_delete_button %}
+    <button type="button" class="ui compact basic red delete-this button">Удалить</button>
 {% endblock %}

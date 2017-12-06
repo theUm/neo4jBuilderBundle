@@ -363,6 +363,10 @@ td.status-cell {
 /*box-shadow: 0 0 0 1px rgba(34,36,38,.35) inset, 0 0 0 0 rgba(34,36,38,.15) inset;*/
 /*}*/
 
-.save-tab.button {
-    margin-left: 2em;
+.ui.invisible.field {
+    display: none;
+}
+
+.ui.accordion.field > .content.field {
+    margin-bottom: 0;
 }

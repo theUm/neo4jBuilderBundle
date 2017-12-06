@@ -171,7 +171,7 @@ $(document).ready(function () {
     };
     initFilePickerButton();
 
-    window.initSemanticSearch = function initSemanticSearch(context) {
+    function initSemanticSearch(context) {
         context = wrapContext(context);
         context.find('.semantic-search').each(
             function () {
@@ -234,7 +234,7 @@ $(document).ready(function () {
 
 
     // finds '.delete-this.button', binds on it ajax form submission
-    window.initPopupConfirmation = function (context) {
+    function initPopupConfirmation(context) {
         context = wrapContext(context);
         context.find('.delete-this.button').click(function (e) {
             e.preventDefault();
@@ -244,14 +244,10 @@ $(document).ready(function () {
                 .modal({
                     onApprove: function () {
                         let redTargetButton = $(e.currentTarget);
+                        let parentSegment = redTargetButton.parent().parent();
                         let deleteForm;
-                        if (redTargetButton.parent().data('formType') === 'main-form') {
-                            // deleteForm = $(this).parents('form');
-                            console.log('preventing from delete main form')
-                        } else {
-                            deleteForm = redTargetButton.parent().next().find('.segment.active>form.delete');
-                        }
-                        if (deleteForm.length > 0) {
+                        if (parentSegment.hasClass('ui bottom attached tab segment active')) {
+                            deleteForm = parentSegment.find('.delete.form');
                             $.ajax({
                                 type: deleteForm.attr('method'),
                                 url: deleteForm.attr('action'),
@@ -289,12 +285,12 @@ $(document).ready(function () {
         context = wrapContext(context);
         let dropdown = context.find('.tabable.dropdown');
         dropdown.dropdown({
-                onChange: function (value, text, $selectedItem) {
-                    if ($selectedItem) {
-                        // find container of tabable dropdown and then find corresponding to tabableDropdown tab
-                        changeTab($selectedItem);
-                    }
+            onChange: function (value, text, $selectedItem) {
+                if ($selectedItem) {
+                    // find container of tabable dropdown and then find corresponding to tabableDropdown tab
+                    changeTab($selectedItem);
                 }
+            }
         });
         context.find('.add-new-button')
             .click(function () {
@@ -340,8 +336,24 @@ $(document).ready(function () {
     //menu & fields
 
     sessionStorage.clear();
-    window.initSemanticSearch();
-    window.initPopupConfirmation();
+    initSemanticSearch();
+    initPopupConfirmation();
+    initObjectDeleteButton();
+
+    function initObjectDeleteButton() {
+        $('.delete-main-object.button').click(function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            $('.ui.basic.test.modal')
+                .modal({
+                    onApprove: function () {
+                        $('.ui.delete.form.main-object').submit();
+                    }
+                })
+                .modal('show');
+        });
+    }
 
     //checkbox linked to drodown. if toggled off  - dropdown disabled and reset to default
     $('.checkbox>.toggle-class').parent().change(function () {
@@ -493,10 +505,9 @@ $(document).ready(function () {
         initSluggableFields(context);
         initContentToolsButtons(context);
 
-        window.initPopupConfirmation(context);
+        initPopupConfirmation(context);
         initTabSaveButtons(context);
-        initFieldAccordions(context);
-        window.initSemanticSearch(context);
+        initSemanticSearch(context);
     };
 
     function submitAjaxForm($form) {
@@ -514,11 +525,9 @@ $(document).ready(function () {
             initNewFields($form.parent().parent());
             $form.toggleClass('hidden', false);
             // if we just created new object - refresh dropdown
-            console.log($form.parent().siblings().first());
             if ($form.parent().data('new') === true) {
                 $form.parent().siblings().first().find('.dropdown').dropdown('clear').dropdown('refresh');
             }
-
             $form.parent().toggleClass('loading', false);
             sessionStorage.clear();
         });
@@ -527,15 +536,9 @@ $(document).ready(function () {
     function initTabSaveButtons(context) {
         context = wrapContext(context);
         context.find('.save-tab').click(function (e) {
-            console.log('save clicked');
             e.preventDefault();
             e.stopPropagation();
-            let editableForm;
-            if ($(this).parent().data('formType') === 'main-form') {
-                editableForm = $(this).parents('form');
-            } else {
-                editableForm = $(this).parent().next().find('.segment.active>form').not('.delete');
-            }
+            let editableForm = $(this).parents('form');
             if (editableForm.length > 0) {
                 submitAjaxForm(editableForm);
             }
@@ -543,20 +546,4 @@ $(document).ready(function () {
     }
 
     initTabSaveButtons();
-
-    function initFieldAccordions(context) {
-
-        context = wrapContext(context);
-        console.log('init accs', context);
-        context.find('.ui.accordion.field').accordion({
-            'onOpen': function () {
-                console.log('onopen!');
-                $(this).parents('.segment').find('.accordion>.title>.button').addClass('invisible');
-                $(this).prev().find('.invisible.button').removeClass('invisible');
-            }
-        });
-    }
-
-    initFieldAccordions();
-
 });

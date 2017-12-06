@@ -123,6 +123,7 @@ class ObjectController extends Controller {
 			'id'          => $id,
 			'parentObjId' => $parentObjId
 		] ) );
+        $formBuilder->add('Create', SubmitType::class, ['attr' => ['class' => 'ui basic red save-tab button']]);
 		/** @var Form $form */
         $form = $formBuilder->getForm();
 
@@ -163,11 +164,6 @@ class ObjectController extends Controller {
 
         if ($request->isXmlHttpRequest()) {
             $template = 'BuilderBundle:Object:main.object.form.segment.html.twig';
-//            if ($entityType->isDataType()){
-//                $template = 'BuilderBundle:Object:ajax.data-object.form.edit.html.twig';
-//            } else {
-//                $template = 'BuilderBundle:Object:main.object.form.segment.html.twig';
-//            }
         } else {
             $template = 'BuilderBundle:Object:add.object.html.twig';
         }
@@ -183,16 +179,17 @@ class ObjectController extends Controller {
 	}
 
 
-	/**
-	 * Edit object
-	 *
-	 * @Route("/builder/object/{id}/edit", name="builder_edit_object")
-	 * @Route("/builder/object/{id}/edit-big", name="builder_edit_big_object")
-	 * @param int $id
-	 * @param Request $request
-	 *
-	 * @return \Symfony\Component\HttpFoundation\Response
-	 */
+    /**
+     * Edit object
+     *
+     * @Route("/builder/object/{id}/edit", name="builder_edit_object")
+     * @Route("/builder/object/{id}/edit-big", name="builder_edit_big_object")
+     * @param int $id
+     * @param Request $request
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
+     */
 	public function editObjectAction( int $id, Request $request ) {
 		$objectService = $this->get( 'object.edit.control.service' );
 		/** @var ObjectNode $objectNode */
@@ -232,14 +229,16 @@ class ObjectController extends Controller {
 		] );
 	}
 
-	/**
-	 * @param $node
-	 *
-	 * @return \Symfony\Component\Form\Form The form
-	 */
-	private function createDeleteForm( ObjectNode $node ) {
+    /**
+     * @param ObjectNode $node
+     *
+     * @return \Symfony\Component\Form\Form The form
+     */
+    private function createDeleteForm(ObjectNode $node)
+    {
+        $formClass = 'ui delete form ' . ($node->getEntityType()->isDataType() ? '' : 'main-object');
 		/** @var Form $form */
-        $form = $this->get('form.factory')->createNamedBuilder('delete_' . $node->getId(), FormType::class, null, ['attr' => ['class' => 'ui delete form', 'name' => 'form_' . $node->getId()]])
+        $form = $this->get('form.factory')->createNamedBuilder('delete_' . $node->getId(), FormType::class, null, ['attr' => ['class' => $formClass, 'name' => 'form_' . $node->getId()]])
 		             ->setAction( $this->generateUrl( 'builder_delete_object', [ 'id' => $node->getId() ] ) )
 		             ->getForm();
 		$form

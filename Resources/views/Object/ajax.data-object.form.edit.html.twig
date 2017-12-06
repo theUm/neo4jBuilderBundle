@@ -1,3 +1,4 @@
+{% use 'BuilderBundle:Object:base.object.fields.html.twig' %}
 {% spaceless %}
     {% set method = form.vars.method|upper %}
     {%- if method in ["GET", "POST"] -%}
@@ -20,13 +21,11 @@
     {%- if form_method != method -%}
         <input type="hidden" name="_method" value="{{ method }}"/>
     {%- endif -%}
-    {%- if not entityType.dataType %}
+    {%- if not entityType.isDataType %}
         {{ form_row(form.name) }}
         {{ form_row(form.slug) }}
         {{ form_row(form.description) }}
         {{ form_row(form.isCommentable) }}
-    {% endif -%}
-    {% if not entityType.isDataType %}
         <div class="ui fullwidth tabable search selection dropdown ui-dynamic-dropdown">
             <input type="hidden" name="actions" value="{{ fieldsByGroups|keys|first|default('Связи и шаблон'|trans) }}">
             <i class="dropdown icon"></i>
@@ -56,6 +55,8 @@
     {% else %}
         {{ form_rest(form) }}
     {% endif %}
+    {{ block('accordion_content_save_button') }}
+    {{ block('accordion_content_delete_button') }}
     {{ form_end(form) }}
     {% if delete_form is defined %}
         {{ form(delete_form) }}

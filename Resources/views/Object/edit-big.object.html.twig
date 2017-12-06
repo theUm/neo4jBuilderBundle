@@ -31,11 +31,13 @@
 
                 {# bottom buttons #}
                 <div class="ui row">
-                    <a class="ui left floated button" href="{{ path('builder_add_types',{}) }}">Назад</a>
+                    <a class="ui left floated basic button" href="{{ path('builder_add_types',{}) }}">Назад</a>
                     {% if not objectEntity.entityType.isDataType %}
                         <a href="{{ path('vSingleObject',{'entityType':objectEntity.entityType.slug, 'object': objectEntity.slug}) }}"
-                           class="ui right floated green button" target="_blank">{{ 'Страница объекта'|trans }}</a>
+                           class="ui right floated basic green button"
+                           target="_blank">{{ 'Страница объекта'|trans }}</a>
                     {% endif %}
+                    <button type="button" class="ui basic red delete-main-object right floated button">Удалить</button>
                 </div>
             </div>
         </div>

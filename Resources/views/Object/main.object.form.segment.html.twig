@@ -3,9 +3,8 @@
 {% if not entityType.dataType %}
     {{ form_row(form.name) }}
     {{ form_row(form.slug) }}
+    {{ block('form_tabable_dropdown') }}
 {% endif %}
-{#{% do form.submit_button.setRendered %}#}
-{{ block('form_tabable_dropdown') }}
 {{ form_end(form) }}
 
 {# childTypes #}
@@ -13,8 +12,8 @@
     <div class="ui accordion field">
         {% for childType in entityType.childTypes if childType.dataType %}
             {% set accordion_title = childType.name %}
-            {{ block('accordion_title_ajax_form') }}
-            <div class="content field">
+            {{ block('accordion_title') }}
+            <div class="content field" data-form-type="childForm">
                 <div class="ui bottom attached tab" data-change-tab="{{ childType.slug }}">
                     <div class="ui segment grayish grid">
                         {# existed objects dropdown select #}

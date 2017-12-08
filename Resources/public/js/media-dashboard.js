@@ -36,7 +36,7 @@ $(document).ready(function () {
         let relatedCardId = context.children('form').data('id');
         let relatedCard = $('#media_' + relatedCardId + '.ui.card');
         context.find('.menu .item').tab();
-        window.initSemanticSearch(context);
+        initSemanticSearch(context);
         //bind js to form submit
         context.find("form").on('submit', function (e) {
             e.preventDefault();

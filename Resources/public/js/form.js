@@ -171,7 +171,7 @@ $(document).ready(function () {
     };
     initFilePickerButton();
 
-    function initSemanticSearch(context) {
+    window.initSemanticSearch = function (context) {
         context = wrapContext(context);
         context.find('.semantic-search').each(
             function () {
@@ -213,9 +213,6 @@ $(document).ready(function () {
                                                 if (routeConfig.hasOwnProperty(routeParam))
                                                     newUrl = newUrl.replace(routeParam, routeConfig[routeParam]);
                                             }
-                                            console.log(options.updateChilds[character][child]);
-                                            console.log(routeConfig);
-                                            console.log({'originalRoute': baseRoute, 'newRoute': newUrl});
                                             childDropdown.dropdown('setting', 'apiSettings', {url: newUrl});
                                             childDropdown.dropdown('clear');
                                             childDropdown.dropdown('refresh');
@@ -234,7 +231,7 @@ $(document).ready(function () {
 
 
     // finds '.delete-this.button', binds on it ajax form submission
-    function initPopupConfirmation(context) {
+    window.initPopupConfirmation = function (context) {
         context = wrapContext(context);
         context.find('.delete-this.button').click(function (e) {
             e.preventDefault();
@@ -256,7 +253,6 @@ $(document).ready(function () {
                                 contentType: false
                             }).done(function (data) {
                                 if (!!data.status && data.status === 'deleted') {
-                                    console.log(data);
                                     let currentDropdown = deleteForm.parent().siblings('.grayish.grid').find('.tabable.dropdown');
                                     currentDropdown.find('.menu.transition.hidden .item.active.selected').remove();
                                     currentDropdown.dropdown('clear');
@@ -285,6 +281,7 @@ $(document).ready(function () {
         context = wrapContext(context);
         let dropdown = context.find('.tabable.dropdown');
         dropdown.dropdown({
+            'forceSelection': false,
             onChange: function (value, text, $selectedItem) {
                 if ($selectedItem) {
                     // find container of tabable dropdown and then find corresponding to tabableDropdown tab
@@ -510,7 +507,7 @@ $(document).ready(function () {
         initSemanticSearch(context);
     };
 
-    function submitAjaxForm($form) {
+    function submitAjaxForm($form, callback) {
         let form = $form[0];
         $form.toggleClass('hidden', true);
         $form.parent().toggleClass('loading', true);
@@ -530,6 +527,10 @@ $(document).ready(function () {
             }
             $form.parent().toggleClass('loading', false);
             sessionStorage.clear();
+
+            if (typeof callback === "function") {
+                callback($form);
+            }
         });
     }
 
@@ -540,7 +541,22 @@ $(document).ready(function () {
             e.stopPropagation();
             let editableForm = $(this).parents('form');
             if (editableForm.length > 0) {
-                submitAjaxForm(editableForm);
+                submitAjaxForm(editableForm, function (form) {
+                    let submitButtonDataset = form.find('.save-tab')[0].dataset;
+                    let shouldMoveForm = (submitButtonDataset.dataType === "1" && submitButtonDataset.formIsValid === "1" && submitButtonDataset.fromEdit !== "1");
+                    let newSelectItemDiv = form.find('.new-object-tab');
+                    if (shouldMoveForm && newSelectItemDiv.length > 0) {
+                        let dropdown = form.parent().siblings('.grayish.grid').find('.selection.dropdown');
+                        let newSelectItem = newSelectItemDiv.children()[0];
+                        let newTab = newSelectItemDiv.children()[1];
+
+                        dropdown.children('.menu').append(newSelectItem);
+                        form.parent().parent().append(newTab);
+                        dropdown.dropdown('refresh');
+                        dropdown.dropdown('set selected', newSelectItem.innerText);
+                        newSelectItemDiv.remove();
+                    }
+                });
             }
         });
     }

@@ -1,3 +1,10 @@
+{% block accordion_title %}
+    <div class="title" tabindex="0">
+        <i class="icon dropdown"></i>
+        {{ accordion_title }}
+    </div>
+{% endblock %}
+
 {% block form_tabable_dropdown %}
     <div class="ui accordion field">
         {# wysiwyg + comment fields #}
@@ -32,26 +39,42 @@
     </div>
 {% endblock %}
 
-{% block accordion_title %}
-    <div class="title">
-        <i class="icon dropdown"></i>
-        {{ accordion_title }}
-        {# data-form-type="main-form" #}
-        {#{{ block('accordion_title_content') }}#}
-    </div>
-{% endblock %}
-
-{% block accordion_title_ajax_form %}
-    <div class="title" data-form-type="remote-form">
-        {# #}
-        {{ block('accordion_title_content') }}
-    </div>
-{% endblock %}
-
 {% block accordion_content_save_button %}
-    <button type="button" class="ui compact basic primary save-tab button">Сохранить</button>
+    {% if (app.request.xmlHttpRequest or isEditForm) %}
+        {% set currentObject = objectEntity %}
+        <button type="button" class="ui compact basic primary save-tab button"
+                data-data-type="{{ entityType.isDataType }}"
+                data-form-is-valid="{{ form.vars.valid }}"
+                data-from-edit="{{ isEditForm }}"
+        >Сохранить
+        </button>
+        {% if not isEditForm and form.vars.valid and objectEntity.id is not null %}
+            {% set childObject = objectEntity %}
+            <div class="new-object-tab">
+                {{ block('child_object_tab_select_item') }}
+                {{ block('child_object_tab_content_item') }}
+            </div>
+        {% endif %}
+    {% else %}
+        <button type="submit" class="ui compact basic primary button">Сохранить</button>
+    {% endif %}
 {% endblock %}
 
 {% block accordion_content_delete_button %}
     <button type="button" class="ui compact basic red delete-this button">Удалить</button>
 {% endblock %}
+
+{% block child_object_tab_select_item %}
+    <div class="item"
+         data-change-tab="{{ 'obj_'~childObject.entityType.slug~'_'~childObject.id }}"
+         data-url="{{ path('builder_edit_object',{ 'id': childObject.id}) }}"
+    >{{ block('main_object_field_vals') }}</div>
+{% endblock %}
+
+{% block child_object_tab_content_item %}
+    <div class="ui bottom attached tab segment"
+         data-change-tab="{{ 'obj_'~childObject.entityType.slug~'_'~childObject.id }}"
+         data-url="{{ path('builder_edit_object',{ 'id': childObject.id}) }}"></div>
+{% endblock %}
+
+{% block main_object_field_vals %}{{ getMainFields(childObject, false)|default('обьект ['~childObject.entityType.name~']') ~ ' ('~ childObject.id~')' }}{% endblock %}

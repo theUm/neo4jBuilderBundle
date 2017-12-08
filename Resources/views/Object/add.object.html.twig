@@ -35,3 +35,7 @@
 {% block crud_modal_content %}
     <p>{{ "Удалив обьект вы также удалите ВСЕ значения полей этого обьекта. Cвязанные с другими обьектами поля не будут удалены. Действие необратимо!"|trans }}</p>
 {% endblock %}
+
+{% block accordion_content_save_button %}
+    <button type="button" class="ui compact basic primary button">Создать</button>
+{% endblock %}

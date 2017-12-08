@@ -1,11 +1,19 @@
 {% use 'BuilderBundle:Object:base.object.fields.html.twig' %}
+
+{# main object edit form #}
+
 {{ form_start(form) }}
 {% if not entityType.dataType %}
     {{ form_row(form.name) }}
     {{ form_row(form.slug) }}
     {{ block('form_tabable_dropdown') }}
+{% else %}
+    {{ form_rest(form) }}
+    {{ block('accordion_content_save_button') }}
+    {{ block('accordion_content_delete_button') }}
 {% endif %}
 {{ form_end(form) }}
+
 
 {# childTypes #}
 {% if objectEntity.id is not null and not entityType.isDataType and not app.request.isXmlHttpRequest() %}
@@ -18,17 +26,14 @@
                     <div class="ui segment grayish grid">
                         {# existed objects dropdown select #}
                         <div class="ui twelve wide stretched column">
-                            <div class="ui fullwidth child-object tabable search selection dropdown">
+                            <div class="ui fullwidth child-object tabable search selection dropdown" data-options="{}">
                                 <input type="hidden" name="actions" value="">
                                 <div class="text">{{ 'Выбрать'|trans }}</div>
                                 <i class="dropdown icon"></i>
                                 <div class="menu">
                                     {% if childType.id in relatedObjects|keys %}
                                         {% for childObject in relatedObjects[childType.id] %}
-                                            <div class="item"
-                                                 data-change-tab="{{ 'obj_'~childType.slug~'_'~childObject.id }}"
-                                                 data-url="{{ path('builder_edit_object',{ 'id': childObject.id}) }}"
-                                            >{{ getMainFields(childObject, false)|default('обьект ['~childType.name~']') }}</div>
+                                            {{ block('child_object_tab_select_item') }}
                                         {% endfor %}
                                     {% endif %}
                                 </div>
@@ -45,9 +50,7 @@
 
                     {% if childType.id in relatedObjects|keys %}
                         {% for childObject in relatedObjects[childType.id] %}
-                            <div class="ui bottom attached tab segment"
-                                 data-change-tab="{{ 'obj_'~childType.slug~'_'~childObject.id }}"
-                                 data-url="{{ path('builder_edit_object',{ 'id': childObject.id}) }}"></div>
+                            {{ block('child_object_tab_content_item') }}
                         {% endfor %}
                     {% endif %}
                     <div class="ui bottom attached tab segment"

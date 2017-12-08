@@ -370,3 +370,15 @@ td.status-cell {
 .ui.accordion.field > .content.field {
     margin-bottom: 0;
 }
+
+.ui.loadable.segment {
+    min-height: 10em;
+}
+
+.error-message {
+    color: #db2828;
+}
+
+.ui.bottom.attached.tab > .ui.bottom.attached.tab.segment {
+    border-top: 1px solid #d4d4d5;
+}

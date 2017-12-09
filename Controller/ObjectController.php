@@ -210,7 +210,7 @@ class ObjectController extends Controller {
             throw $this->createNotFoundException('There is no such Object');
         }
 
-        $formBuilder = $objectService->prepareForm($objectNode, !$request->isXmlHttpRequest());
+        $formBuilder = $objectService->prepareForm($objectNode, true);
         $formBuilder->setAction($this->generateUrl($request->get('_route'), ['id' => $id]));
         /** @var Form $form */
         $form = $formBuilder->getForm();

@@ -75,15 +75,15 @@ class ObjectEditControlService {
 		//$this->nm->getNM()->flush();
 
 
-        if (!$silent && !$this->formFieldsService->getObject()->getEntityType()->isDataType()) {
-            //update links to parent objects
-            $pickedParentsIds = $this->formFieldsService->getPickedParentIds( $form );
-            $this->oRepository->updateParenthesisRelationsByIds(
-                $this->getObject()->getId(),
-                $pickedParentsIds,
-                $this->formFieldsService->getCurrentParentObjectsIds(),
-                ObjectNodeRepository::LINK_TO_PARENTS );
-
+        //update links to parent objects
+        $pickedParentsIds = $this->formFieldsService->getPickedParentIds($form);
+        $this->oRepository->updateParenthesisRelationsByIds(
+            $this->getObject()->getId(),
+            $pickedParentsIds,
+            $this->formFieldsService->getCurrentParentObjectsIds(),
+            ObjectNodeRepository::LINK_TO_PARENTS
+        );
+        if (!$silent) {
             $this->container->get( 'session' )->getFlashBag()->add( 'success', 'Объект успешно изменён' );
         }
 		// update FieldsValues in separate queries

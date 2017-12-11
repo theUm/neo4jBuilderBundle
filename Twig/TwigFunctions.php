@@ -76,6 +76,9 @@ class TwigFunctions extends \Twig_Extension {
 			// gets object`s siblings (same EntityType)
 			new \Twig_SimpleFunction( 'getObjectSiblings', [ $this, 'getObjectSiblings' ] ),
 
+            // get objects list by provided value
+            new \Twig_SimpleFunction('getObjectsByValue', [$this, 'getObjectsByValue']),
+
 			// gets object`s child objects list of specific EntityType
 			new \Twig_SimpleFunction( 'getChildObjectsByType', [ $this, 'getChildObjectsByType' ] ),
 			// gets object`s child objects AND their FIELDS & VALUES of single specific EntityType
@@ -356,25 +359,21 @@ class TwigFunctions extends \Twig_Extension {
 		return $childObjectsStruct;
 	}
 
-	/**
-	 * Find object siblings with fields struct
-	 *
-	 * @param ObjectNode $objectNode
-	 * @param int $limit
-	 * @param int $skip
-	 *
-	 * @return array
-	 */
-	public function getObjectSiblings( $objectNode, int $limit = 5, int $skip = 0 ) {
-		if ( ! isset( $this->siblingsCache[ $objectNode->getId() ] ) ) {
-			$siblings = $this->oRepository->findObjectSiblingsWithFields( $objectNode, $limit, $skip );
-			foreach ( $siblings as $sibling ) {
-				$this->siblingsCache[ $objectNode->getId() ] = $sibling;
-			}
-		} else {
-			$siblings = $this->siblingsCache[ $objectNode->getId() ];
-		}
-
+    /**
+     * Find object siblings with fields struct
+     *
+     * @param ObjectNode $objectNode
+     * @param int $limit
+     * @param int $skip
+     *
+     * @param null $parentSlug
+     * @param array $valuesFilters
+     * @return array
+     * @throws \Exception
+     */
+    public function getObjectSiblings($objectNode, int $limit = 5, int $skip = 0, $parentSlug = null, $valuesFilters = [])
+    {
+        $siblings = $this->oRepository->findObjectSiblingsWithFields($objectNode, $limit, $skip, $parentSlug, $valuesFilters);
 		return $siblings;
 	}
 
@@ -448,6 +447,11 @@ class TwigFunctions extends \Twig_Extension {
         }
 
         return $struct;
+    }
+
+    public function getObjectsByValue($entityType, $entityTypeField, $value, int $limit = 10, int $skip = 0)
+    {
+        return $this->oRepository->findObjectsByValue($entityType, $entityTypeField, $value, $limit, $skip);
     }
 
 }

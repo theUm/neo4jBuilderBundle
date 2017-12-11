@@ -181,11 +181,12 @@ class ObjectNodeRepository extends BaseRepository {
 	 *
 	 * @return array
 	 */
-	public function findChildObjectsByParent( string $parentTypeSlug, string $parentSlug, string $childTypeSlug, int $limit = 10, int $skip = 0, $isDataType = 'both' ) {
+    public function findChildObjectsByParent(string $parentTypeSlug, string $parentSlug, string $childTypeSlug, int $limit = 10, int $skip = 0, $isDataType = 'both', $ignoredIds = [])
+    {
 		$isDataTypePart        = ( $isDataType == 'both' ) ? '' : ( 'AND type.isDataType = ' . ( $isDataType ) ? 'true' : 'false' );
 		$entityTypeFieldsQuery = $this->entityManager->createQuery(
 			'MATCH (type:EntityType)<-[:has_type]-(o:Object)-[:is_child_of]->(parent:Object)-[:has_type]->(parentType:EntityType)
-        	    WHERE parentType.slug = {ptSlug} AND parent.slug = {pSlug} AND type.slug = {tSlug} ' . $isDataTypePart . ' 
+        	    WHERE parentType.slug = {ptSlug} AND parent.slug = {pSlug} AND type.slug = {tSlug} ' . $isDataTypePart . ' AND id(o) not in {ids} 
         	    RETURN o SKIP {skip} LIMIT {limit}'
 		);
 		$entityTypeFieldsQuery->addEntityMapping( 'o', ObjectNode::class );
@@ -194,27 +195,56 @@ class ObjectNodeRepository extends BaseRepository {
 		$entityTypeFieldsQuery->setParameter( 'tSlug', $childTypeSlug );
 		$entityTypeFieldsQuery->setParameter( 'limit', $limit );
 		$entityTypeFieldsQuery->setParameter( 'skip', $skip );
+        $entityTypeFieldsQuery->setParameter('ids', $ignoredIds);
 
 		return $entityTypeFieldsQuery->execute();
 	}
 
 
-	/**
-	 * @param ObjectNode $object
-	 * @param int $limit
-	 * @param int $skip
-	 *
-	 * @return array
-	 */
-	public function findObjectSiblingsWithFields( ObjectNode $object, int $limit = 10, int $skip = 0 ) {
-		$siblingsQuery = $this->entityManager->createQuery(
-			'MATCH (etf:EntityTypeField)--(type:EntityType)<-[:has_type]-(o:Object)
-        	        WHERE id(o) <> {oId} AND type.slug = {slug}
+    /**
+     * @param ObjectNode $object
+     * @param int $limit
+     * @param int $skip
+     *
+     * @param null $parentObjectSlug
+     * @param array $valuesFilters array of  ['etf'=>'string', 'vals'=>[FieldValueNode]]
+     * @return array
+     * @throws \Exception
+     */
+    public function findObjectSiblingsWithFields(ObjectNode $object, int $limit = 10, int $skip = 0, $parentObjectSlug = null, $valuesFilters = [])
+    {
+        $siblingsQuery = $this->entityManager->createQuery();
+
+        $linkToSingleParentQueryString = (is_null($parentObjectSlug)) ? '' : '-[:is_child_of]->(parentObject:Object)';
+        $filterLinkToSingleParentQueryString = (is_null($parentObjectSlug)) ? '' : ' AND parentObject.slug = {parentObjectSlug}';
+
+        if (!empty($valuesFilters) && isset($valuesFilters['etf']) && isset($valuesFilters['vals'])) {
+            $valuesFilterQueryString = '
+            MATCH (o)<-[:is_field_of]-(filterFV:FieldValue)-[:is_value_of]->(filterETF:EntityTypeField)
+                WHERE filterETF.slug = {filterETFSlug} AND filterFV.data IN {filterFVs}';
+
+            $vals = [];
+            foreach ($valuesFilters['vals'] as $val) {
+                $vals[] = ($val instanceof FieldValueNode) ? $val->getData() : $val;
+            }
+            if ($valuesFilters['vals'])
+                $siblingsQuery->setParameter('filterETFSlug', $valuesFilters['etf']);
+            $siblingsQuery->setParameter('filterFVs', $vals);
+        } else {
+            $valuesFilterQueryString = '';
+        }
+
+        $cql =
+            'MATCH (etf:EntityTypeField)--(type:EntityType)<-[:has_type]-(o:Object)' . $linkToSingleParentQueryString . '
+        	        WHERE id(o) <> {oId} AND type.slug = {slug} ' . $filterLinkToSingleParentQueryString . '
+        	        ' . $valuesFilterQueryString . '
         	    OPTIONAL MATCH (o)<-[rel:is_field_of]-(fv:FieldValue)-[:is_value_of]->(etf)
         	    OPTIONAL MATCH (childEtf:EntityTypeField)-[:has_field]->(childEt:EntityType)<-[:has_type]-(childO:Object)
 		            WITH etf, o, collect(DISTINCT fv) as val ORDER BY o.createdAt
-		            RETURN o as object, collect({etfSlug:etf.slug, valsByFields:{fieldType:etf, val:val}}) as objectFields SKIP {skip} LIMIT {limit}'
-		);
+		            RETURN o as object, collect({etfSlug:etf.slug, valsByFields:{fieldType:etf, val:val}}) as objectFields SKIP {skip} LIMIT {limit}';
+
+
+        $siblingsQuery->setCQL($cql);
 		$siblingsQuery->addEntityMapping( 'object', ObjectNode::class );
 		$siblingsQuery->addEntityMapping( 'fieldType', TypeFieldNode::class );
 		$siblingsQuery->addEntityMapping( 'val', FieldValueNode::class, Query::HYDRATE_COLLECTION );
@@ -226,7 +256,7 @@ class ObjectNodeRepository extends BaseRepository {
 		$siblingsQuery->setParameter( 'oId', $object->getId() );
 		$siblingsQuery->setParameter( 'limit', $limit );
 		$siblingsQuery->setParameter( 'skip', $skip );
-
+        $siblingsQuery->setParameter('parentObjectSlug', $parentObjectSlug);
 		return $siblingsQuery->execute();
 	}
 

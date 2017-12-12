@@ -8,6 +8,7 @@ use Nodeart\BuilderBundle\Entity\Repositories\EntityTypeNodeRepository;
 use Nodeart\BuilderBundle\Entity\Repositories\ObjectNodeRepository;
 use Nodeart\BuilderBundle\Form\ObjectNodeType;
 use Nodeart\BuilderBundle\Services\EntityTypeChildsUnlinker;
+use Nodeart\BuilderBundle\Services\ObjectEditControlService;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
@@ -210,7 +211,7 @@ class ObjectController extends Controller {
             throw $this->createNotFoundException('There is no such Object');
         }
 
-        $formBuilder = $objectService->prepareForm($objectNode, true);
+        $formBuilder = $objectService->prepareForm($objectNode, ObjectEditControlService::WITH_PARENT_OBJECTS_FIELDS, $request->isXmlHttpRequest());
         $formBuilder->setAction($this->generateUrl($request->get('_route'), ['id' => $id]));
         /** @var Form $form */
         $form = $formBuilder->getForm();

@@ -226,7 +226,8 @@ class ObjectFormFieldsService {
 		$this->parentObjectNode = $objectNode;
 	}
 
-	public function addParentTypesFields( FormBuilderInterface $form ) {
+    public function addParentTypesFields(FormBuilderInterface $form, $isAjax = false)
+    {
 		$currentParentsByTypes = [];
 
 		$entityType        = $this->getEntityType();
@@ -253,6 +254,7 @@ class ObjectFormFieldsService {
 				'data'              => $currentParentsByTypes[ $parentType->getId() ],
 				'is_multiple'       => true,
 				'local_search_data' => $parentType->getObjects(),
+                'is_hidden' => $this->getEntityType()->isDataType() && $isAjax
 			] );
 		}
 	}

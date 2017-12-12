@@ -17,6 +17,9 @@ use Symfony\Component\Form\Form;
  * @property null|object object
  */
 class ObjectEditControlService {
+    const WITH_PARENT_OBJECTS_FIELDS = true;
+    const WITHOUT_PARENT_OBJECTS_FIELDS = false;
+
 	private $container;
 	/** @var EntityManager $nm */
 	private $nm;
@@ -40,23 +43,25 @@ class ObjectEditControlService {
     /**
      * @param ObjectNode $objectNode
      *
+     * @param bool $withParentFields
+     * @param bool $isAjax
      * @return \Symfony\Component\Form\FormBuilderInterface
      * @throws \Exception
      */
-    public function prepareForm(ObjectNode $objectNode, $withParentFields = false)
+    public function prepareForm(ObjectNode $objectNode, $withParentFields = self::WITHOUT_PARENT_OBJECTS_FIELDS, $isAjax = false)
     {
 		$formBuilder = $this->container->get( 'form.factory' )
-		                               ->createNamedBuilder( 'obj_fields', ObjectNodeType::class, $objectNode, [
-			                               'attr' => [
-				                               'id'    => 'obj_fields',
-				                               'class' => 'ui form'
-			                               ]
-		                               ] );
+            ->createNamedBuilder('obj_fields', ObjectNodeType::class, $objectNode, [
+                'attr' => [
+                    'id' => 'obj_fields',
+                    'class' => 'ui form'
+                ]
+            ]);
 
 		$this->formFieldsService->setObject( $objectNode );
         // hide relations fields for data objects
         if ($withParentFields) {
-            $this->formFieldsService->addParentTypesFields($formBuilder);
+            $this->formFieldsService->addParentTypesFields($formBuilder, $isAjax);
         }
 		$this->formFieldsService->hideFieldsForDataType( $formBuilder );
 

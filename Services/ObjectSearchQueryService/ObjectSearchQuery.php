@@ -26,6 +26,7 @@ class ObjectSearchQuery
     private $skip = 0;
     private $limit = self::DEFAULT_PAGE_LIMIT;
     private $baseOrder = '';
+    private $secondOrder = '';
 
     public function __construct(EntityManager $entityManager)
     {
@@ -54,14 +55,15 @@ class ObjectSearchQuery
         $valuesFilter = $this->valuesFilter;
         $parentChildFilter = $this->parentChildFilter;
         $baseOrder = $this->baseOrder;
+        $secondOrder = $this->secondOrder;
 
         $cql = "MATCH (type:EntityType)<-[:has_type]-(o:Object)$parentChildLinks $baseWhere $objectFilter $etFilter $parentChildFilter
                 WITH o $baseOrder $skip $limit $valuesFilter
         	    OPTIONAL MATCH (o)<-[rel:is_field_of]-(fv:FieldValue)-[:is_value_of]->(etf:EntityTypeField)-[:has_field]-(type:EntityType)-[:has_type]-(o)
         	    OPTIONAL MATCH (childEtf:EntityTypeField)-[:has_field]->(childEt:EntityType)<-[:has_type]-(childO:Object)
-                WITH etf, o, collect(DISTINCT fv) as val ORDER BY o.createdAt
+                WITH etf, o, collect(DISTINCT fv) as val
                 RETURN o as object, 
-                    CASE WHEN etf IS NULL THEN [] ELSE collect({etfSlug:etf.slug, valsByFields:{fieldType:etf, val:val}}) END as objectFields";
+                    CASE WHEN etf IS NULL THEN [] ELSE collect({etfSlug:etf.slug, valsByFields:{fieldType:etf, val:val}}) END as objectFields $secondOrder";
         $this->query->setCQL($cql);
 
         $this->query->addEntityMapping('object', ObjectNode::class);
@@ -183,6 +185,14 @@ class ObjectSearchQuery
     {
         if (!empty($cql)) {
             $this->baseOrder = ' ORDER BY ' . $cql;
+        }
+        return $this;
+    }
+
+    public function addSecondOrder(string $cql)
+    {
+        if (!empty($cql)) {
+            $this->secondOrder = ' ORDER BY ' . $cql;
         }
         return $this;
     }

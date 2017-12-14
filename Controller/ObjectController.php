@@ -47,7 +47,7 @@ class ObjectController extends Controller {
             ->addETFilters(['cql' => 'id(type) = {tId}', 'params' => [
                 ['name' => 'tId', 'values' => $id],
             ]])
-            ->addBaseOrder('o.name ASC');
+            ->addSecondOrder('o.name ASC');
 
         /** @var Pager $pager */
         $pager = $this->get('neo.pager');

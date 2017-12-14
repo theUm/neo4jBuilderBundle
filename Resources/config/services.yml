@@ -102,3 +102,7 @@ services:
 
     Nodeart\BuilderBundle\Helpers\RepositoryHelper:
         arguments: ['@neo.app.manager']
+
+    Nodeart\BuilderBundle\Services\ObjectSearchQueryService\ObjectSearchQuery:
+        public: true
+        arguments: ['@neo.app.manager']

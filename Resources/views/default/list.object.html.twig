@@ -3,20 +3,19 @@
 {% block content %}
     <div class="twelve wide column">
         {% if entity.dataType %}
-            <h3 class="ui header">{{ "Существующие объекты типа-данных "|trans ~ ' "' ~ entity.name -}}
-                {{- (parent_types|length == 1)? ("\" типа "|trans) : ("\" типов "|trans) -}}
-                "{{ parent_types|join('", "') }}"
-            </h3>
+            <h3 class="ui header">{{ "Существующие объекты типа для данных "|trans ~ ' "' ~ entity.name ~ '"' -}}</h3>
         {% else %}
             <h3 class="ui header">{{ "Существующие объекты типа"|trans ~ ' ' ~ entity.name }}</h3>
         {% endif %}
-        {% if nodeObjects|length == 0 %}
+    {% if objects|length == 0 %}
             <div class="ui middle">
                 <span>{{ "Нет таких"|trans }}</span>
             </div>
         {% else %}
             <div class="ui middle aligned recursive list">
                 {{ block('object_list') }}
+                {% set currentPageParams = masterParams|merge(pager.orderParams) %}
+                {% include '@Builder/default/default.pager.html.twig' %}
             </div>
         {% endif %}
         <a class="ui left floated button primary"
@@ -30,23 +29,23 @@
 
 {% block object_list %}
     {% if entity.dataType %}
-        {% for objId, objValue in mainFields %}
+        {% for pair in objects %}
             <div class="item">
                 <div class="content">
                     {{ block('node_buttons_data_object') }}
                     <div class="ui dividing header">
-                        {% if objValue is iterable %}{{ objValue|join(', ') }}{% else %}{{ objValue }}{% endif %}
+                        {{ getMainFields(pair.object, false)|default('Обьект #'~pair.object.id) }}
                     </div>
                 </div>
             </div>
         {% endfor %}
     {% else %}
-        {% for node in nodeObjects %}
+        {% for pair in objects %}
             <div class="item">
                 <div class="content">
                     {{ block('node_buttons_object') }}
                     <div class="ui dividing header">
-                        {{ node.name }}
+                        {{ pair.object.name }}
                     </div>
                 </div>
             </div>
@@ -56,10 +55,14 @@
 
 {% block node_buttons_object %}
     <div class="child-left right floated ui icon buttons">
-        <a class="tiny ui button" href="{{ path('builder_edit_big_object',{'id':node.id}) }}"
+        <a class="tiny ui button"
+           href="{{ path('vSingleObject',{'entityType': pair.object.entityType.slug, 'object':pair.object.slug}) }}"
+           title="{{ 'Страница обьекта'|trans }}">
+            <i class="external icon"></i></a>
+        <a class="tiny ui button" href="{{ path('builder_edit_big_object',{'id': pair.object.id}) }}"
            title="{{ 'Редактировать'|trans }}">
             <i class="edit icon"></i></a>
-        <a class="tiny ui button" href="{{ path('builder_delete_object',{'id':node.id}) }}"
+        <a class="tiny ui button" href="{{ path('builder_delete_object',{'id':pair.object.id}) }}"
            title="{{ "Удалить обьект"|trans }}">
             <i class="remove circle icon"></i></a>
     </div>
@@ -67,10 +70,10 @@
 
 {% block node_buttons_data_object %}
     <div class="child-left right floated ui icon buttons">
-        <a class="tiny ui button" href="{{ path('builder_edit_object',{'id':objId}) }}"
+        <a class="tiny ui button" href="{{ path('builder_edit_object',{'id':pair.object.id}) }}"
            title="{{ 'Редактировать'|trans }}">
             <i class="edit icon"></i></a>
-        <a class="tiny ui button" href="{{ path('builder_delete_object',{'id':objId}) }}"
+        <a class="tiny ui button" href="{{ path('builder_delete_object',{'id':pair.object.id}) }}"
            title="{{ "Удалить обьект"|trans }}">
             <i class="remove circle icon"></i></a>
     </div>

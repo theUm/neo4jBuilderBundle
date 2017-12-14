@@ -9,6 +9,9 @@ use Nodeart\BuilderBundle\Entity\Repositories\ObjectNodeRepository;
 use Nodeart\BuilderBundle\Form\ObjectNodeType;
 use Nodeart\BuilderBundle\Services\EntityTypeChildsUnlinker;
 use Nodeart\BuilderBundle\Services\ObjectEditControlService;
+use Nodeart\BuilderBundle\Services\ObjectSearchQueryService\ObjectSearchQuery;
+use Nodeart\BuilderBundle\Services\Pager\Pager;
+use Nodeart\BuilderBundle\Services\Pager\Queries\ObjectsQueries;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
@@ -30,8 +33,6 @@ class ObjectController extends Controller {
     public function objectsListAction(int $id)
     {
         $nm = $this->get('neo.app.manager');
-        /** @var ObjectNodeRepository $oRepository */
-        $oRepository = $nm->getRepository(ObjectNode::class);
         /** @var EntityTypeNodeRepository $etRepository */
         $etRepository = $nm->getRepository(EntityTypeNode::class);
         /** @var EntityTypeNode $entityType */
@@ -41,36 +42,24 @@ class ObjectController extends Controller {
             throw $this->createNotFoundException('There is no such EntityType');
         }
 
-        $mainFieldsByObjects = [];
-        $objects = $entityType->getObjects();
-        /** @var ObjectNode $object */
-        foreach ($objects as $object) {
-            $parents = [];
-            /** @var ObjectNode $parent */
-            foreach ($object->getParentObjects() as $parent) {
-                $parents[] = $parent->getName();
-            }
-            $values = $oRepository->getObjectMainFieldValues($object);
-            $parentNames = !empty($parents) ? (' [' . join(', ', $parents) . ']') : '[Нет родителя]';
-            $nameValue = (empty($values) ? 'Пусто' : join(', ', $values)) . ' ' . $parentNames;
-            $mainFieldsByObjects[$object->getId()] = $nameValue;
-        }
-        $objects = $objects->toArray();
-        usort($objects, function (ObjectNode $a, ObjectNode $b) {
-            return lcfirst($a->getName()) <=> lcfirst($b->getName());
-        });
+        $pagerQueries = new ObjectsQueries($this->get(ObjectSearchQuery::class));
+        $pagerQueries->getObjectSearchQueryService()
+            ->addETFilters(['cql' => 'id(type) = {tId}', 'params' => [
+                ['name' => 'tId', 'values' => $id],
+            ]])
+            ->addBaseOrder('o.name ASC');
 
-        $etParents = [];
-        /** @var EntityTypeNode $etParent */
-        foreach ($entityType->getParentTypes() as $etParent) {
-            $etParents[] = $etParent->getName();
-        }
+        /** @var Pager $pager */
+        $pager = $this->get('neo.pager');
+        $pager->createQueries($pagerQueries);
+        $masterRequest = $this->get('request_stack')->getMasterRequest();
 
         return $this->render('BuilderBundle:default:list.object.html.twig', [
-            'nodeObjects' => $objects,
+            'objects' => $pager->paginate(),
             'entity' => $entityType,
-            'mainFields' => $mainFieldsByObjects,
-            'parent_types' => $etParents
+            'pager' => $pager->getPaginationData(),
+            'masterRoute' => $masterRequest->attributes->get('_route'),
+            'masterParams' => $masterRequest->attributes->get('_route_params')
         ]);
     }
 

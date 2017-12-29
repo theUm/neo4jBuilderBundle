@@ -93,7 +93,8 @@ class ObjectController extends Controller {
         $objectNodeId = null;
         $mainObjectFields = null;
 
-        $formBuilder = $this->get('form.factory')->createNamedBuilder('obj_fields', ObjectNodeType::class, $objectNode, ['attr' => ['class' => 'ui form']]);
+        $formBuilder = $this->get('form.factory')->createNamedBuilder('obj_fields', ObjectNodeType::class, $objectNode, ['attr' => ['class' => 'ui form'],
+            'error_bubbling' => false]);
 
         $formFieldsService = $this->get('object.form.fields');
         $formFieldsService->setObject($objectNode);

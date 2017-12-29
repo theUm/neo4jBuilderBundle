@@ -9,3 +9,50 @@
         {{ form(delete_form) }}
     </div>
 {% endblock %}
+
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(document).ready(function () {
+            let parentsDropdown = $('.f-hasParents');
+            let requiredsDropdown = $('.f-requiredParents');
+            let $menu = requiredsDropdown.find('.menu');
+            // onchange of parents dropdown clear and change possible values of required parent types dropdown
+            parentsDropdown.dropdown('setting', 'onChange', function (value, text, $selectedItem) {
+                requiredsDropdown.dropdown('clear');
+                requiredsDropdown.dropdown('clear');
+                if ($selectedItem) {
+                    refreshReqiredItems();
+                }
+            });
+
+            // actually works with screeching a bit
+            function refreshReqiredItems() {
+                $menu.empty();
+                let vals = parentsDropdown.dropdown('get value').split('|^');
+                let currentValsStruct = [];
+                // collect selected items
+                for (let val in vals) {
+                    if (vals.hasOwnProperty(val)) {
+                        let label = parentsDropdown.dropdown('get item', vals[val]);
+                        if (label !== false) {
+                            currentValsStruct.push({'label': label.text(), 'value': vals[val]});
+                        }
+                        console.log(label);
+                    }
+                }
+
+                // // append new option to menu
+                for (let newItem in currentValsStruct) {
+                    $menu.append(`<div class="item" data-value="${currentValsStruct[newItem].value}">${currentValsStruct[newItem].label}</div>`);
+                }
+                requiredsDropdown.dropdown('refresh');
+            }
+
+            // whoosh!
+            refreshReqiredItems();
+            requiredsDropdown.dropdown('restore default value');
+        });
+    </script>
+{% endblock %}

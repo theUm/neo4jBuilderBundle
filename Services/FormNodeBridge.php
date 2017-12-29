@@ -9,17 +9,18 @@
 namespace Nodeart\BuilderBundle\Services;
 
 
-use DateTime;
 use Nodeart\BuilderBundle\Entity\EntityTypeNode;
 use Nodeart\BuilderBundle\Entity\FieldValueNode;
 use Nodeart\BuilderBundle\Entity\TypeFieldNode;
 use Nodeart\BuilderBundle\Form\Type\AjaxCheckboxType;
 use Nodeart\BuilderBundle\Form\Type\LabeledNumberType;
+use Nodeart\BuilderBundle\Form\Type\LabeledTextType;
 use Nodeart\BuilderBundle\Form\Type\NamedFileType;
 use Nodeart\BuilderBundle\Form\Type\PredefinedAjaxCheckboxType;
 use Nodeart\BuilderBundle\Form\Type\WysiwygType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
@@ -56,6 +57,7 @@ class FormNodeBridge {
 		'file'           => [ 'class' => NamedFileType::class ],
 		'wysiwyg'        => [ 'class' => WysiwygType::class ],
 		'labeled_number' => [ 'class' => LabeledNumberType::class ],
+        'labeled_text' => ['class' => LabeledTextType::class],
 	];
 
 	protected $uploadsDir;
@@ -195,7 +197,8 @@ class FormNodeBridge {
 			case TimeType::class :
 			case DateType::class : {
 				if ( $value->getData() ) {
-					$value = new \DateTime( $value->getData() );
+                    // @todo remove 'd.m.Y H:i:s' condition. From now only unix time will be stored
+                    $value = \DateTime::createFromFormat(is_numeric($value->getData()) ? 'U' : 'd.m.Y H:i:s', $value->getData());
 				} else {
 					$value = null;
 				}
@@ -208,7 +211,8 @@ class FormNodeBridge {
 			case NamedFileType::class : {
 				break;
 			}
-			case LabeledNumberType::class : {
+            case LabeledTextType::class :
+            case LabeledNumberType::class : {
 				$value = [
 					'value' => $value->getData(),
 					'text'  => $value->getDataLabel()
@@ -228,45 +232,60 @@ class FormNodeBridge {
 	}
 
 	public function transformFormToNodeValue( Form $formFieldValue ) {
+
 		$formData = $formFieldValue->getData();
 		$formType = $this->getFormBuilderClassType( $formFieldValue );
 		if ( ! in_array( $formType, [
 			NamedFileType::class,
 			FileType::class
 		] ) ) {
+
 			if ( empty( $formData ) ) {
 				return [];
 			}
 
-			if ( $formType === LabeledNumberType::class ) {
-				$formData = array_merge( [ 'value' => 0, 'text' => '' ], $formData );
-				$fv       = new FieldValueNode();
-				$fv->setData( $this->transformFormValue( $formData['value'] ) );
-				$fv->setDataLabel( $this->transformFormValue( $formData['text'] ) );
-				$fieldValues[] = $fv;
-			} else {
-				// if its array of values or single value
-				if ( is_array( $formData ) ) {
-					$fieldValues = [];
-					foreach ( $formData as $datum ) {
-						$fv = new FieldValueNode();
-						$fv->setData( $this->transformFormValue( $datum ) );
-						$fieldValues[] = $fv;
-					}
-				} else {
-					$fieldValues = new FieldValueNode();
-					$fieldValues->setData( $this->transformFormValue( $formData ) );
-				}
-			}
+            if ($formType === CollectionType::class) {
+                $formFieldValue->getConfig()->getAttribute('data_collector/passed_options')['entry_type'];
+                $fieldValues = [];
+                foreach ($formData as $formDatum) {
+                    $fieldValues[] = $this->getFieldValuesByFormType($formDatum, $formFieldValue->getConfig()->getAttribute('data_collector/passed_options')['entry_type']);
+                }
+                return $fieldValues;
+            } else {
+                return $this->getFieldValuesByFormType($formData, $formType);
+            }
+        } else {
+            // just pass damn FieldValue or UploadedFile already!
+            // ¯\_(ツ)_/¯ //
+        }
 
-			return $fieldValues;
-		} else {
-			// just pass damn FieldValue, UploadedFile or darn array already!
-			// ¯\_(ツ)_/¯ //
-		}
+        return $formData;
+    }
 
-		return $formData;
-	}
+    private function getFieldValuesByFormType($formData, $formType)
+    {
+        if (in_array($formType, [LabeledNumberType::class, LabeledTextType::class])) {
+            $formData = array_merge(['value' => 0, 'text' => ''], $formData);
+            $fv = new FieldValueNode();
+            $fv->setData($this->transformFormValue($formData['value']));
+            $fv->setDataLabel($this->transformFormValue($formData['text']));
+            $fieldValues = $fv;
+        } else {
+            // if its array of values or single value
+            if (is_array($formData)) {
+                $fieldValues = [];
+                foreach ($formData as $datum) {
+                    $fv = new FieldValueNode();
+                    $fv->setData($this->transformFormValue($datum));
+                    $fieldValues[] = $fv;
+                }
+            } else {
+                $fieldValues = new FieldValueNode();
+                $fieldValues->setData($this->transformFormValue($formData));
+            }
+        }
+        return $fieldValues;
+    }
 
 	public function getFormBuilderClassType( Form $formFieldValue ) {
 		return get_class( $formFieldValue->getConfig()->getType()->getInnerType() );
@@ -286,8 +305,8 @@ class FormNodeBridge {
 		if ( is_array( $value ) ) {
 			$value = array_values( $value );
 		}
-		if ( $value instanceof DateTime ) {
-			$value = $value->format( 'd.m.Y H:i:s' );
+        if ($value instanceof \DateTime) {
+            $value = $value->getTimestamp();
 		}
 		if ( is_int( $value ) ) {
 			$value = intval( $value );
@@ -302,10 +321,16 @@ class FormNodeBridge {
 		$fieldOptions = [
 			'label'          => $fieldTypeNode->getName(),
 			'required'       => false,
-			'data'           => ( $fieldTypeNode->isCollection() || ( $formType == NamedFileType::class ) ) ? $fieldValuesData : array_pop( $fieldValuesData ),
 			'mapped'         => false,
 			'error_bubbling' => false
 		];
+
+        //transform data: if this is collection or file field - pass array of values. also do that if this is labeledXType with `multiple` option
+        $data = ($fieldTypeNode->isCollection() || ($formType == NamedFileType::class) || (in_array($formType, [LabeledNumberType::class, LabeledTextType::class]) && $fieldTypeNode->isCollection()))
+            ? $fieldValuesData
+            : array_pop($fieldValuesData);
+        $fieldOptions['data'] = $data;
+
 		if ( $formType == AjaxCheckboxType::class ) {
 			$fieldOptions['db_label']        = 'EntityTypeField';
 			$fieldOptions['parent_node_val'] = $fieldTypeNode->getSlug();
@@ -326,13 +351,16 @@ class FormNodeBridge {
 
 		if ( $fieldTypeNode->isCollection() ) {
 			$fieldOptions['is_multiple'] = true;
-			if ( in_array( $formType, [ NamedFileType::class, LabeledNumberType::class ] ) ) {
+            if (in_array($formType, [NamedFileType::class, LabeledNumberType::class, LabeledTextType::class])) {
 				$fieldOptions['multiple'] = true;
 			} else {
 				$fieldOptions['parent_node_val'] = $fieldTypeNode->getSlug();
 			}
 		}
 
+        if (in_array($formType, [NamedFileType::class, /*LabeledNumberType::class, LabeledTextType::class*/])) {
+            $fieldOptions['multiple'] = true;
+        }
 		return $fieldOptions;
 	}
 }

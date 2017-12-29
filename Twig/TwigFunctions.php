@@ -13,6 +13,7 @@ use Nodeart\BuilderBundle\Entity\Repositories\ObjectNodeRepository;
 use Nodeart\BuilderBundle\Entity\TypeFieldNode;
 use Nodeart\BuilderBundle\Form\CommentNodeType;
 use Nodeart\BuilderBundle\Helpers\FieldAndValue;
+use Nodeart\BuilderBundle\Services\ObjectsQueriesRAMStorage;
 use Nodeart\BuilderBundle\Twig\Utils\TypeFieldValuePairTransformer;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -31,9 +32,8 @@ class TwigFunctions extends \Twig_Extension {
 	private $formFactory;
 	/** @var ObjectNodeRepository $oRepository */
 	private $oRepository;
+    private $objectCache;
 
-
-	private $objectsCache = [];
 	/**
 	 * First level of array ([objId]): result of getObjectSiblings(), second level in array ([objId]['childDataObjects']) is child data objects
 	 * @var array
@@ -44,11 +44,13 @@ class TwigFunctions extends \Twig_Extension {
      */
     private $environment;
 
-    public function __construct( EntityManager $nm, CacheManager $liipImagineCacheManager, Packages $package, FormFactory $formFactory ) {
+    public function __construct(EntityManager $nm, CacheManager $liipImagineCacheManager, Packages $package, FormFactory $formFactory, ObjectsQueriesRAMStorage $oqrs)
+    {
 		$this->nm          = $nm;
 		$this->liipCM      = $liipImagineCacheManager;
 		$this->package     = $package;
 		$this->formFactory = $formFactory;
+        $this->objectCache = $oqrs;
 
 		$this->oRepository = $this->nm->getRepository( ObjectNode::class );
 	}
@@ -234,12 +236,14 @@ class TwigFunctions extends \Twig_Extension {
         return $fields[ $slug ];
     }
 
-	public function getFields( ObjectNode $objectNode ) {
-		if ( isset( $this->objectsCache[ $objectNode->getId() ] ) ) {
-			return $this->objectsCache[ $objectNode->getId() ];
-		} else {
-			return $this->objectsCache[ $objectNode->getId() ] = $this->oRepository->getFieldsStructWithSlug( $objectNode );
-		}
+    public function getFields($objectNode)
+    {
+        if ($this->objectCache->isStored($objectNode->getId())) {
+            $objectStruct = $this->objectCache->get($objectNode->getId());
+        } else {
+            $objectStruct = $this->objectCache->add(['object' => $objectNode, 'objectFields' => $this->oRepository->getFieldsStructWithSlug($objectNode)]);
+        }
+        return $objectStruct['objectFields'];
 	}
 
 	/**
@@ -291,7 +295,6 @@ class TwigFunctions extends \Twig_Extension {
 		} else {
 			$val = null;
 		}
-
 		return $val ?? new FieldValueNode();
 	}
 
@@ -437,7 +440,8 @@ class TwigFunctions extends \Twig_Extension {
      *
      * @return array
      */
-    public function reformatFields( array $struct ) {
+    public static function reformatFields(array $struct)
+    {
         foreach ( $struct as &$row ) {
             $newObjFields = [];
             foreach ( $row['objectFields'] as $field ) {

@@ -110,3 +110,35 @@
             </i></a>
     </div>
 {% endblock %}
+
+    {% block javascripts %}
+        {{ parent() }}
+        <script>
+            $(document).ready(function () {
+                let parentsDropdown = $('.f-hasParents');
+                let dd = $('.f-requiredParents');
+                let $menu = dd.find('.menu');
+                // onchange of parents dropdown clear and change possible values of required parent types dropdown
+                parentsDropdown.dropdown('setting', 'onChange', function (value, text, $selectedItem) {
+                    dd.dropdown('clear');
+                    if ($selectedItem) {
+                        let vals = $(this).dropdown('get value').split('|^');
+                        let currentValsStruct = [];
+                        // collect selected items
+                        for (let val in vals) {
+                            if (vals.hasOwnProperty(val)) {
+                                let label = $(this).dropdown('get item', vals[val]).text();
+                                currentValsStruct.push({'label': label, 'value': vals[val]});
+                            }
+                        }
+
+                        // append new option to menu
+                        for (let newItem in currentValsStruct) {
+                            $menu.append(`<div class="item" data-value="${currentValsStruct[newItem].value}">${currentValsStruct[newItem].label}</div>`);
+                        }
+                        dd.dropdown('refresh');
+                    }
+                });
+            });
+        </script>
+    {% endblock %}

@@ -505,6 +505,7 @@ $(document).ready(function () {
         initPopupConfirmation(context);
         initTabSaveButtons(context);
         initSemanticSearch(context);
+        initAddRemoveButtons(context);
     };
 
     function submitAjaxForm($form, callback) {
@@ -562,4 +563,64 @@ $(document).ready(function () {
     }
 
     initTabSaveButtons();
+
+    function initAddRemoveButtons(context) {
+        context = wrapContext(context);
+
+        function createDeleteButton() {
+            return $('<button/>', {
+                href: '#',
+                title: 'Удалить элемент',
+                text: 'Удалить',
+                'class': 'ui negative mini button',
+                type: 'button'
+            });
+        }
+
+        context.find('.form[name="obj_fields"] [data-prototype]').each(function () {
+            let varsCount = this.childElementCount;
+            let newVarButton = $('<div/>', {
+                'id': 'add-another-var',
+                'class': 'ui positive bottom attached button',
+                'type': 'button',
+                'html': 'Добавить элемент'
+            });
+            newVarButton.click(function (e) {
+                e.preventDefault();
+                let correspondingPrototypeDiv = $(this).siblings('[data-prototype]');
+                let newWidget = correspondingPrototypeDiv.attr('data-prototype');
+                let newVar = $('<div/>').html(
+                    newWidget
+                        .replace(/__name__/g, varsCount)
+                        .replace(/title/g, 'title active')
+                        .replace(/content/g, 'content active')
+                ).contents();
+                correspondingPrototypeDiv.append(newVar);
+
+                let deleteButton = createDeleteButton().click(function (e) {
+                    e.preventDefault();
+                    $(this).parent().parent().remove();
+                });
+                newVar.find('>div').append(deleteButton);
+                varsCount++;
+                console.log(varsCount);
+            });
+
+            $(this).parent().append(newVarButton);
+            $(this).find('>div>.fields').append(
+                createDeleteButton().click(function (e) {
+                    e.preventDefault();
+                    $('.ui.basic.test.modal')
+                        .modal({
+                            onApprove: function () {
+                                $(e.currentTarget).parent().parent().remove();
+                            }
+                        })
+                        .modal('show');
+                })
+            );
+        });
+    }
+
+    initAddRemoveButtons();
 });

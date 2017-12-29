@@ -20,15 +20,18 @@ use Nodeart\BuilderBundle\Entity\Repositories\TypeFieldNodeRepository;
 use Nodeart\BuilderBundle\Entity\TypeFieldNode;
 use Nodeart\BuilderBundle\Form\Type\AjaxCheckboxType;
 use Nodeart\BuilderBundle\Form\Type\LabeledNumberType;
+use Nodeart\BuilderBundle\Form\Type\LabeledTextType;
 use Nodeart\BuilderBundle\Form\Type\NamedFileType;
 use Nodeart\BuilderBundle\Form\Type\NodeCheckboxType;
 use Nodeart\BuilderBundle\Form\Type\PredefinedAjaxCheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Form;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 //@todo MAJOR REFACTORING REQUIRED. ARRAY HELL & INEFFECTIVE ORM USAGE DETECTED
 class ObjectFormFieldsService {
@@ -92,7 +95,8 @@ class ObjectFormFieldsService {
 			if ( $fieldTypeNode->isCollection() && ! in_array( $formType, [
 					PredefinedAjaxCheckboxType::class,
 					NamedFileType::class,
-					LabeledNumberType::class
+                    LabeledNumberType::class,
+                    LabeledTextType::class
 				] ) ) {
 				$formType = AjaxCheckboxType::class;
 			}
@@ -109,6 +113,17 @@ class ObjectFormFieldsService {
 			if ( $formType == NamedFileType::class ) {
 				$fieldOptions['object_id'] = ( $this->getObject() ) ? $this->getObject()->getId() : false;
 			}
+
+            if (in_array($formType, [LabeledNumberType::class, LabeledTextType::class]) && isset($fieldOptions['multiple']) && $fieldOptions['multiple']) {
+                $baseFormType = $formType;
+                $formType = CollectionType::class;
+                unset($fieldOptions['multiple']);
+                unset($fieldOptions['is_multiple']);
+                $fieldOptions['entry_type'] = $baseFormType;
+                $fieldOptions['entry_options'] = ['label' => false, 'is_multiple' => true, 'multiple' => true];
+                $fieldOptions['allow_add'] = true;
+                $fieldOptions['allow_delete'] = true;
+            }
 
 			$addedFormFieldIds[] = $typeId;
 			$form->add(
@@ -237,7 +252,10 @@ class ObjectFormFieldsService {
 			$currentParentsByTypes[ $parentType->getId() ] = new ArrayCollection();
 		}
 
-		//fill types with objects
+
+//        VarDumper::dump($entityType->getRequiredParents());
+
+        //fill types with objects
 		/** @var ObjectNode $parentObject */
 		foreach ( $this->getObject()->getParentObjects() as $parentObject ) {
 			$currentParentsByTypes[ $parentObject->getEntityType()->getId() ]->add( $parentObject );
@@ -248,13 +266,19 @@ class ObjectFormFieldsService {
 
 		/** @var EntityTypeNode $parentType */
 		foreach ( $objectParentTypes as $parentType ) {
+            $isHidden = $this->getEntityType()->isDataType() && $isAjax;
+            $isRequired = !$isHidden && in_array($parentType->getId(), $entityType->getRequiredParents() ?? []);
+            $constraints = ($isRequired) ? [new NotBlank()] : [];
 			$form->add( $parentType->getSlug(), NodeCheckboxType::class, [
 				'label'             => 'Принадлежит объектам типа',
 				'label_attr'        => [ 'tooltip' => $parentType->getName() ],
 				'data'              => $currentParentsByTypes[ $parentType->getId() ],
 				'is_multiple'       => true,
 				'local_search_data' => $parentType->getObjects(),
-                'is_hidden' => $this->getEntityType()->isDataType() && $isAjax
+                'is_hidden' => $isHidden,
+                'required' => $isRequired,
+                'constraints' => $constraints,
+                'error_bubbling' => false
 			] );
 		}
 	}
@@ -268,7 +292,8 @@ class ObjectFormFieldsService {
             'data' => [$this->parentObjectNode],
             'is_multiple' => true,
             'local_search_data' => [$this->parentObjectNode],
-            'is_hidden' => true
+            'is_hidden' => true,
+            'required' => false
         ]);
     }
 

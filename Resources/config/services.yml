@@ -44,7 +44,7 @@ services:
 
     app.twig.extension.front.functions:
         class: Nodeart\BuilderBundle\Twig\TwigFunctions
-        arguments: ['@neo.app.manager', '@liip_imagine.cache.manager', '@assets.packages', '@form.factory']
+        arguments: ['@neo.app.manager', '@liip_imagine.cache.manager', '@assets.packages', '@form.factory', '@objects.queries.ram.storage']
         public: false
         tags:
             - { name: twig.extension }
@@ -104,5 +104,10 @@ services:
         arguments: ['@neo.app.manager']
 
     Nodeart\BuilderBundle\Services\ObjectSearchQueryService\ObjectSearchQuery:
+        shared: false
         public: true
         arguments: ['@neo.app.manager']
+
+    objects.queries.ram.storage:
+        class: Nodeart\BuilderBundle\Services\ObjectsQueriesRAMStorage
+        public: false

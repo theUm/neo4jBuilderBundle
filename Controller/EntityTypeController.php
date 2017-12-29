@@ -44,16 +44,25 @@ class EntityTypeController extends Controller {
 
 		$entityType = new EntityTypeNode();
 		$form       = $this->createForm( EntityTypeNodeType::class, $entityType )
-		                   ->add( 'hasParents', AjaxCheckboxType::class, [
-			                   'is_multiple'       => true,
-			                   'label'             => 'Принадлежит типам:',
-			                   'localSearch'       => true,
-			                   'local_search_data' => array_flip( $allRootTypesArray ),
-			                   'db_label'          => 'EntityType',
-			                   'mapped'            => false,
-			                   'allowAdditions'    => false
-		                   ] )
-		                   ->add( 'Создать тип', SubmitType::class, [ 'attr' => [ 'class' => 'red' ] ] );
+            ->add('hasParents', AjaxCheckboxType::class, [
+                'is_multiple' => true,
+                'label' => 'Принадлежит типам:',
+                'localSearch' => true,
+                'local_search_data' => array_flip($allRootTypesArray),
+                'db_label' => 'EntityType',
+                'mapped' => false,
+                'allowAdditions' => false
+            ])
+            ->add('requiredParents', AjaxCheckboxType::class, [
+                'is_multiple' => true,
+                'label' => 'Обязательные типы',
+                'localSearch' => true,
+                'local_search_data' => [],
+                'mapped' => true,
+                'allowAdditions' => false,
+                'empty_data' => null,
+            ])
+            ->add('Создать тип', SubmitType::class, ['attr' => ['class' => 'red']]);
 
 		$form->handleRequest( $request );
 
@@ -163,11 +172,24 @@ class EntityTypeController extends Controller {
 			             'mapped'            => false,
 			             'allowAdditions'    => false
 		             ] )
+            ->add('requiredParents', AjaxCheckboxType::class, [
+                'is_multiple' => true,
+                'label' => 'Обязательные типы',
+                'localSearch' => true,
+                'local_search_data' => [],
+                'mapped' => true,
+                'allowAdditions' => false,
+                'empty_data' => null
+            ])
 		             ->add( 'Редактировать тип', SubmitType::class );
 
 		$form->handleRequest( $request );
 
 		if ( $form->isSubmitted() && $form->isValid() ) {
+
+            if (empty($form->get('requiredParents')->getData())) {
+                $entityType->setRequiredParents(null);
+            }
 
 			$submittedParentsData = $form->get( 'hasParents' )->getData();
 			/** @var EntityTypeNode $typeNode */

@@ -28,6 +28,9 @@ class ObjectSearchQuery
     private $baseOrder = '';
     private $secondOrder = '';
 
+    private $partialQueryResultPart = '';
+    private $partialFVSubQuery = '';
+
     public function __construct(EntityManager $entityManager)
     {
         $this->query = $entityManager->createQuery();
@@ -59,8 +62,7 @@ class ObjectSearchQuery
 
         $cql = "MATCH (type:EntityType)<-[:has_type]-(o:Object)$parentChildLinks $baseWhere $objectFilter $etFilter $parentChildFilter
                 WITH o $baseOrder $skip $limit $valuesFilter
-        	    OPTIONAL MATCH (o)<-[rel:is_field_of]-(fv:FieldValue)-[:is_value_of]->(etf:EntityTypeField)-[:has_field]-(type:EntityType)-[:has_type]-(o)
-        	    OPTIONAL MATCH (childEtf:EntityTypeField)-[:has_field]->(childEt:EntityType)<-[:has_type]-(childO:Object)
+        	    OPTIONAL MATCH (o)<-[rel:is_field_of]-(fv:FieldValue)-[:is_value_of]->(etf:EntityTypeField)-[:has_field]->(type:EntityType)<-[:has_type]-(o)
                 WITH etf, o, collect(DISTINCT fv) as val
                 RETURN o as object, 
                     CASE WHEN etf IS NULL THEN [] ELSE collect({etfSlug:etf.slug, valsByFields:{fieldType:etf, val:val}}) END as objectFields $secondOrder";
@@ -74,15 +76,22 @@ class ObjectSearchQuery
         $this->query->addEntityMapping('objects', null, Query::HYDRATE_MAP_COLLECTION);
     }
 
-    public function executeCount()
+    private function preparePartialQuery()
     {
-        return $this->getCountQuery()->getOneResult();
-    }
+        $baseWhere = $this->baseWhere;
+        $objectFilter = $this->objectFilter;
+        $etFilter = $this->etFilter;
+        $valuesFilter = $this->valuesFilter;
+        $baseOrder = $this->baseOrder;
+        $partialResult = $this->partialQueryResultPart;
+        $partialFVSubQuery = $this->partialFVSubQuery;
 
-    public function getCountQuery()
-    {
-        $this->prepareSearchQuery();
-        return $this->query;
+        $cql = "MATCH (type:EntityType)<-[:has_type]-(o:Object) $baseWhere $objectFilter $etFilter $valuesFilter $baseOrder
+                $partialFVSubQuery
+                $partialResult";
+        $this->query->setCQL($cql);
+
+        $this->query->addEntityMapping('o', ObjectNode::class);
     }
 
     private function prepareSearchQuery()
@@ -100,6 +109,27 @@ class ObjectSearchQuery
 
         $this->query->setCQL($cql);
     }
+
+    public function executeCount()
+    {
+        return $this->getCountQuery()->getOneResult();
+    }
+
+    public function getCountQuery()
+    {
+        $this->prepareSearchQuery();
+        return $this->query;
+    }
+
+    public function getPartialQuery()
+    {
+        if (empty($this->partialQueryResultPart))
+            throw new \LogicException(ObjectSearchQuery::class . '`s addPartialQueryResult() must be called before query building');
+
+        $this->preparePartialQuery();
+        return $this->query;
+    }
+
 
     public function addObjectFilters($params = [])
     {
@@ -193,6 +223,27 @@ class ObjectSearchQuery
     {
         if (!empty($cql)) {
             $this->secondOrder = ' ORDER BY ' . $cql;
+        }
+        return $this;
+    }
+
+
+    public function addPartialQueryResult(string $cql)
+    {
+        if (!empty($cql)) {
+            $this->partialQueryResultPart = 'RETURN DISTINCT ' . $cql;
+        }
+        return $this;
+    }
+
+    public function addPartialFVSubQuery($params = [])
+    {
+        $this->partialFVSubQuery = 'OPTIONAL MATCH (o)<-[rel:is_field_of]-(fv:FieldValue)-[:is_value_of]->(etf:EntityTypeField)-[:has_field]-(type:EntityType)-[:has_type]-(o)';
+        if (!empty($params)) {
+            $this->partialFVSubQuery .= ' WHERE ' . $params['cql'];
+            foreach ($params['params'] as $paramPair) {
+                $this->query->setParameter($paramPair['name'], $paramPair['values']);
+            }
         }
         return $this;
     }

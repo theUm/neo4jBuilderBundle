@@ -35,7 +35,8 @@ class Pager {
 	private $queries;
 	private $allCommentsCount;
 
-	public function __construct( EntityManager $nam, RequestStack $request ) {
+    public function __construct(EntityManager $nam, RequestStack $request)
+    {
 		$this->nam     = $nam;
 		$this->request = $request->getCurrentRequest();
 

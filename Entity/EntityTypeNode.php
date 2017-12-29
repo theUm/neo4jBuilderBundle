@@ -66,6 +66,12 @@ class EntityTypeNode {
 	 */
 	protected $twigSingleObjectPath = null;
 
+    /**
+     * @OGM\Property(type="array", nullable=true)
+     * @var array
+     */
+    protected $requiredParents = null;
+
 	/**
 	 * @OGM\Relationship(type="has_type", direction="INCOMING", targetEntity="ObjectNode", collection=true)
 	 * @var ArrayCollection|ObjectNode[]
@@ -311,8 +317,25 @@ class EntityTypeNode {
     /**
      * @param string $mainPictureField
      */
-    public function setMainPictureField( string $mainPictureField ) {
+    public function setMainPictureField(?string $mainPictureField)
+    {
         $this->mainPictureField = $mainPictureField;
+    }
+
+    /**
+     * @return array
+     */
+    public function getRequiredParents(): ?array
+    {
+        return $this->requiredParents;
+    }
+
+    /**
+     * @param array $requiredParents
+     */
+    public function setRequiredParents(?array $requiredParents)
+    {
+        $this->requiredParents = $requiredParents;
     }
 
 }

@@ -23,8 +23,8 @@ class LabeledNumberType extends AbstractType {
 	public function buildForm( FormBuilderInterface $builder, array $options ) {
 
 
-		$builder->add( 'value', IntegerType::class, [ 'required' => false, 'attr' => [ 'maxlength' => 3 ] ] );
-		$builder->add( 'text', TextType::class, [ 'required' => false, 'attr' => [ 'maxlength' => 9 ] ] );
+        $builder->add('value', IntegerType::class, ['required' => false, 'attr' => ['maxlength' => 16]]);
+        $builder->add('text', TextType::class, ['required' => false, 'attr' => ['maxlength' => 16]]);
 
 	}
 

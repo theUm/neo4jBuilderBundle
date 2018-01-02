@@ -32,16 +32,19 @@ class AjaxCheckboxType extends AbstractType {
 		$delimiter  = $options['delimiter'];
 		$builder->addModelTransformer( new CallbackTransformer(
 			function ( $value ) use ( $delimiter ) {
+
 				if ( is_array( $value ) ) {
 					$value = implode( $delimiter, $value );
 				}
 
 				return $value;
 			},
-			function ( $value ) use ( $isMultiple, $delimiter ) {
+            function ($value) use ($isMultiple, $delimiter, $options) {
 				if ( $isMultiple && ! is_array( $value ) ) {
+                    // on null input + isMultiple - return value from option "empty_data" if present. Empty array if not present
 					if ( is_null( $value ) ) {
-						$value = [];
+                        $value = (is_object($options['empty_data']) && ($options['empty_data'] instanceof \Closure)) ?
+                            [] : $options['empty_data'];
 					} else {
 						$value = explode( $delimiter, $value );
 					}

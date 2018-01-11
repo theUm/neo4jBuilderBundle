@@ -27,7 +27,6 @@ class AjaxCheckboxType extends AbstractType {
 	}
 
 	public function buildForm( FormBuilderInterface $builder, array $options ) {
-
 		$isMultiple = $options['is_multiple'];
 		$delimiter  = $options['delimiter'];
 		$builder->addModelTransformer( new CallbackTransformer(
@@ -82,7 +81,7 @@ class AjaxCheckboxType extends AbstractType {
 			'updateChilds'      => false,
 			//semantic ui dropdown options
 			'apiSettings'       => [ 'url' => '' ],
-			'maxSelections'     => false,
+            'maxSelections' => 1,
 			'allowAdditions'    => true,
 			'minChars'          => self::MIN_AJAX_SEARCH_CHARS,
 			'saveRemoteData'    => false,

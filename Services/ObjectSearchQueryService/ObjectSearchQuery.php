@@ -61,11 +61,11 @@ class ObjectSearchQuery
         $secondOrder = $this->secondOrder;
 
         $cql = "MATCH (type:EntityType)<-[:has_type]-(o:Object)$parentChildLinks $baseWhere $objectFilter $etFilter $parentChildFilter
-                WITH o $baseOrder $skip $limit $valuesFilter
+                WITH o $baseOrder $valuesFilter
         	    OPTIONAL MATCH (o)<-[rel:is_field_of]-(fv:FieldValue)-[:is_value_of]->(etf:EntityTypeField)-[:has_field]->(type:EntityType)<-[:has_type]-(o)
                 WITH etf, o, collect(DISTINCT fv) as val
                 RETURN o as object, 
-                    CASE WHEN etf IS NULL THEN [] ELSE collect({etfSlug:etf.slug, valsByFields:{fieldType:etf, val:val}}) END as objectFields $secondOrder";
+                    CASE WHEN etf IS NULL THEN [] ELSE collect({etfSlug:etf.slug, valsByFields:{fieldType:etf, val:val}}) END as objectFields $secondOrder $skip $limit";
         $this->query->setCQL($cql);
 
         $this->query->addEntityMapping('object', ObjectNode::class);
@@ -169,7 +169,13 @@ class ObjectSearchQuery
     public function addValuesFilter($params = [])
     {
         if (!empty($params)) {
-            $this->valuesFilter = ' MATCH (o)<-[:is_field_of]-(filterFV:FieldValue)-[:is_value_of]->(filterETF:EntityTypeField) WHERE ' . $params['cql'];
+
+            if (empty($this->valuesFilter)) {
+                $this->valuesFilter = ' MATCH (o)<-[:is_field_of]-(filterFV:FieldValue)-[:is_value_of]->(filterETF:EntityTypeField) WHERE ' . $params['cql'];
+            } else {
+                $this->valuesFilter .= ' AND ' . $params['cql'];
+            }
+
             foreach ($params['params'] as $paramPair) {
                 $this->query->setParameter($paramPair['name'], $paramPair['values']);
             }

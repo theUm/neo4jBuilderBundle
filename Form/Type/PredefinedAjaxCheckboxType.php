@@ -16,9 +16,10 @@ class PredefinedAjaxCheckboxType extends AbstractType {
 		$view->vars['is_multiple']       = $options['is_multiple'];
 		$view->vars['local_search_data'] = $options['local_search_data'];
 		$view->vars['delimiter']         = $options['delimiter'];
-		if ( ! $options['is_multiple'] ) {
-			$options['maxSelections'] = 1;
-		}
+        if ($options['is_multiple']) {
+            $options['maxSelections'] = false;
+        }
+
 		//symfony config does not merge option values, just replaces them if they are present
 		$view->vars['dropdown_options'] = [
 			'maxSelections'  => $options['maxSelections'],

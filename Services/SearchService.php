@@ -41,6 +41,7 @@ class SearchService {
 			/** @var Record $record */
 			foreach ( $records as $record ) {
 				$foundData[] = [
+                    'id' => $record->get('id'),
 					'name'  => $record->get( 'name' ),
 					'value' => ( empty( $parentAttrValue ) ) ? $record->get( 'id' ) : $record->get( 'name' ),
 				];

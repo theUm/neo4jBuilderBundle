@@ -252,4 +252,16 @@ class FieldValueNodeRepository extends BaseRepository {
 		// TODO: Implement getDeleteRelationsQuery() method.
 		return null;
 	}
+
+    public function findRedirectableFieldValue(int $objId, int $fvId)
+    {
+        $query = $this->entityManager->createQuery(
+            'MATCH (o:Object)<-[:is_field_of]-(fv:FieldValue) WHERE id(o) = {objId} AND id(fv) = {fvId} RETURN fv.data as url, o as object'
+        );
+        $query->setParameter('fvId', $fvId);
+        $query->setParameter('objId', $objId);
+        $query->addEntityMapping('object', ObjectNode::class);
+        $result = $query->getOneOrNullResult();
+        return is_null($result) ? null : $result[0];
+    }
 }

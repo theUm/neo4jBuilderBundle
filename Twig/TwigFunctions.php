@@ -3,6 +3,7 @@
 namespace Nodeart\BuilderBundle\Twig;
 
 use FrontBundle\Helpers\UrlCyrillicTransformer;
+use FrontBundle\Services\GeoIPDBFinder;
 use GraphAware\Neo4j\OGM\EntityManager;
 use Liip\ImagineBundle\Imagine\Cache\CacheManager;
 use Nodeart\BuilderBundle\Entity\CommentNode;
@@ -43,14 +44,16 @@ class TwigFunctions extends \Twig_Extension {
      * @var \Twig_Environment
      */
     private $environment;
+    private $whereAmIService;
 
-    public function __construct(EntityManager $nm, CacheManager $liipImagineCacheManager, Packages $package, FormFactory $formFactory, ObjectsQueriesRAMStorage $oqrs)
+    public function __construct(EntityManager $nm, CacheManager $liipImagineCacheManager, Packages $package, FormFactory $formFactory, ObjectsQueriesRAMStorage $oqrs, GeoIPDBFinder $whereAmI)
     {
 		$this->nm          = $nm;
 		$this->liipCM      = $liipImagineCacheManager;
 		$this->package     = $package;
 		$this->formFactory = $formFactory;
         $this->objectCache = $oqrs;
+        $this->whereAmIService = $whereAmI;
 
 		$this->oRepository = $this->nm->getRepository( ObjectNode::class );
 	}
@@ -98,6 +101,9 @@ class TwigFunctions extends \Twig_Extension {
 
 			// create form to post comment
 			new \Twig_SimpleFunction( 'createCommentForm', [ $this, 'createCommentForm' ] ),
+
+            // returns array - user country name and ISO code
+            new \Twig_SimpleFunction('whereAmI', [$this, 'getUserCountryInfo']),
 		];
 	}
 
@@ -116,14 +122,14 @@ class TwigFunctions extends \Twig_Extension {
         $this->environment = $environment;
         $cardFields        = [ 'main' => [], 'col1' => [], 'col2' => [] ];
 
-        foreach ( $fields['main'] as $field ) {
-            $cardFields['main'][] = $this->transformFieldToCardView( $field, $typeKey, $valueKey, $object );
-        }
-
-        foreach ( $fields['col1'] as $field ) {
-            $cardFields['col1'][] = $this->transformFieldToCardView( $field, $typeKey, $valueKey, $object );
-        }
-
+//        foreach ( $fields['main'] as $field ) {
+//            $cardFields['main'][] = $this->transformFieldToCardView( $field, $typeKey, $valueKey, $object );
+//        }
+//
+//        foreach ( $fields['col1'] as $field ) {
+//            $cardFields['col1'][] = $this->transformFieldToCardView( $field, $typeKey, $valueKey, $object );
+//        }
+//
         foreach ( $fields['col2'] as $field ) {
             $cardFields['col2'][] = $this->transformFieldToCardView( $field, $typeKey, $valueKey, $object );
         }
@@ -163,7 +169,6 @@ class TwigFunctions extends \Twig_Extension {
     private function transformFieldToCardView( $field, $typeKey, $valueKey, $object ) {
         if ( ! is_array( $field ) ) {
             $pair = $this->getFieldBySlug( $object, $field );
-
             return $this->stringifyFieldPair( $pair, $typeKey, $valueKey );
         } else {
             $nameHtml  = $this->environment->createTemplate( $field[ $typeKey ] );
@@ -449,7 +454,6 @@ class TwigFunctions extends \Twig_Extension {
             }
             $row['objectFields'] = $newObjFields;
         }
-
         return $struct;
     }
 
@@ -458,4 +462,13 @@ class TwigFunctions extends \Twig_Extension {
         return $this->oRepository->findObjectsByValue($entityType, $entityTypeField, $value, $limit, $skip);
     }
 
+
+    /**
+     * @param bool $ip
+     * @return array ['isoCode'=>'', 'name'=>'']
+     */
+    public function getUserCountryInfo($ip = false)
+    {
+        return $ip ? $this->whereAmIService->setIp($ip)->getCountryInfo() : $this->whereAmIService->getCountryInfo();
+    }
 }

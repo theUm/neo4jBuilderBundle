@@ -44,7 +44,7 @@ services:
 
     app.twig.extension.front.functions:
         class: Nodeart\BuilderBundle\Twig\TwigFunctions
-        arguments: ['@neo.app.manager', '@liip_imagine.cache.manager', '@assets.packages', '@form.factory', '@objects.queries.ram.storage']
+        arguments: ['@neo.app.manager', '@liip_imagine.cache.manager', '@assets.packages', '@form.factory', '@objects.queries.ram.storage', '@where.am.i']
         public: false
         tags:
             - { name: twig.extension }

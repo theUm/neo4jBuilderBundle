@@ -228,17 +228,26 @@ class ObjectNodeRepository extends BaseRepository {
         $filterLinkToSingleParentQueryString = (is_null($parentObjectSlug)) ? '' : ' AND parentObject.slug = {parentObjectSlug}';
 
         if (!empty($valuesFilters) && isset($valuesFilters['etf']) && isset($valuesFilters['vals'])) {
-            $valuesFilterQueryString = '
-            MATCH (o)<-[:is_field_of]-(filterFV:FieldValue)-[:is_value_of]->(filterETF:EntityTypeField)
-                WHERE filterETF.slug = {filterETFSlug} AND filterFV.data IN {filterFVs}';
 
-            $vals = [];
-            foreach ($valuesFilters['vals'] as $val) {
-                $vals[] = ($val instanceof FieldValueNode) ? $val->getData() : $val;
+            $comparator = (isset($valuesFilters['cmp'])) ? $valuesFilters['cmp'] : "IN";
+            $valuesFilterQueryString = "MATCH (o)<-[:is_field_of]-(filterFV:FieldValue)-[:is_value_of]->(filterETF:EntityTypeField)
+                WHERE filterETF.slug = {filterETFSlug} AND filterFV.data $comparator {filterFVs}";
+
+            // array of values
+            if (is_array($valuesFilters['vals'])) {
+                $vals = [];
+                foreach ($valuesFilters['vals'] as $val) {
+                    $vals[] = ($val instanceof FieldValueNode) ? $val->getData() : $val;
+                }
+            } else {
+                // single value. transform to numeric if possible
+                $vals = is_numeric($valuesFilters['vals']) ? intval($valuesFilters['vals']) : $valuesFilters['vals'];
             }
-            if ($valuesFilters['vals'])
+
+            if ($valuesFilters['vals']) {
                 $siblingsQuery->setParameter('filterETFSlug', $valuesFilters['etf']);
-            $siblingsQuery->setParameter('filterFVs', $vals);
+                $siblingsQuery->setParameter('filterFVs', $vals);
+            }
         } else {
             $valuesFilterQueryString = '';
         }
@@ -404,11 +413,11 @@ class ObjectNodeRepository extends BaseRepository {
         	OPTIONAL MATCH (etf)<-[:is_value_of]-(fv)-[rel:is_field_of]->(o)
         	WITH o, etf, fv, rel ORDER BY etf.order, rel.order
             WITH o, {type:etf, vals: collect(fv)} as fieldValuesMap
-            RETURN o, collect(fieldValuesMap) as fieldByTypes SKIP {skip} LIMIT {limit}'
+            RETURN o, collect(fieldValuesMap) as objectFields SKIP {skip} LIMIT {limit}'
         );
         $entityTypeFieldsQuery->addEntityMapping('o', ObjectNode::class);
         $entityTypeFieldsQuery->addEntityMapping('fieldValuesMap', null, Query::HYDRATE_MAP);
-        $entityTypeFieldsQuery->addEntityMapping('fieldByTypes', null, Query::HYDRATE_MAP_COLLECTION);
+        $entityTypeFieldsQuery->addEntityMapping('objectFields', null, Query::HYDRATE_MAP_COLLECTION);
         $entityTypeFieldsQuery->addEntityMapping('type', TypeFieldNode::class);
         $entityTypeFieldsQuery->addEntityMapping('vals', FieldValueNode::class, Query::HYDRATE_COLLECTION);
 

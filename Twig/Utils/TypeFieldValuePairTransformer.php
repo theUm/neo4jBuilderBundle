@@ -38,17 +38,20 @@ class TypeFieldValuePairTransformer {
                         break;
                     }
                     case 'date': {
-                        $date = new \DateTime($fieldValueNode->getData());
+                        $date = new \DateTime();
+                        $date->setTimestamp($fieldValueNode->getData());
                         $res = $date->format('d.m.Y');
                         break;
                     }
                     case 'time': {
-                        $date = new \DateTime($fieldValueNode->getData());
+                        $date = new \DateTime();
+                        $date->setTimestamp($fieldValueNode->getData());
                         $res = $date->format('H:i:s');
                         break;
                     }
                     case 'datetime': {
-                        $date = new \DateTime($fieldValueNode->getData());
+                        $date = new \DateTime();
+                        $date->setTimestamp($fieldValueNode->getData());
                         $res = $date->format('d.m.Y H:i:s');
                         break;
                     }

@@ -31,13 +31,26 @@
 
                 {# bottom buttons #}
                 <div class="ui row">
-                    <a class="ui left floated basic button" href="{{ path('builder_add_types',{}) }}">Назад</a>
+                    <a class="ui left floated basic button"
+                       href="{{ path('builder_list_objects',{'id':objectEntity.entityType.id}) }}"><i
+                                class="reply icon"></i>Назад</a>
+                    {#<a class="ui left floated basic button" href="{{ path('builder_add_types',{}) }}"><i class="database icon"></i>Список обьектов</a>#}
+                    <a class="ui left floated basic button"
+                       href="{{ path('builder_edit_type',{'id':objectEntity.entityType.id}) }}"><i
+                                class="edit icon"></i>Редактировать тип</a>
                     {% if not objectEntity.entityType.isDataType %}
+                        {% for parentObject in objectEntity.parentObjects %}
+                            <a href="{{ path('builder_edit_big_object',{'id':parentObject.id}) }}"
+                               class="ui left floated basic purple button"
+                               target="_blank">{{ parentObject.name }}</a>
+                        {% endfor %}
                         <a href="{{ path('vSingleObject',{'entityType':objectEntity.entityType.slug, 'object': objectEntity.slug}) }}"
                            class="ui right floated basic green button"
-                           target="_blank">{{ 'Страница объекта'|trans }}</a>
+                           target="_blank"><i class="unhide icon"></i>{{ 'Страница объекта'|trans }}</a>
                     {% endif %}
-                    <button type="button" class="ui basic red delete-main-object right floated button">Удалить</button>
+                    <button type="button" class="ui basic red delete-main-object right floated button"><i
+                                class="delete icon"></i>Удалить
+                    </button>
                 </div>
             </div>
         </div>

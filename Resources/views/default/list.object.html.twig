@@ -20,6 +20,9 @@
         {% endif %}
         <a class="ui left floated button primary"
            href="{{ path('builder_add_type_object', {'id':entity.id}) }}">{{ 'Создать обьект'|trans }}</a>
+        <a class="ui left floated button"
+           href="{{ path('builder_edit_type',{'id':entity}) }}"><i
+                    class="edit icon"></i>{{ 'Ред.'|trans ~ ' ' ~ entity.name }}</a>
         <hr/>
         <a class="ui left floated button primary backward"
            href="{{ path('builder_add_types') }}">{{ 'Назад'|trans }}</a>

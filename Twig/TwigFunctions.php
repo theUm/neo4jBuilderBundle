@@ -122,14 +122,14 @@ class TwigFunctions extends \Twig_Extension {
         $this->environment = $environment;
         $cardFields        = [ 'main' => [], 'col1' => [], 'col2' => [] ];
 
-//        foreach ( $fields['main'] as $field ) {
-//            $cardFields['main'][] = $this->transformFieldToCardView( $field, $typeKey, $valueKey, $object );
-//        }
-//
-//        foreach ( $fields['col1'] as $field ) {
-//            $cardFields['col1'][] = $this->transformFieldToCardView( $field, $typeKey, $valueKey, $object );
-//        }
-//
+        foreach ($fields['main'] as $field) {
+            $cardFields['main'][] = $this->transformFieldToCardView($field, $typeKey, $valueKey, $object);
+        }
+
+        foreach ($fields['col1'] as $field) {
+            $cardFields['col1'][] = $this->transformFieldToCardView($field, $typeKey, $valueKey, $object);
+        }
+
         foreach ( $fields['col2'] as $field ) {
             $cardFields['col2'][] = $this->transformFieldToCardView( $field, $typeKey, $valueKey, $object );
         }

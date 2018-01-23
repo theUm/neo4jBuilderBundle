@@ -3,7 +3,6 @@
 namespace Nodeart\BuilderBundle\Twig;
 
 use FrontBundle\Helpers\UrlCyrillicTransformer;
-use FrontBundle\Services\GeoIPDBFinder;
 use GraphAware\Neo4j\OGM\EntityManager;
 use Liip\ImagineBundle\Imagine\Cache\CacheManager;
 use Nodeart\BuilderBundle\Entity\CommentNode;
@@ -44,16 +43,14 @@ class TwigFunctions extends \Twig_Extension {
      * @var \Twig_Environment
      */
     private $environment;
-    private $whereAmIService;
 
-    public function __construct(EntityManager $nm, CacheManager $liipImagineCacheManager, Packages $package, FormFactory $formFactory, ObjectsQueriesRAMStorage $oqrs, GeoIPDBFinder $whereAmI)
+    public function __construct(EntityManager $nm, CacheManager $liipImagineCacheManager, Packages $package, FormFactory $formFactory, ObjectsQueriesRAMStorage $oqrs)
     {
 		$this->nm          = $nm;
 		$this->liipCM      = $liipImagineCacheManager;
 		$this->package     = $package;
 		$this->formFactory = $formFactory;
         $this->objectCache = $oqrs;
-        $this->whereAmIService = $whereAmI;
 
 		$this->oRepository = $this->nm->getRepository( ObjectNode::class );
 	}
@@ -101,9 +98,6 @@ class TwigFunctions extends \Twig_Extension {
 
 			// create form to post comment
 			new \Twig_SimpleFunction( 'createCommentForm', [ $this, 'createCommentForm' ] ),
-
-            // returns array - user country name and ISO code
-            new \Twig_SimpleFunction('whereAmI', [$this, 'getUserCountryInfo']),
 		];
 	}
 
@@ -460,15 +454,5 @@ class TwigFunctions extends \Twig_Extension {
     public function getObjectsByValue($entityType, $entityTypeField, $value, int $limit = 10, int $skip = 0)
     {
         return $this->oRepository->findObjectsByValue($entityType, $entityTypeField, $value, $limit, $skip);
-    }
-
-
-    /**
-     * @param bool $ip
-     * @return array ['isoCode'=>'', 'name'=>'']
-     */
-    public function getUserCountryInfo($ip = false)
-    {
-        return $ip ? $this->whereAmIService->setIp($ip)->getCountryInfo() : $this->whereAmIService->getCountryInfo();
     }
 }

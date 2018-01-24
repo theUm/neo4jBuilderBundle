@@ -13,7 +13,8 @@ use GraphAware\Neo4j\OGM\EntityManager;
 use GraphAware\Neo4j\OGM\Query;
 use Nodeart\BuilderBundle\Entity\BookmarkNode;
 
-class BookmarksQueries implements QueriesInterface {
+class BookmarksQueries implements QueriesInterface
+{
 
     const MAIN_ALIAS = 'bm';
 
@@ -38,42 +39,48 @@ class BookmarksQueries implements QueriesInterface {
     private $order = [];
     private $filters = [];
 
-    public function __construct( $nm ) {
+    public function __construct($nm)
+    {
         $this->entityManager = $nm;
     }
 
-    public function createCountQuery() {
+    public function createCountQuery()
+    {
 //		$cql = 'MATCH (%alias%:Comment) RETURN COUNT(%alias%) as count';
 //		$cql = 'MATCH (n:Bookmark)--(u:User) where id(u) = 75  match(ref) where n.refId = id(ref) RETURN {bm:n, refNode:ref} COUNT(%alias%) as count';
         $cql = 'MATCH (%alias%:Bookmark)--(u:User) where id(u) = {uId}  MATCH(ref) WHERE %alias%.refId = id(ref) RETURN COUNT(%alias%) as count';
-        $cql = str_replace( '%alias%', self::MAIN_ALIAS, $cql );
+        $cql = str_replace('%alias%', self::MAIN_ALIAS, $cql);
 
-        $this->countQuery = $this->entityManager->createQuery( $cql );
-        $this->countQuery->setParameter( 'uId', $this->getParam( 'user' ) );
+        $this->countQuery = $this->entityManager->createQuery($cql);
+        $this->countQuery->setParameter('uId', $this->getParam('user'));
     }
 
-    public function getParam( $paramName ) {
-        return $this->params[ $paramName ];
+    public function getParam($paramName)
+    {
+        return $this->params[$paramName];
     }
 
-    public function buildFilters(): string {
+    public function buildFilters(): string
+    {
         $flatArrayFilters = [];
-        foreach ( $this->getFilters() as $paramName => $props ) {
-            $alias              = ( strpos( $paramName, '__' ) === false ) ? self::MAIN_ALIAS . '.' : str_replace( '__', '.', $paramName );
+        foreach ($this->getFilters() as $paramName => $props) {
+            $alias = (strpos($paramName, '__') === false) ? self::MAIN_ALIAS . '.' : str_replace('__', '.', $paramName);
             $flatArrayFilters[] = $alias . $paramName . ' ' . $props['op'] . ' ' . $props['val'];
         }
 
-        return empty( $flatArrayFilters ) ? '' : 'WHERE ' . join( ' AND ', $flatArrayFilters );
+        return empty($flatArrayFilters) ? '' : 'WHERE ' . join(' AND ', $flatArrayFilters);
     }
 
     /**
      * @return array
      */
-    public function getFilters(): array {
+    public function getFilters(): array
+    {
         return $this->filters;
     }
 
-    public function getCountQuery(): Query {
+    public function getCountQuery(): Query
+    {
         return $this->countQuery;
     }
 
@@ -84,43 +91,49 @@ class BookmarksQueries implements QueriesInterface {
      * @param $limit
      * @param $skip
      */
-    public function createQuery( $limit, $skip ) {
+    public function createQuery($limit, $skip)
+    {
 
         $this->query = $this->entityManager->createQuery();
 
         $cql = 'MATCH (%alias%:Bookmark)--(u:User) where id(u) = {uId} 
                 RETURN %alias% ORDER BY %alias%.createdAt DESC SKIP {skip} LIMIT {limit}';
 
-        $cql = str_replace( '%alias%', self::MAIN_ALIAS, $cql );
+        $cql = str_replace('%alias%', self::MAIN_ALIAS, $cql);
 
-        $this->query->setCQL( $cql );
-        $this->query->setParameter( 'uId', $this->getParam( 'user' ) );
-        $this->query->setParameter( 'limit', intval( $limit ) );
-        $this->query->setParameter( 'skip', intval( $skip ) );
-        $this->query->addEntityMapping( self::MAIN_ALIAS, BookmarkNode::class );
+        $this->query->setCQL($cql);
+        $this->query->setParameter('uId', $this->getParam('user'));
+        $this->query->setParameter('limit', intval($limit));
+        $this->query->setParameter('skip', intval($skip));
+        $this->query->addEntityMapping(self::MAIN_ALIAS, BookmarkNode::class);
     }
 
-    public function getQuery(): Query {
+    public function getQuery(): Query
+    {
         return $this->query;
     }
 
-    public function setParams( array $array ) {
+    public function setParams(array $array)
+    {
         $this->params = $array;
     }
 
-    public function setParam( $paramName, $paramValue ) {
-        $this->params[ $paramName ] = $paramValue;
+    public function setParam($paramName, $paramValue)
+    {
+        $this->params[$paramName] = $paramValue;
 
         return $this;
     }
 
-    public function processOrder( array $getParams ) {
+    public function processOrder(array $getParams)
+    {
     }
 
     /**
      * @return array
      */
-    public function getOrder(): array {
+    public function getOrder(): array
+    {
         return $this->order;
     }
 }

@@ -9,28 +9,31 @@ use Nodeart\BuilderBundle\Entity\TypeFieldNode;
 /**
  * @OGM\QueryResult()
  */
-class ObjectFieldResult {
-	/**
-	 * @OGM\MappedResult(type="ENTITY", target="FieldValueNode")
-	 */
-	protected $value;
+class ObjectFieldResult
+{
+    /**
+     * @OGM\MappedResult(type="ENTITY", target="FieldValueNode")
+     */
+    protected $value;
 
-	/**
-	 * @OGM\MappedResult(type="ENTITY", target="TypeFieldNode")
-	 */
-	protected $type;
+    /**
+     * @OGM\MappedResult(type="ENTITY", target="TypeFieldNode")
+     */
+    protected $type;
 
-	/**
-	 * @return FieldValueNode
-	 */
-	public function getValue() {
-		return $this->value;
-	}
+    /**
+     * @return FieldValueNode
+     */
+    public function getValue()
+    {
+        return $this->value;
+    }
 
-	/**
-	 * @return TypeFieldNode
-	 */
-	public function getType() {
-		return $this->type;
-	}
+    /**
+     * @return TypeFieldNode
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
 }

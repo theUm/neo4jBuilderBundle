@@ -76,22 +76,15 @@ class ObjectSearchQuery
         $this->query->addEntityMapping('objects', null, Query::HYDRATE_MAP_COLLECTION);
     }
 
-    private function preparePartialQuery()
+    public function executeCount()
     {
-        $baseWhere = $this->baseWhere;
-        $objectFilter = $this->objectFilter;
-        $etFilter = $this->etFilter;
-        $valuesFilter = $this->valuesFilter;
-        $baseOrder = $this->baseOrder;
-        $partialResult = $this->partialQueryResultPart;
-        $partialFVSubQuery = $this->partialFVSubQuery;
+        return $this->getCountQuery()->getOneResult();
+    }
 
-        $cql = "MATCH (type:EntityType)<-[:has_type]-(o:Object) $baseWhere $objectFilter $etFilter $valuesFilter $baseOrder
-                $partialFVSubQuery
-                $partialResult";
-        $this->query->setCQL($cql);
-
-        $this->query->addEntityMapping('o', ObjectNode::class);
+    public function getCountQuery()
+    {
+        $this->prepareSearchQuery();
+        return $this->query;
     }
 
     private function prepareSearchQuery()
@@ -110,17 +103,6 @@ class ObjectSearchQuery
         $this->query->setCQL($cql);
     }
 
-    public function executeCount()
-    {
-        return $this->getCountQuery()->getOneResult();
-    }
-
-    public function getCountQuery()
-    {
-        $this->prepareSearchQuery();
-        return $this->query;
-    }
-
     public function getPartialQuery()
     {
         if (empty($this->partialQueryResultPart))
@@ -130,6 +112,23 @@ class ObjectSearchQuery
         return $this->query;
     }
 
+    private function preparePartialQuery()
+    {
+        $baseWhere = $this->baseWhere;
+        $objectFilter = $this->objectFilter;
+        $etFilter = $this->etFilter;
+        $valuesFilter = $this->valuesFilter;
+        $baseOrder = $this->baseOrder;
+        $partialResult = $this->partialQueryResultPart;
+        $partialFVSubQuery = $this->partialFVSubQuery;
+
+        $cql = "MATCH (type:EntityType)<-[:has_type]-(o:Object) $baseWhere $objectFilter $etFilter $valuesFilter $baseOrder
+                $partialFVSubQuery
+                $partialResult";
+        $this->query->setCQL($cql);
+
+        $this->query->addEntityMapping('o', ObjectNode::class);
+    }
 
     public function addObjectFilters($params = [])
     {

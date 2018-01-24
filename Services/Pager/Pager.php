@@ -13,134 +13,143 @@ use GraphAware\Neo4j\OGM\EntityManager;
 use Nodeart\BuilderBundle\Services\Pager\Queries\QueriesInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-class Pager {
-	public $request;
+class Pager
+{
+    public $request;
 
-	//constructor
-	public $count = null;
-	protected $range = 3;
+    //constructor
+    public $count = null;
+    protected $range = 3;
 
-	//from request
-	protected $nam;
-	protected $page = 1;
-	protected $limit = 10;
-	protected $orderParams = [];
+    //from request
+    protected $nam;
+    protected $page = 1;
+    protected $limit = 10;
+    protected $orderParams = [];
 
-	//fetched from db with count query
-	protected $totalPages = 1;
-	protected $offset;
-	/**
-	 * @var QueriesInterface
-	 */
-	private $queries;
-	private $allCommentsCount;
+    //fetched from db with count query
+    protected $totalPages = 1;
+    protected $offset;
+    /**
+     * @var QueriesInterface
+     */
+    private $queries;
+    private $allCommentsCount;
 
     public function __construct(EntityManager $nam, RequestStack $request)
     {
-		$this->nam     = $nam;
-		$this->request = $request->getCurrentRequest();
+        $this->nam = $nam;
+        $this->request = $request->getCurrentRequest();
 
-		// set page and limit form url if present
-		$page        = intval( $this->request->get( 'page' ) );
-		$limit       = intval( $this->request->get( 'perPage' ) );
-		$this->page  = ( $page > 0 ) ? $page : $this->page;
-		$this->limit = ( $limit > 0 ) ? $limit : $this->limit;
-	}
+        // set page and limit form url if present
+        $page = intval($this->request->get('page'));
+        $limit = intval($this->request->get('perPage'));
+        $this->page = ($page > 0) ? $page : $this->page;
+        $this->limit = ($limit > 0) ? $limit : $this->limit;
+    }
 
-	public function setLimit( int $limit ) {
-		$this->limit = $limit;
-	}
+    public function setLimit(int $limit)
+    {
+        $this->limit = $limit;
+    }
 
-	public function paginate() {
-		$this->initPager();
-		foreach ( $this->exec() as $node ) {
-			yield $node;
-		}
+    public function paginate()
+    {
+        $this->initPager();
+        foreach ($this->exec() as $node) {
+            yield $node;
+        }
 
-		return;
-	}
+        return;
+    }
 
-	private function initPager() {
-		if ( $this->count == null ) {
-			$this->queries->createCountQuery();
-			$this->execCount();
-		}
-	}
+    private function initPager()
+    {
+        if ($this->count == null) {
+            $this->queries->createCountQuery();
+            $this->execCount();
+        }
+    }
 
-	private function execCount() {
+    private function execCount()
+    {
 
-		$countResult            = $this->queries->getCountQuery()->getOneResult();
-		$this->count            = $countResult['count'];
-		$this->allCommentsCount = $countResult['count'] + ( isset( $countResult['childsCount'] ) ? $countResult['childsCount'] : 0 );
-		if ( $this->count > 0 ) {
-			$this->totalPages = intval( ceil( $this->count / $this->limit ) );
+        $countResult = $this->queries->getCountQuery()->getOneResult();
+        $this->count = $countResult['count'];
+        $this->allCommentsCount = $countResult['count'] + (isset($countResult['childsCount']) ? $countResult['childsCount'] : 0);
+        if ($this->count > 0) {
+            $this->totalPages = intval(ceil($this->count / $this->limit));
 
-			$offset       = abs( $this->page - 1 ) * $this->limit;
-			$this->offset = ( $offset > 0 ) ? $offset : null;
-			$this->queries->createQuery( $this->limit, $this->offset );
-		}
-	}
+            $offset = abs($this->page - 1) * $this->limit;
+            $this->offset = ($offset > 0) ? $offset : null;
+            $this->queries->createQuery($this->limit, $this->offset);
+        }
+    }
 
 
-	private function exec() {
-		return ( $this->count > 0 ) ? $this->queries->getQuery()->getResult() : [];
-	}
+    private function exec()
+    {
+        return ($this->count > 0) ? $this->queries->getQuery()->getResult() : [];
+    }
 
-	/**
-	 * this function was snitched from KnpLabs/knp-components .../SlidingPagination.php ->getPaginationData()
-	 * @return array
-	 */
-	public function getPaginationData() {
-		$this->initPager();
-		if ( $this->range > $this->totalPages ) {
-			$this->range = $this->totalPages;
-		}
-		$delta = intval( ceil( $this->range / 2 ) );
-		if ( $this->page - $delta > $this->totalPages - $this->range ) {
-			$pages = range( $this->totalPages - $this->range + 1, $this->totalPages );
-		} else {
-			if ( $this->page - $delta < 0 ) {
-				$delta = $this->page;
-			}
-			$offset = $this->page - $delta;
-			$pages  = range( $offset + 1, $offset + $this->range );
-		}
-		$data['pages'] = $pages;
+    /**
+     * this function was snitched from KnpLabs/knp-components .../SlidingPagination.php ->getPaginationData()
+     * @return array
+     */
+    public function getPaginationData()
+    {
+        $this->initPager();
+        if ($this->range > $this->totalPages) {
+            $this->range = $this->totalPages;
+        }
+        $delta = intval(ceil($this->range / 2));
+        if ($this->page - $delta > $this->totalPages - $this->range) {
+            $pages = range($this->totalPages - $this->range + 1, $this->totalPages);
+        } else {
+            if ($this->page - $delta < 0) {
+                $delta = $this->page;
+            }
+            $offset = $this->page - $delta;
+            $pages = range($offset + 1, $offset + $this->range);
+        }
+        $data['pages'] = $pages;
 
-		$current  = $this->page;
-		$viewData = [
-			'last'         => $this->totalPages,
-			'current'      => $current,
-			'limit'        => $this->limit,
-			'first'        => 1,
-			'pageCount'    => $this->totalPages,
-			'parentsCount' => $this->count,
-			'totalCount'   => $this->allCommentsCount,
-			'orderParams'  => $this->queries->getOrder(),
-			'filters'      => $this->queries->getFilters()
-		];
-		//$viewData = [];//array_merge($viewData, $this->paginatorOptions, $this->customParameters);
-		if ( $current - 1 > 0 ) {
-			$viewData['previous'] = $current - 1;
-		}
-		if ( $current + 1 <= $this->totalPages ) {
-			$viewData['next'] = $current + 1;
-		}
-		$viewData['pagesInRange']     = $pages;
-		$viewData['firstPageInRange'] = min( $pages );
-		$viewData['lastPageInRange']  = max( $pages );
+        $current = $this->page;
+        $viewData = [
+            'last' => $this->totalPages,
+            'current' => $current,
+            'limit' => $this->limit,
+            'first' => 1,
+            'pageCount' => $this->totalPages,
+            'parentsCount' => $this->count,
+            'totalCount' => $this->allCommentsCount,
+            'orderParams' => $this->queries->getOrder(),
+            'filters' => $this->queries->getFilters()
+        ];
+        //$viewData = [];//array_merge($viewData, $this->paginatorOptions, $this->customParameters);
+        if ($current - 1 > 0) {
+            $viewData['previous'] = $current - 1;
+        }
+        if ($current + 1 <= $this->totalPages) {
+            $viewData['next'] = $current + 1;
+        }
+        $viewData['pagesInRange'] = $pages;
+        $viewData['firstPageInRange'] = min($pages);
+        $viewData['lastPageInRange'] = max($pages);
 
-		return $viewData;
-	}
+        return $viewData;
+    }
 
-	/**
-	 * @return int
-	 */
-	public function getTotalPages(): int {
-		return $this->totalPages;
-	}
+    /**
+     * @return int
+     */
+    public function getTotalPages(): int
+    {
+        return $this->totalPages;
+    }
 
-	public function createQueries( QueriesInterface $queries ) {
-		$this->queries = $queries;
-	}
+    public function createQueries(QueriesInterface $queries)
+    {
+        $this->queries = $queries;
+    }
 }

@@ -12,9 +12,10 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class AdminUsersController extends BaseController {
+class AdminUsersController extends BaseController
+{
 
-    const POSSIBLE_ACTIONS = [ 'activate', 'deactivate', 'approve', 'disapprove' ];
+    const POSSIBLE_ACTIONS = ['activate', 'deactivate', 'approve', 'disapprove'];
 
     /**
      * Updates uses by get param
@@ -25,61 +26,62 @@ class AdminUsersController extends BaseController {
      *
      * @return Response
      */
-    public function processMassActionAction( string $action, Request $request ) {
+    public function processMassActionAction(string $action, Request $request)
+    {
         $response = new JsonResponse();
 
-        if ( ! in_array( $action, array_keys( self::POSSIBLE_ACTIONS ) ) ) {
-            $response->setData( [ 'status' => 'error', 'message' => 'Unknown action' ] );
-            $response->setStatusCode( Response::HTTP_BAD_REQUEST );
+        if (!in_array($action, array_keys(self::POSSIBLE_ACTIONS))) {
+            $response->setData(['status' => 'error', 'message' => 'Unknown action']);
+            $response->setStatusCode(Response::HTTP_BAD_REQUEST);
 
             return $response;
         }
 
-        if ( ! $request->query->has( 'ids' ) ) {
-            $response->setData( [ 'status' => 'error', 'message' => 'No Id parameter provided to update' ] );
-            $response->setStatusCode( Response::HTTP_BAD_REQUEST );
+        if (!$request->query->has('ids')) {
+            $response->setData(['status' => 'error', 'message' => 'No Id parameter provided to update']);
+            $response->setStatusCode(Response::HTTP_BAD_REQUEST);
 
             return $response;
         }
 
-        $ids = $request->query->get( 'ids' );
-        if ( ! is_string( $ids ) ) {
-            $response->setData( [
-                'status'  => 'error',
+        $ids = $request->query->get('ids');
+        if (!is_string($ids)) {
+            $response->setData([
+                'status' => 'error',
                 'message' => 'Id`s must be in string, values separated by comma'
-            ] );
-            $response->setStatusCode( Response::HTTP_BAD_REQUEST );
+            ]);
+            $response->setStatusCode(Response::HTTP_BAD_REQUEST);
 
             return $response;
         }
-        if ( empty( $ids ) ) {
-            $response->setData( [ 'status' => 'error', 'message' => 'No Id`s provided to update' ] );
-            $response->setStatusCode( Response::HTTP_BAD_REQUEST );
+        if (empty($ids)) {
+            $response->setData(['status' => 'error', 'message' => 'No Id`s provided to update']);
+            $response->setStatusCode(Response::HTTP_BAD_REQUEST);
 
             return $response;
         }
 
-        $ids = array_map( 'intval', explode( ',', $ids ) );
-        $nm  = $this->get( 'neo.app.manager' );
+        $ids = array_map('intval', explode(',', $ids));
+        $nm = $this->get('neo.app.manager');
 
         /** @var UserNodeRepository $userRepo */
-        $userRepo = $nm->getRepository( UserNode::class );
-        if ( in_array( $action, [ 'activate', 'deactivate' ] ) ) {
-            $res = $userRepo->setUsersActive( ( $action == 'activate' ), $ids );
+        $userRepo = $nm->getRepository(UserNode::class);
+        if (in_array($action, ['activate', 'deactivate'])) {
+            $res = $userRepo->setUsersActive(($action == 'activate'), $ids);
         } else {
-            $res = $userRepo->setUsersApproved( ( $action == 'approve' ), $ids );
-            $userRepo->setUsersCommentsApproved( ( $action == 'approve' ), $ids );
+            $res = $userRepo->setUsersApproved(($action == 'approve'), $ids);
+            $userRepo->setUsersCommentsApproved(($action == 'approve'), $ids);
 
         }
 
-        $response->setData( [
-            'status'  => 'success',
-            'message' => count( $res['ids'] ) . ' node(s) updated',
+        $response->setData([
+            'status' => 'success',
+            'message' => count($res['ids']) . ' node(s) updated',
             'payload' => [
-                'status'     => $this->get( 'translator' )->trans( $action ),
+                'status' => $this->get('translator')->trans($action),
                 'updatedIds' => $res['ids']
             ]
-        ] );
+        ]);
 
         return $response;
     }
@@ -93,26 +95,27 @@ class AdminUsersController extends BaseController {
      *
      * @return Response
      */
-    public function manageListAction( int $page, int $perPage, string $statusFilter, Request $request ) {
-        $nm = $this->get( 'neo.app.manager' );
+    public function manageListAction(int $page, int $perPage, string $statusFilter, Request $request)
+    {
+        $nm = $this->get('neo.app.manager');
 
-        $pagerQueries = new ManageUsersQueries( $nm );
-        $pagerQueries->processOrder( $request->query->all() );
-        $pagerQueries->processFilter( $statusFilter );
+        $pagerQueries = new ManageUsersQueries($nm);
+        $pagerQueries->processOrder($request->query->all());
+        $pagerQueries->processFilter($statusFilter);
 
         /** @var Pager $pager */
-        $pager = $this->get( 'neo.pager' );
-        $pager->setLimit( $request->get( 'perPage' ) );
-        $pager->createQueries( $pagerQueries );
+        $pager = $this->get('neo.pager');
+        $pager->setLimit($request->get('perPage'));
+        $pager->createQueries($pagerQueries);
 
-        $masterRequest = $this->get( 'request_stack' )->getMasterRequest();
+        $masterRequest = $this->get('request_stack')->getMasterRequest();
 
-        return $this->render( 'BuilderBundle:Users:admin/paged.list.comments.html.twig', [
-            'comments'     => $pager->paginate(),
-            'pager'        => $pager->getPaginationData(),
-            'masterRoute'  => $masterRequest->attributes->get( '_route' ),
-            'masterParams' => $masterRequest->attributes->get( '_route_params' )
-        ] );
+        return $this->render('BuilderBundle:Users:admin/paged.list.comments.html.twig', [
+            'comments' => $pager->paginate(),
+            'pager' => $pager->getPaginationData(),
+            'masterRoute' => $masterRequest->attributes->get('_route'),
+            'masterParams' => $masterRequest->attributes->get('_route_params')
+        ]);
     }
 
 }

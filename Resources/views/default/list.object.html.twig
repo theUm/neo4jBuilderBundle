@@ -7,7 +7,7 @@
         {% else %}
             <h3 class="ui header">{{ "Существующие объекты типа"|trans ~ ' ' ~ entity.name }}</h3>
         {% endif %}
-    {% if objects|length == 0 %}
+        {% if objects|length == 0 %}
             <div class="ui middle">
                 <span>{{ "Нет таких"|trans }}</span>
             </div>

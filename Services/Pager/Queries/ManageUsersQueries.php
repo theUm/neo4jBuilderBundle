@@ -13,7 +13,8 @@ use GraphAware\Neo4j\OGM\EntityManager;
 use GraphAware\Neo4j\OGM\Query;
 use Nodeart\BuilderBundle\Entity\UserNode;
 
-class ManageUsersQueries implements QueriesInterface {
+class ManageUsersQueries implements QueriesInterface
+{
 
     const MAIN_ALIAS = 'user';
 
@@ -49,7 +50,7 @@ class ManageUsersQueries implements QueriesInterface {
         self::FIELD_APPROVED,
     ];
 
-    const DEFAULT_ORDER = [ self::MAIN_ALIAS . '.' . self::FIELD_CREATED_AT . ' ' . self::SORT_DESC ];
+    const DEFAULT_ORDER = [self::MAIN_ALIAS . '.' . self::FIELD_CREATED_AT . ' ' . self::SORT_DESC];
 
     /**
      * @var Query
@@ -72,30 +73,35 @@ class ManageUsersQueries implements QueriesInterface {
     private $order = [];
     private $filters = [];
 
-    public function __construct( $nm ) {
+    public function __construct($nm)
+    {
         $this->entityManager = $nm;
     }
 
-    public function createCountQuery() {
+    public function createCountQuery()
+    {
         $cql = 'MATCH (%alias%:User) %filters% RETURN count(%alias%) as count';
-        $cql = str_replace( '%alias%', self::MAIN_ALIAS, $cql );
-        $cql = str_replace( '%filters%', $this->buildFilters(), $cql );
+        $cql = str_replace('%alias%', self::MAIN_ALIAS, $cql);
+        $cql = str_replace('%filters%', $this->buildFilters(), $cql);
 
-        $this->countQuery = $this->entityManager->createQuery( $cql );
+        $this->countQuery = $this->entityManager->createQuery($cql);
     }
 
-    public function buildFilters(): string {
+    public function buildFilters(): string
+    {
         return '';
     }
 
     /**
      * @return array
      */
-    public function getFilters(): array {
+    public function getFilters(): array
+    {
         return $this->filters;
     }
 
-    public function getCountQuery(): Query {
+    public function getCountQuery(): Query
+    {
         return $this->countQuery;
     }
 
@@ -106,7 +112,8 @@ class ManageUsersQueries implements QueriesInterface {
      * @param $limit
      * @param $skip
      */
-    public function createQuery( $limit, $skip ) {
+    public function createQuery($limit, $skip)
+    {
 
         $this->query = $this->entityManager->createQuery();
 
@@ -122,34 +129,35 @@ class ManageUsersQueries implements QueriesInterface {
 		 %order% 
 		 SKIP {skip} LIMIT {limit}';
 
-        $cql = str_replace( '%alias%', self::MAIN_ALIAS, $cql );
-        $cql = str_replace( '%order%', $this->buildOrders(), $cql );
-        $cql = str_replace( '%filters%', $this->buildFilters(), $cql );
+        $cql = str_replace('%alias%', self::MAIN_ALIAS, $cql);
+        $cql = str_replace('%order%', $this->buildOrders(), $cql);
+        $cql = str_replace('%filters%', $this->buildFilters(), $cql);
 
-        $this->query->setCQL( $cql );
-        $this->query->setParameter( 'limit', intval( $limit ) );
-        $this->query->setParameter( 'skip', intval( $skip ) );
-        $this->query->addEntityMapping( self::MAIN_ALIAS, UserNode::class );
+        $this->query->setCQL($cql);
+        $this->query->setParameter('limit', intval($limit));
+        $this->query->setParameter('skip', intval($skip));
+        $this->query->addEntityMapping(self::MAIN_ALIAS, UserNode::class);
     }
 
-    public function buildOrders(): string {
+    public function buildOrders(): string
+    {
         $flatArrayOrders = [];
         // we need to get string like "  label1.paramName ASC, label1.paramname2 DESC, label2.param3Name ASC "
-        foreach ( $this->getOrder() as $param => $order ) {
-            if ( in_array( $param, self::SYNTHETIC_FIELDS ) ) {
+        foreach ($this->getOrder() as $param => $order) {
+            if (in_array($param, self::SYNTHETIC_FIELDS)) {
                 $alias = '';
             } else {
                 //if %paramName% already has label prefix - replace all "__"s to dots
-                $alias = ( strpos( $param, '__' ) === false ) ? self::MAIN_ALIAS . '.' : str_replace( '__', '.', $param );
+                $alias = (strpos($param, '__') === false) ? self::MAIN_ALIAS . '.' : str_replace('__', '.', $param);
             }
 
             $flatArrayOrders[] = $alias . $param . ' ' . $order;
         }
 
-        if ( empty( $flatArrayOrders ) ) {
+        if (empty($flatArrayOrders)) {
             $flatArrayOrders = self::DEFAULT_ORDER;
         }
-        $orderString = 'ORDER BY ' . join( ',', $flatArrayOrders );
+        $orderString = 'ORDER BY ' . join(',', $flatArrayOrders);
 
         return $orderString;
     }
@@ -157,15 +165,17 @@ class ManageUsersQueries implements QueriesInterface {
     /**
      * @inheritdoc
      */
-    public function getOrder(): array {
+    public function getOrder(): array
+    {
         return $this->order;
     }
 
     /**
      * @inheritdoc
      */
-    protected function setOrder( string $paramName, $sorting = self::SORT_DESC ): QueriesInterface {
-        $this->order = [ 'param' => self::MAIN_ALIAS . '.' . $paramName, 'sorting' => $sorting ];
+    protected function setOrder(string $paramName, $sorting = self::SORT_DESC): QueriesInterface
+    {
+        $this->order = ['param' => self::MAIN_ALIAS . '.' . $paramName, 'sorting' => $sorting];
 
         return $this;
     }
@@ -175,12 +185,13 @@ class ManageUsersQueries implements QueriesInterface {
      *
      * @param array $getParams
      */
-    public function processOrder( array $getParams ) {
-        $passedFields = array_intersect_key( $getParams, array_flip( self::POSSIBLE_FIELDS ) );
-        $passedFields = array_filter( $passedFields, function ( $filterName ) {
-            return in_array( $filterName, [ self::SORT_ASC, self::SORT_DESC ] );
-        } );
-        $this->order  = $passedFields;
+    public function processOrder(array $getParams)
+    {
+        $passedFields = array_intersect_key($getParams, array_flip(self::POSSIBLE_FIELDS));
+        $passedFields = array_filter($passedFields, function ($filterName) {
+            return in_array($filterName, [self::SORT_ASC, self::SORT_DESC]);
+        });
+        $this->order = $passedFields;
     }
 
     /**
@@ -188,7 +199,8 @@ class ManageUsersQueries implements QueriesInterface {
      *
      * @param string $filter
      */
-    public function processFilter( $filter ) {
+    public function processFilter($filter)
+    {
     }
 
     /**
@@ -198,26 +210,31 @@ class ManageUsersQueries implements QueriesInterface {
      *
      * @return QueriesInterface
      */
-    public function setFilter( string $filterName, string $operator = '=', $value ): QueriesInterface {
-        $this->filters[ $filterName ] = [ 'val' => $value, 'op' => $operator ];
+    public function setFilter(string $filterName, string $operator = '=', $value): QueriesInterface
+    {
+        $this->filters[$filterName] = ['val' => $value, 'op' => $operator];
 
         return $this;
     }
 
-    public function getQuery(): Query {
+    public function getQuery(): Query
+    {
         return $this->query;
     }
 
-    public function getParam( $paramName ) {
-        return $this->params[ $paramName ];
+    public function getParam($paramName)
+    {
+        return $this->params[$paramName];
     }
 
-    public function setParams( array $array ) {
+    public function setParams(array $array)
+    {
         $this->params = $array;
     }
 
-    public function setParam( $paramName, $paramValue ) {
-        $this->params[ $paramName ] = $paramValue;
+    public function setParam($paramName, $paramValue)
+    {
+        $this->params[$paramName] = $paramValue;
 
         return $this;
     }

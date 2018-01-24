@@ -22,7 +22,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-class ObjectController extends Controller {
+class ObjectController extends Controller
+{
     /**
      * @Route("/builder/type/{id}/object", name="builder_list_objects")
      * @param int $id

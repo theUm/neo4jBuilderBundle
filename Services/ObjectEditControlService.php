@@ -16,29 +16,32 @@ use Symfony\Component\Form\Form;
  * Time: 18:16
  * @property null|object object
  */
-class ObjectEditControlService {
+class ObjectEditControlService
+{
     const WITH_PARENT_OBJECTS_FIELDS = true;
     const WITHOUT_PARENT_OBJECTS_FIELDS = false;
 
-	private $container;
-	/** @var EntityManager $nm */
-	private $nm;
-	private $formFieldsService;
-	/** @var ObjectNodeRepository $oRepository */
-	private $oRepository;
+    private $container;
+    /** @var EntityManager $nm */
+    private $nm;
+    private $formFieldsService;
+    /** @var ObjectNodeRepository $oRepository */
+    private $oRepository;
 
-	private $dynamicFieldsIds = [];
+    private $dynamicFieldsIds = [];
 
-	public function __construct( Container $container ) {
-		$this->container         = $container;
-		$this->nm                = $container->get( 'neo.app.manager' );
-		$this->oRepository       = $this->nm->getRepository( ObjectNode::class );
-		$this->formFieldsService = $this->container->get( 'object.form.fields' );
-	}
+    public function __construct(Container $container)
+    {
+        $this->container = $container;
+        $this->nm = $container->get('neo.app.manager');
+        $this->oRepository = $this->nm->getRepository(ObjectNode::class);
+        $this->formFieldsService = $this->container->get('object.form.fields');
+    }
 
-	public function fetchObjectById( $id ) {
-		return $this->oRepository->findOneById( $id );
-	}
+    public function fetchObjectById($id)
+    {
+        return $this->oRepository->findOneById($id);
+    }
 
     /**
      * @param ObjectNode $objectNode
@@ -50,7 +53,7 @@ class ObjectEditControlService {
      */
     public function prepareForm(ObjectNode $objectNode, $withParentFields = self::WITHOUT_PARENT_OBJECTS_FIELDS, $isAjax = false)
     {
-		$formBuilder = $this->container->get( 'form.factory' )
+        $formBuilder = $this->container->get('form.factory')
             ->createNamedBuilder('obj_fields', ObjectNodeType::class, $objectNode, [
                 'attr' => [
                     'id' => 'obj_fields',
@@ -58,26 +61,27 @@ class ObjectEditControlService {
                 ]
             ]);
 
-		$this->formFieldsService->setObject( $objectNode );
+        $this->formFieldsService->setObject($objectNode);
         // hide relations fields for data objects
         if ($withParentFields) {
             $this->formFieldsService->addParentTypesFields($formBuilder, $isAjax);
         }
-		$this->formFieldsService->hideFieldsForDataType( $formBuilder );
+        $this->formFieldsService->hideFieldsForDataType($formBuilder);
 
-		$this->dynamicFieldsIds = $this->formFieldsService->addFormFields( $formBuilder );
+        $this->dynamicFieldsIds = $this->formFieldsService->addFormFields($formBuilder);
 
-		return $formBuilder;
-	}
+        return $formBuilder;
+    }
 
-	public function saveForm( Form $form, $silent = true ) {
-		//update name, slug, desc
-		$this->oRepository->updateObjectNodeData( $this->formFieldsService->getObject()->getId(), $this->getObject()->toArray() );
+    public function saveForm(Form $form, $silent = true)
+    {
+        //update name, slug, desc
+        $this->oRepository->updateObjectNodeData($this->formFieldsService->getObject()->getId(), $this->getObject()->toArray());
 
-		//this is normal way to save relations, and it not works for now
-		//$this->formFieldsService->setParentsToObject($form);
-		//$this->nm->getNM()->persist($this->getObject());
-		//$this->nm->getNM()->flush();
+        //this is normal way to save relations, and it not works for now
+        //$this->formFieldsService->setParentsToObject($form);
+        //$this->nm->getNM()->persist($this->getObject());
+        //$this->nm->getNM()->flush();
 
 
         //update links to parent objects
@@ -89,30 +93,33 @@ class ObjectEditControlService {
             ObjectNodeRepository::LINK_TO_PARENTS
         );
         if (!$silent) {
-            $this->container->get( 'session' )->getFlashBag()->add( 'success', 'Объект успешно изменён' );
+            $this->container->get('session')->getFlashBag()->add('success', 'Объект успешно изменён');
         }
-		// update FieldsValues in separate queries
-		$this->formFieldsService->handleDynamicFields( $form, $this->dynamicFieldsIds );
-		if ( ! $silent ) {
-			$this->container->get( 'session' )->getFlashBag()->add( 'success', 'Поля тоже успешно изменёны' );
-		}
-	}
+        // update FieldsValues in separate queries
+        $this->formFieldsService->handleDynamicFields($form, $this->dynamicFieldsIds);
+        if (!$silent) {
+            $this->container->get('session')->getFlashBag()->add('success', 'Поля тоже успешно изменёны');
+        }
+    }
 
-	private function getObject() {
-		return $this->formFieldsService->getObject();
+    private function getObject()
+    {
+        return $this->formFieldsService->getObject();
 
-	}
+    }
 
-	public function getFieldValuesByGroups() {
-		return $this->formFieldsService->getFieldValuesByGroups();
-	}
+    public function getFieldValuesByGroups()
+    {
+        return $this->formFieldsService->getFieldValuesByGroups();
+    }
 
-	public function getRelatedChildsByTypes() {
-		$childByTypes = [];
-		foreach ( $this->getObject()->getChildObjects() as $childObject ) {
-			$childByTypes[ $childObject->getEntityType()->getId() ][] = $childObject;
-		}
+    public function getRelatedChildsByTypes()
+    {
+        $childByTypes = [];
+        foreach ($this->getObject()->getChildObjects() as $childObject) {
+            $childByTypes[$childObject->getEntityType()->getId()][] = $childObject;
+        }
 
-		return $childByTypes;
-	}
+        return $childByTypes;
+    }
 }

@@ -11,28 +11,29 @@ namespace Nodeart\BuilderBundle\Services\Pager\Queries;
 
 use GraphAware\Neo4j\OGM\Query;
 
-interface QueriesInterface {
+interface QueriesInterface
+{
 
-	const SORT_ASC = 'ASC';
-	const SORT_DESC = 'DESC';
+    const SORT_ASC = 'ASC';
+    const SORT_DESC = 'DESC';
 
-	public function createCountQuery();
+    public function createCountQuery();
 
-	public function getCountQuery(): Query;
+    public function getCountQuery(): Query;
 
-	public function createQuery( $limit, $skip );
+    public function createQuery($limit, $skip);
 
-	public function getQuery(): Query;
+    public function getQuery(): Query;
 
-	public function processOrder( array $getParams );
+    public function processOrder(array $getParams);
 
-	/**
-	 * @return array
-	 */
-	public function getOrder(): array;
+    /**
+     * @return array
+     */
+    public function getOrder(): array;
 
-	/**
-	 * @return array
-	 */
-	public function getFilters(): array;
+    /**
+     * @return array
+     */
+    public function getFilters(): array;
 }

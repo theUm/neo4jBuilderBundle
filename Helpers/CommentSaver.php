@@ -16,51 +16,59 @@ use Symfony\Component\Form\FormInterface;
  * Date: 011 11.10.2016
  * Time: 18:16
  */
-class CommentSaver {
+class CommentSaver
+{
 
-	private $nm;
+    private $nm;
 
-	/**
-	 * @var AbstractCommentProcessor
-	 */
-	private $validator;
+    /**
+     * @var AbstractCommentProcessor
+     */
+    private $validator;
 
-	public function __construct( EntityManager $nm ) {
-		$this->nm = $nm;
-	}
+    public function __construct(EntityManager $nm)
+    {
+        $this->nm = $nm;
+    }
 
-	public function bindForm( FormInterface $form ) {
-		switch ( $form->get( 'relationType' )->getData() ) {
-			case CommentNode::RELATION_TYPE_OBJECT: {
-				$this->validator = new ObjectCommentProcessor();
-				break;
-			}
-			case CommentNode::RELATION_TYPE_USER: {
-				$this->validator = new UserCommentProcessor();
-				break;
-			}
-			case CommentNode::RELATION_TYPE_TYPE: {
-				$this->validator = new TypeCommentProcessor();
-				break;
-			}
-		}
-		$this->validator->bindForm( $form );
-		$this->validator->bindNM( $this->nm );
+    public function bindForm(FormInterface $form)
+    {
+        switch ($form->get('relationType')->getData()) {
+            case CommentNode::RELATION_TYPE_OBJECT:
+                {
+                    $this->validator = new ObjectCommentProcessor();
+                    break;
+                }
+            case CommentNode::RELATION_TYPE_USER:
+                {
+                    $this->validator = new UserCommentProcessor();
+                    break;
+                }
+            case CommentNode::RELATION_TYPE_TYPE:
+                {
+                    $this->validator = new TypeCommentProcessor();
+                    break;
+                }
+        }
+        $this->validator->bindForm($form);
+        $this->validator->bindNM($this->nm);
 
-		return $this;
-	}
+        return $this;
+    }
 
-	public function bindComment( CommentNode $comment ) {
-		$this->validator->bindComment( $comment );
+    public function bindComment(CommentNode $comment)
+    {
+        $this->validator->bindComment($comment);
 
-		return $this;
-	}
+        return $this;
+    }
 
-	public function processForm() {
-		$this->validator->processRelId();
-		$this->validator->processParentComment();
+    public function processForm()
+    {
+        $this->validator->processRelId();
+        $this->validator->processParentComment();
 
-		return $this;
-	}
+        return $this;
+    }
 
 }

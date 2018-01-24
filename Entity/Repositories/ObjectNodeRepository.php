@@ -9,7 +9,8 @@ use Nodeart\BuilderBundle\Entity\ObjectNode;
 use Nodeart\BuilderBundle\Entity\TypeFieldNode;
 use Nodeart\BuilderBundle\Helpers\FieldAndValue;
 
-class ObjectNodeRepository extends BaseRepository {
+class ObjectNodeRepository extends BaseRepository
+{
 
     public function isObjectWithValueExists(EntityTypeNode $entityTypeNode, $paramNameCount, $paramValue)
     {
@@ -550,6 +551,36 @@ class ObjectNodeRepository extends BaseRepository {
         return is_null($result) ? $result : $result[0];
     }
 
+    public function topSearchByName(string $name)
+    {
+        $name = str_replace(' ', '|', $name);
+        $query = $this->entityManager->createQuery(
+            "MATCH (o:Object)--(et:EntityType) WHERE et.isDataType = false AND o.name =~ {name} 
+            WITH o, et ORDER BY o.name
+            RETURN collect(o) as objects, et ORDER BY et.name LIMIT 10");
+        $query->addEntityMapping('objects', ObjectNode::class, Query::HYDRATE_COLLECTION);
+        $query->addEntityMapping('et', EntityTypeNode::class);
+        $query->setParameter('name', '(?i).*(' . $name . ').*');
+
+        return $query->getResult();
+    }
+
+    public function topSearchWithImgByName(string $name)
+    {
+        $name = str_replace(' ', '|', $name);
+        $query = $this->entityManager->createQuery(
+            "MATCH (o:Object)--(et:EntityType) where et.isDataType = false AND o.name =~ {name}
+            OPTIONAL MATCH (o)<--(fv:FieldValue)-->(etf:EntityTypeField)-->(et) WHERE etf.slug = et.mainPictureField
+            WITH o, et, fv.webPath AS fv ORDER BY o.name
+            RETURN collect({obj:o, img:fv}) as objects, et ORDER BY et.name LIMIT 10");
+        $query->addEntityMapping('obj', ObjectNode::class);
+        $query->addEntityMapping('objects', ObjectNode::class, Query::HYDRATE_MAP_COLLECTION);
+        $query->addEntityMapping('et', EntityTypeNode::class);
+        $query->setParameter('name', '(?i).*(' . $name . ').*');
+
+        return $query->getResult();
+    }
+
     protected function getCreateRelationsQuery(bool $isChildsLink): string
     {
         $queryDirection = $this->getQueryDirections($isChildsLink);
@@ -572,34 +603,5 @@ class ObjectNodeRepository extends BaseRepository {
                     WHERE id(o)={id} AND id(rem) in {id_rem}
                     DELETE r
                     return o";
-    }
-
-    public function topSearchByName( string $name ) {
-        $name  = str_replace( ' ', '|', $name );
-        $query = $this->entityManager->createQuery(
-            "MATCH (o:Object)--(et:EntityType) WHERE et.isDataType = false AND o.name =~ {name} 
-            WITH o, et ORDER BY o.name
-            RETURN collect(o) as objects, et ORDER BY et.name LIMIT 10" );
-        $query->addEntityMapping( 'objects', ObjectNode::class, Query::HYDRATE_COLLECTION );
-        $query->addEntityMapping( 'et', EntityTypeNode::class );
-        $query->setParameter( 'name', '(?i).*(' . $name . ').*' );
-
-        return $query->getResult();
-    }
-
-    public function topSearchWithImgByName(string $name)
-    {
-        $name = str_replace(' ', '|', $name);
-        $query = $this->entityManager->createQuery(
-            "MATCH (o:Object)--(et:EntityType) where et.isDataType = false AND o.name =~ {name}
-            OPTIONAL MATCH (o)<--(fv:FieldValue)-->(etf:EntityTypeField)-->(et) WHERE etf.slug = et.mainPictureField
-            WITH o, et, fv.webPath AS fv ORDER BY o.name
-            RETURN collect({obj:o, img:fv}) as objects, et ORDER BY et.name LIMIT 10");
-        $query->addEntityMapping('obj', ObjectNode::class);
-        $query->addEntityMapping('objects', ObjectNode::class, Query::HYDRATE_MAP_COLLECTION);
-        $query->addEntityMapping('et', EntityTypeNode::class);
-        $query->setParameter('name', '(?i).*(' . $name . ').*');
-
-        return $query->getResult();
     }
 }

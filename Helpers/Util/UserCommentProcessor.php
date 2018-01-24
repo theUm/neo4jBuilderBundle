@@ -11,14 +11,16 @@ use Nodeart\BuilderBundle\Entity\UserNode;
  * Date: 011 11.10.2016
  * Time: 18:16
  */
-class UserCommentProcessor extends AbstractCommentProcessor {
-	function processRelId() {
-		$userNode = $this->nm->getRepository( UserNode::class )->find( $this->getRefId() );
+class UserCommentProcessor extends AbstractCommentProcessor
+{
+    function processRelId()
+    {
+        $userNode = $this->nm->getRepository(UserNode::class)->find($this->getRefId());
 
-		if ( is_null( $userNode ) ) {
-			throw new EntityNotFoundException( 'User with id "' . $this->getRefId() . ' not found"', 404 );
-		}
+        if (is_null($userNode)) {
+            throw new EntityNotFoundException('User with id "' . $this->getRefId() . ' not found"', 404);
+        }
 
-		$this->comment->setUser( $userNode );
-	}
+        $this->comment->setUser($userNode);
+    }
 }

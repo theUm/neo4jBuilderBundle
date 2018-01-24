@@ -12,7 +12,10 @@
                             class="sort content ascending icon"></i>{{ 'Режим упорядочивания'|trans }}</button></span>
         </h1>
         {{ form(form) }}
-        <a class="ui left floated button primary" href="{{ path('builder_add_types',{}) }}">{{ "Назад"|trans }}</a>
+        <a class="ui left floated button primary" href="{{ path('builder_add_types') }}">{{ "Назад"|trans }}</a>
+        <a class="ui left floated button" href="{{ path('builder_edit_type', {'id':entity.id}) }}"
+           title="{{ "Перейти редактированию полей этого типа"|trans }}"><i class="list icon"></i>Редактирование
+            типа</a>
     </div>
 {% endblock %}
 

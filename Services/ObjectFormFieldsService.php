@@ -495,6 +495,7 @@ class ObjectFormFieldsService {
 			$formBuilder->remove( 'slug' );
 			$formBuilder->remove( 'description' );
             $formBuilder->remove('isCommentable');
+            $formBuilder->remove('status');
 		}
 	}
 

@@ -8,6 +8,7 @@ use Nodeart\BuilderBundle\Form\Type\WysiwygType;
 use Nodeart\BuilderBundle\Helpers\TemplateTwigFileResolver;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -68,6 +69,12 @@ class ObjectNodeType extends AbstractType
             ->add('isCommentable', CheckboxType::class, [
                 'label' => 'Разрешить комментарии?',
                 'required' => false
+            ])
+            ->add('status', ChoiceType::class, [
+                'label' => 'Статус',
+                'choices' => ObjectNode::STATUSES,
+                'required' => true,
+                'empty_data' => ObjectNode::STATUS_DRAFT
             ]);
 
         /** @var ObjectNode $object */

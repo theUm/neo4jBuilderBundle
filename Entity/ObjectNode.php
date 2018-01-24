@@ -11,6 +11,21 @@ use Symfony\Component\Workflow\Exception\LogicException;
  * @OGM\Node(label="Object", repository="Nodeart\BuilderBundle\Entity\Repositories\ObjectNodeRepository")
  */
 class ObjectNode {
+
+    const STATUS_DRAFT = 0;
+    const STATUS_ACTIVE = 1;
+    const STATUS_PLANNED = 2;
+    const STATUS_DELETED = 3;
+    const STATUS_IN_REVIEW = 4;
+
+    const STATUSES = [
+        'status_draft' => self::STATUS_DRAFT,
+        'status_active' => self::STATUS_ACTIVE,
+        'status_planned' => self::STATUS_PLANNED,
+        'status_deleted' => self::STATUS_DELETED,
+        'status_in_review' => self::STATUS_IN_REVIEW
+    ];
+
 	use isCommentableTrait;
 
 	/**
@@ -44,6 +59,13 @@ class ObjectNode {
 	 * @var string
 	 */
 	protected $slug = '';
+
+
+    /**
+     * @OGM\Property(type="int")
+     * @var int
+     */
+    protected $status = self::STATUS_DRAFT;
 
 	/**
 	 * @OGM\Property(type="string", nullable=true)
@@ -213,6 +235,7 @@ class ObjectNode {
 			'name'         => $this->getName(),
 			'slug'         => $this->getSlug(),
 			'description'  => $this->getDescription(),
+            'status' => $this->getStatus(),
 			'twigFilePath' => $this->getTwigFilePath(),
 			'createdAt'    => !is_null( $this->getCreatedAt() ) ? $this->getCreatedAt()->getTimestamp() : null
 		];
@@ -360,5 +383,26 @@ class ObjectNode {
      */
     public function setExcerpt( string $excerpt ) {
         $this->excerpt = $excerpt;
+    }
+
+    /**
+     * @return int
+     */
+    public function getStatus(): ?int
+    {
+        return $this->status;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->getStatus() === self::STATUS_ACTIVE;
+    }
+
+    /**
+     * @param int $status
+     */
+    public function setStatus(int $status): void
+    {
+        $this->status = $status;
     }
 }

@@ -2,10 +2,13 @@
 
 {% block content %}
     <div class="twelve wide column">
-        <h1 class="ui header">{{ "Редактировать тип объекта"|trans }}</h1>
+        <h1 class="ui header">{{ "Редактирование типа объекта"|trans }}</h1>
         {{ form(form) }}
         <a class="ui left floated button primary" href="{{ path('builder_add_types') }}"
            title="{{ "Перейти к списку объектов этого типа"|trans }}">Назад</a>
+        <a class="ui left floated button" href="{{ path('builder_edit_type_fields', {'id':entityType.id}) }}"
+           title="{{ "Перейти редактированию полей этого типа"|trans }}"><i class="list icon"></i>Редактирование
+            полей</a>
         {{ form(delete_form) }}
     </div>
 {% endblock %}
@@ -39,11 +42,10 @@
                         if (label !== false) {
                             currentValsStruct.push({'label': label.text(), 'value': vals[val]});
                         }
-                        console.log(label);
                     }
                 }
 
-                // // append new option to menu
+                // append new option to menu
                 for (let newItem in currentValsStruct) {
                     $menu.append(`<div class="item" data-value="${currentValsStruct[newItem].value}">${currentValsStruct[newItem].label}</div>`);
                 }

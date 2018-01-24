@@ -6,6 +6,7 @@
 {% if not entityType.dataType %}
     {{ form_row(form.name) }}
     {{ form_row(form.slug) }}
+    {{ form_row(form.status) }}
     {{ block('form_tabable_dropdown') }}
 {% else %}
     {{ form_rest(form) }}

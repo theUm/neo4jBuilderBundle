@@ -37,7 +37,7 @@
                     {#<a class="ui left floated basic button" href="{{ path('builder_add_types',{}) }}"><i class="database icon"></i>Список обьектов</a>#}
                     <a class="ui left floated basic button"
                        href="{{ path('builder_edit_type',{'id':objectEntity.entityType.id}) }}"><i
-                                class="edit icon"></i>Редактировать тип</a>
+                                class="edit icon"></i>{{ 'Редактирование типа'|trans }}</a>
                     {% if not objectEntity.entityType.isDataType %}
                         {% for parentObject in objectEntity.parentObjects %}
                             <a href="{{ path('builder_edit_big_object',{'id':parentObject.id}) }}"

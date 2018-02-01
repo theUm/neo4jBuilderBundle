@@ -188,6 +188,13 @@ class UserNode extends User implements \Serializable
      */
     protected $bookmarks;
 
+    /**
+     * @var Collection|UserObjectReaction[]
+     *
+     * @OGM\Relationship(relationshipEntity="UserObjectReaction", type="Reaction", direction="OUTGOING", collection=true, mappedBy="user")
+     */
+    protected $objectReactions;
+
     public function __construct()
     {
         parent::__construct();
@@ -751,6 +758,24 @@ class UserNode extends User implements \Serializable
     public function setBio(string $bio)
     {
         $this->bio = $bio;
+    }
+
+    /**
+     * @param Collection|UserObjectReaction[] $objectReactions
+     * @return UserNode
+     */
+    public function setObjectReactions($objectReactions)
+    {
+        $this->objectReactions = $objectReactions;
+        return $this;
+    }
+
+    /**
+     * @return Collection|UserObjectReaction[]
+     */
+    public function getObjectReactions()
+    {
+        return $this->objectReactions;
     }
 
 }

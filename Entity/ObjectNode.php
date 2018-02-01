@@ -82,6 +82,18 @@ class ObjectNode
     protected $createdAt;
 
     /**
+     * @OGM\Property(type="int")
+     * @var int
+     */
+    protected $likes = 0;
+
+    /**
+     * @OGM\Property(type="int")
+     * @var int
+     */
+    protected $dislikes = 0;
+
+    /**
      * @OGM\Relationship(type="has_type", direction="OUTGOING", targetEntity="EntityTypeNode", collection=false)
      * @var EntityTypeNode
      */
@@ -434,5 +446,39 @@ class ObjectNode
     public function isActive(): bool
     {
         return $this->getStatus() === self::STATUS_ACTIVE;
+    }
+
+    /**
+     * @return int
+     */
+    public function getLikes(): ?int
+    {
+        return $this->likes;
+    }
+
+    /**
+     * @param int $likes
+     */
+    public function setLikes(?int $likes): void
+    {
+        $this->likes = $likes;
+    }
+
+    /**
+     * @param int $dislikes
+     * @return ObjectNode
+     */
+    public function setDislikes(int $dislikes): ObjectNode
+    {
+        $this->dislikes = $dislikes;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getDislikes(): ?int
+    {
+        return $this->dislikes;
     }
 }

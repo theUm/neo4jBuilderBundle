@@ -3,11 +3,12 @@
 namespace Nodeart\BuilderBundle\Entity\Repositories;
 
 use Nodeart\BuilderBundle\Entity\CommentNode;
+use Nodeart\BuilderBundle\Entity\ObjectNode;
+use Nodeart\BuilderBundle\Entity\UserNode;
+use Nodeart\BuilderBundle\Entity\UserObjectReaction;
 
 class UserNodeRepository extends BaseRepository
 {
-
-
     /**
      * @param bool $setActive
      * @param array $ids
@@ -68,5 +69,46 @@ class UserNodeRepository extends BaseRepository
     protected function getDeleteRelationsQuery(bool $isChildsLink): string
     {
         return '';
+    }
+
+    /**
+     * @param UserNode $user
+     * @param ObjectNode $object
+     * @param UserObjectReaction $uor
+     * @return array|mixed
+     * @throws \Exception
+     */
+    public function updateUserObjectReaction(UserNode $user, ObjectNode $object, UserObjectReaction $uor)
+    {
+        $query = $this->entityManager->createQuery(
+            'MATCH (u:User),(o:Object)
+             WHERE id(u) = {uId} AND id(o)={oId}
+             MERGE (u)-[r:Reaction]-(o) 
+             SET r.liked = {liked}
+             SET r.disliked = {disliked}
+             SET r.createdAt = {createdAt}'
+        );
+        $query->setParameter('uId', $user->getId());
+        $query->setParameter('oId', $object->getId());
+
+        $query->setParameter('liked', $uor->isLiked());
+        $query->setParameter('disliked', $uor->isDisliked());
+        $query->setParameter('createdAt', $uor->getCreatedAt()->getTimestamp());
+
+        $res = $query->execute();
+        return $res;
+    }
+
+    public function getSingleUserObjectReaction(UserNode $userNode, ObjectNode $objectNode)
+    {
+        $query = $this->entityManager->createQuery(
+            'MATCH (u:User)-[r:Reaction]-(o:Object)
+             WHERE id(u) = {uId} AND id(o) = {oId}
+             RETURN r.liked AS liked, r.disliked AS disliked'
+        );
+        $query->setParameter('uId', $userNode->getId());
+        $query->setParameter('oId', $objectNode->getId());
+
+        return $query->getOneOrNullResult()[0];
     }
 }

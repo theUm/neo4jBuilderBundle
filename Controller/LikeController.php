@@ -46,6 +46,10 @@ class LikeController extends BaseController
         $objectNode = $objectRepo->findOneById($id);
 
         $user = $this->getUser();
+        $checkUser = $this->checkUser($user, $response);
+        if ($checkUser['failed'])
+            return $checkUser['response'];
+
         $checkObjectNode = $this->checkObject($objectNode, $response);
         if ($checkObjectNode['failed'])
             return $checkObjectNode['response'];
@@ -92,13 +96,27 @@ class LikeController extends BaseController
         return ['failed' => $checkFailed, 'response' => $response];
     }
 
+    private function checkUser($user, JsonResponse $response)
+    {
+        $checkFailed = false;
+        if (is_null($user)) {
+            $response->setData([
+                'status' => 'not_found',
+                'message' => 'User not found',
+            ]);
+            $response->setStatusCode(Response::HTTP_NOT_FOUND);
+            $checkFailed = true;
+        }
+        return ['failed' => $checkFailed, 'response' => $response];
+    }
+
     private function checkObject($objectNode, JsonResponse $response)
     {
         $checkFailed = false;
         if (!$objectNode) {
             $response->setData([
                 'status' => 'not_found',
-                'message' => 'Comment not found',
+                'message' => 'Object not found',
             ]);
             $response->setStatusCode(Response::HTTP_NOT_FOUND);
             $checkFailed = true;

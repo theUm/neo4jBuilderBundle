@@ -131,6 +131,8 @@ class TwigFunctions extends \Twig_Extension
             new \Twig_SimpleFilter('getSingleFieldThumb', array($this, 'getSingleFieldThumb')),
             // reformats fetched objects with fields structure
             new \Twig_SimpleFilter('reformatFields', array($this, 'reformatFields')),
+            // filters inactive objects
+            new \Twig_SimpleFilter('filterInactive', array($this, 'filterInactive')),
         ];
     }
 
@@ -473,5 +475,20 @@ class TwigFunctions extends \Twig_Extension
     public function getObjectsByValue($entityType, $entityTypeField, $value, int $limit = 10, int $skip = 0)
     {
         return $this->oRepository->findObjectsByValue($entityType, $entityTypeField, $value, $limit, $skip);
+    }
+
+
+    public function filterInactive($objects)
+    {
+        if (is_object($objects)) {
+            $objects = iterator_to_array($objects);
+        }
+        $filteredObjects = [];
+        /** @var ObjectNode $object */
+        foreach ($objects as $object) {
+            if ($object->getStatus() === ObjectNode::STATUS_ACTIVE)
+                $filteredObjects[] = $object;
+        }
+        return $filteredObjects;
     }
 }

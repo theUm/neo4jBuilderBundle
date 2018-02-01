@@ -451,9 +451,9 @@ class ObjectNode
     /**
      * @return int
      */
-    public function getLikes(): ?int
+    public function getLikes(): int
     {
-        return $this->likes;
+        return intval($this->likes);
     }
 
     /**
@@ -477,8 +477,8 @@ class ObjectNode
     /**
      * @return int
      */
-    public function getDislikes(): ?int
+    public function getDislikes(): int
     {
-        return $this->dislikes;
+        return intval($this->dislikes);
     }
 }

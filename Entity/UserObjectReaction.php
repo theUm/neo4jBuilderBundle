@@ -54,12 +54,9 @@ class UserObjectReaction
         $this->object = $object;
         if ($liked) {
             $this->setLiked(true);
-        } else {
-            $this->setDisLiked(true);
         }
         $this->createdAt = new \DateTime();
     }
-
     /**
      * @return int
      */

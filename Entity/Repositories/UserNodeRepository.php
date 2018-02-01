@@ -109,6 +109,6 @@ class UserNodeRepository extends BaseRepository
         $query->setParameter('uId', $userNode->getId());
         $query->setParameter('oId', $objectNode->getId());
 
-        return $query->getOneOrNullResult()[0];
+        return $query->getOneOrNullResult()[0] ?? ['liked' => false, 'disliked' => false];
     }
 }

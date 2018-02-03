@@ -48,7 +48,7 @@ class UserObjectReaction
      */
     protected $user;
 
-    public function __construct(UserNode $user, ObjectNode $object, $liked = true)
+    public function __construct(UserNode $user = null, ObjectNode $object = null, $liked = true)
     {
         $this->user = $user;
         $this->object = $object;

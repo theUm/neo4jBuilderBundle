@@ -37,9 +37,24 @@ class ObjectSearchQuery
         $this->query = $entityManager->createQuery();
     }
 
-    public function execute()
+    /**
+     * @param bool $reformatFields Should reformat fields?
+     * @return array|mixed
+     */
+    public function execute($reformatFields = false)
     {
-        return $this->getQuery()->getResult();
+        $result = $this->getQuery()->getResult();
+        if ($reformatFields) {
+            foreach ($result as &$resultRow) {
+                $fields = $resultRow['objectFields'];
+                $resultRow['objectFields'] = [];
+                foreach ($fields as $field) {
+                    $resultRow['objectFields'][$field['etfSlug']] = $field['valsByFields'];
+                }
+
+            }
+        }
+        return $result;
     }
 
     public function getQuery()

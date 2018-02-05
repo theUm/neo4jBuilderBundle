@@ -27,6 +27,7 @@ class ObjectSearchQuery
     private $limit = self::DEFAULT_PAGE_LIMIT;
     private $baseOrder = '';
     private $secondOrder = '';
+    private $additionalReturnString = '';
 
     private $partialQueryResultPart = '';
     private $partialFVSubQuery = '';
@@ -59,13 +60,14 @@ class ObjectSearchQuery
         $parentChildFilter = $this->parentChildFilter;
         $baseOrder = $this->baseOrder;
         $secondOrder = $this->secondOrder;
+        $additionalReturnString = $this->additionalReturnString;
 
         $cql = "MATCH (type:EntityType)<-[:has_type]-(o:Object)$parentChildLinks $baseWhere $objectFilter $etFilter $parentChildFilter
-                WITH o $baseOrder $valuesFilter
+                WITH o $additionalReturnString $baseOrder $valuesFilter
         	    OPTIONAL MATCH (o)<-[rel:is_field_of]-(fv:FieldValue)-[:is_value_of]->(etf:EntityTypeField)-[:has_field]->(type:EntityType)<-[:has_type]-(o)
-                WITH etf, o, collect(DISTINCT fv) as val
-                RETURN o as object, 
-                    CASE WHEN etf IS NULL THEN [] ELSE collect({etfSlug:etf.slug, valsByFields:{fieldType:etf, val:val}}) END as objectFields $secondOrder $skip $limit";
+                WITH etf, o, collect(DISTINCT fv) as val $additionalReturnString
+                RETURN o as object, CASE WHEN etf IS NULL THEN [] ELSE collect({etfSlug:etf.slug, valsByFields:{fieldType:etf, val:val}}) END as objectFields $additionalReturnString
+                $secondOrder $skip $limit";
         $this->query->setCQL($cql);
 
         $this->query->addEntityMapping('object', ObjectNode::class);
@@ -130,15 +132,15 @@ class ObjectSearchQuery
         $this->query->addEntityMapping('o', ObjectNode::class);
     }
 
+    /**
+     * @param array $params ['cql'=>'', 'params'=> ['name'=>'', 'value'=>''] ]
+     * @return $this
+     */
     public function addObjectFilters($params = [])
     {
         if (!empty($params)) {
-            if ($this->baseFiltersCount < 1) {
-                $this->baseWhere = 'WHERE ';
-                $this->objectFilter = $params['cql'];
-            } else {
-                $this->objectFilter = ' AND ' . $params['cql'];
-            }
+            $this->baseWhere = 'WHERE ';
+            $this->objectFilter = $params['cql'];
 
             foreach ($params['params'] as $paramPair) {
                 $this->query->setParameter($paramPair['name'], $paramPair['values']);
@@ -182,12 +184,29 @@ class ObjectSearchQuery
         return $this;
     }
 
-    public function addParentChildRelations($params = [], $filterByParent = true)
+    public function addParentChildRelations(string $relatedETSlug, $linkToParent = true)
+    {
+        $this->parentChildLinks = ($linkToParent) ?
+            '-[:is_child_of]->(refObject:Object)-->(refET:EntityType)' :
+            '<-[:is_child_of]-(refObject:Object)-->(refET:EntityType)';
+
+        if ($this->baseFiltersCount < 1) {
+            $this->baseWhere = 'WHERE ';
+        } else {
+            $this->parentChildFilter = ' AND ';
+        }
+        $this->parentChildFilter .= 'refET.slug = {refETSlug}';
+        $this->query->setParameter('refETSlug', $relatedETSlug);
+        $this->baseFiltersCount++;
+        return $this;
+    }
+
+    public function addParentChildRelationsFilters(string $relatedETSlug, $params = [], $linkToParent = true)
     {
         if (!empty($params)) {
-            $this->parentChildLinks = ($filterByParent) ?
-                '-[:is_child_of]->(refObject:Object)' :
-                '<-[:is_child_of]-(refObject:Object)';
+            $this->parentChildLinks = ($linkToParent) ?
+                '-[:is_child_of]->(refObject:Object)-->(refET:EntityType)' :
+                '<-[:is_child_of]-(refObject:Object)-->(refET:EntityType)';
 
             if ($this->baseFiltersCount < 1) {
                 $this->baseWhere = 'WHERE ';
@@ -195,6 +214,8 @@ class ObjectSearchQuery
             } else {
                 $this->parentChildFilter = ' AND ' . $params['cql'];
             }
+            $this->parentChildFilter .= ' AND refET.slug = {refETSlug}';
+            $this->query->setParameter('refETSlug', $relatedETSlug);
 
             foreach ($params['params'] as $paramPair) {
                 $this->query->setParameter($paramPair['name'], $paramPair['values']);
@@ -249,6 +270,15 @@ class ObjectSearchQuery
             foreach ($params['params'] as $paramPair) {
                 $this->query->setParameter($paramPair['name'], $paramPair['values']);
             }
+        }
+        return $this;
+    }
+
+    public function addReturnString(string $cql, array $mappings)
+    {
+        $this->additionalReturnString = ', ' . $cql;
+        foreach ($mappings as $alias => $class) {
+            $this->query->addEntityMapping($alias, $class);
         }
         return $this;
     }

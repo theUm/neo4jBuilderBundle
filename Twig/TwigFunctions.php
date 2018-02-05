@@ -13,6 +13,7 @@ use Nodeart\BuilderBundle\Entity\Repositories\ObjectNodeRepository;
 use Nodeart\BuilderBundle\Entity\TypeFieldNode;
 use Nodeart\BuilderBundle\Form\CommentNodeType;
 use Nodeart\BuilderBundle\Helpers\FieldAndValue;
+use Nodeart\BuilderBundle\Services\ObjectSearchQueryService\ObjectSearchQuery;
 use Nodeart\BuilderBundle\Services\ObjectsQueriesRAMStorage;
 use Nodeart\BuilderBundle\Twig\Utils\TypeFieldValuePairTransformer;
 use Symfony\Component\Asset\Packages;
@@ -34,6 +35,7 @@ class TwigFunctions extends \Twig_Extension
     /** @var ObjectNodeRepository $oRepository */
     private $oRepository;
     private $objectCache;
+    private $objectSearchQuery;
 
     /**
      * First level of array ([objId]): result of getObjectSiblings(), second level in array ([objId]['childDataObjects']) is child data objects
@@ -45,13 +47,21 @@ class TwigFunctions extends \Twig_Extension
      */
     private $environment;
 
-    public function __construct(EntityManager $nm, CacheManager $liipImagineCacheManager, Packages $package, FormFactory $formFactory, ObjectsQueriesRAMStorage $oqrs)
+    public function __construct(
+        EntityManager $nm,
+        CacheManager $liipImagineCacheManager,
+        Packages $package,
+        FormFactory $formFactory,
+        ObjectsQueriesRAMStorage $oqrs,
+        ObjectSearchQuery $objectSearchQuery
+    )
     {
         $this->nm = $nm;
         $this->liipCM = $liipImagineCacheManager;
         $this->package = $package;
         $this->formFactory = $formFactory;
         $this->objectCache = $oqrs;
+        $this->objectSearchQuery = $objectSearchQuery;
 
         $this->oRepository = $this->nm->getRepository(ObjectNode::class);
     }
@@ -119,6 +129,9 @@ class TwigFunctions extends \Twig_Extension
 
             // create form to post comment
             new \Twig_SimpleFunction('createCommentForm', [$this, 'createCommentForm']),
+
+            // finds list of objects with fields, based on filters
+            new \Twig_SimpleFunction('getObjects', [$this, 'getObjects']),
         ];
     }
 
@@ -490,5 +503,41 @@ class TwigFunctions extends \Twig_Extension
                 $filteredObjects[] = $object;
         }
         return $filteredObjects;
+    }
+
+    private function getObjectSearchQuery()
+    {
+        return clone $this->objectSearchQuery;
+    }
+
+    /**
+     * @param string $typeSlug
+     * @param array $params ['cql'=>'', 'params'=> ['name'=>'', 'value'=>'']
+     * @param int $limit
+     * @param int $skip
+     * @return array|mixed
+     * @throws \Exception
+     */
+    public function getObjects(string $typeSlug, array $params, int $limit = 5, int $skip = 0)
+    {
+        $query = $this->getObjectSearchQuery()
+            ->addObjectFilters([
+                'cql' => 'type.slug = {typeSlug}',
+                'params' => [
+                    ['name' => 'typeSlug', 'values' => $typeSlug]
+                ]]);
+
+        if (!empty($params)) {
+            $query->addObjectFilters($params);
+        }
+        if ($limit > 0) {
+            $query
+                ->addLimit($limit)
+                ->addSkip($skip);
+        }
+        return $query
+            ->addSecondOrder('o.createdAt DESC')
+            ->getQuery()
+            ->execute();
     }
 }

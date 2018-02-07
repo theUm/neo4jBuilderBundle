@@ -94,6 +94,24 @@ class ObjectNode
     protected $dislikes = 0;
 
     /**
+     * @OGM\Property(type="string")
+     * @var string
+     */
+    protected $seoTitle = '';
+
+    /**
+     * @OGM\Property(type="string")
+     * @var string
+     */
+    protected $seoDescription = '';
+
+    /**
+     * @OGM\Property(type="array")
+     * @var array
+     */
+    protected $seoKeywords;
+
+    /**
      * @OGM\Relationship(type="has_type", direction="OUTGOING", targetEntity="EntityTypeNode", collection=false)
      * @var EntityTypeNode
      */
@@ -266,7 +284,13 @@ class ObjectNode
             'description' => $this->getDescription(),
             'status' => $this->getStatus(),
             'twigFilePath' => $this->getTwigFilePath(),
-            'createdAt' => !is_null($this->getCreatedAt()) ? $this->getCreatedAt()->getTimestamp() : null
+            'excerpt' => $this->getExcerpt(),
+            'createdAt' => !is_null($this->getCreatedAt()) ? $this->getCreatedAt()->getTimestamp() : null,
+            'likes' => $this->getLikes(),
+            'dislikes' => $this->getDislikes(),
+            'seoTitle' => $this->getSeoTitle(),
+            'seoDescription' => $this->getSeoDescription(),
+            'seoKeywords' => $this->getseoKeywords(),
         ];
         if (!$withoutId) {
             $fieldsArray['id'] = $this->getId();
@@ -481,4 +505,60 @@ class ObjectNode
     {
         return intval($this->dislikes);
     }
+
+    /**
+     * @return string
+     */
+    public function getSeoDescription(): ?string
+    {
+        return $this->seoDescription;
+    }
+
+    /**
+     * @param string $seoDescription
+     * @return ObjectNode
+     */
+    public function setSeoDescription(?string $seoDescription): ObjectNode
+    {
+        $this->seoDescription = $seoDescription;
+        return $this;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getseoKeywords(): ?array
+    {
+        return $this->seoKeywords;
+    }
+
+    /**
+     * @param string $seoKeywords
+     * @return ObjectNode
+     */
+    public function setseoKeywords(?array $seoKeywords): ObjectNode
+    {
+        $this->seoKeywords = $seoKeywords;
+        return $this;
+    }
+
+    /**
+     * @param string $seoTitle
+     * @return ObjectNode
+     */
+    public function setSeoTitle(?string $seoTitle): ObjectNode
+    {
+        $this->seoTitle = $seoTitle;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSeoTitle(): ?string
+    {
+        return $this->seoTitle;
+    }
+
+
 }

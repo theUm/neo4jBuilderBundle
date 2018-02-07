@@ -283,7 +283,7 @@ class ObjectFormFieldsService
             $isRequired = !$isHidden && in_array($parentType->getId(), $entityType->getRequiredParents() ?? []);
             $constraints = ($isRequired) ? [new NotBlank()] : [];
             $form->add($parentType->getSlug(), NodeCheckboxType::class, [
-                'label' => 'Принадлежит объектам типа',
+                'label' => 'Принадлежит объектам',
                 'label_attr' => ['tooltip' => $parentType->getName()],
                 'data' => $currentParentsByTypes[$parentType->getId()],
                 'is_multiple' => true,
@@ -300,7 +300,7 @@ class ObjectFormFieldsService
     public function addSingleParentTypeField(FormBuilderInterface $form)
     {
         $form->add($this->parentObjectNode->getEntityType()->getSlug(), NodeCheckboxType::class, [
-            'label' => 'Принадлежит объектам типа',
+            'label' => 'Принадлежит объектам',
             'label_attr' => ['tooltip' => $this->parentObjectNode->getEntityType()->getName()],
             'data' => [$this->parentObjectNode],
             'is_multiple' => true,
@@ -522,6 +522,8 @@ class ObjectFormFieldsService
             $formBuilder->remove('description');
             $formBuilder->remove('isCommentable');
             $formBuilder->remove('status');
+            $formBuilder->remove('seoDescription');
+            $formBuilder->remove('seoKeywords');
         }
     }
 

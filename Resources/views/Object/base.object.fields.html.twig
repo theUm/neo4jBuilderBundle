@@ -17,6 +17,16 @@
                 {{ block('accordion_content_save_button') }}
             </div>
         {% endif %}
+        {% if not entityType.isDataType %}
+            {% set accordion_title = "Seo"|trans %}
+            {{ block('accordion_title') }}
+            <div class="content field" data-form-type="main-form">
+                {{ form_row(form.seoTitle) }}
+                {{ form_row(form.seoDescription) }}
+                {{ form_row(form.seoKeywords) }}
+                {{ block('accordion_content_save_button') }}
+            </div>
+        {% endif %}
         {% for groupName, fields in fieldsByGroups %}
             {% set accordion_title = groupName|capitalize %}
             {{ block('accordion_title') }}

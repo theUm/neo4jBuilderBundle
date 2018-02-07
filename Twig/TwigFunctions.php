@@ -219,7 +219,7 @@ class TwigFunctions extends \Twig_Extension
      *
      * @return array
      */
-    public function stringifyFieldPair($pair, $etIndex = 'fieldType', $fvIndex = 'val')
+    public function stringifyFieldPair($pair, $etIndex = 'type', $fvIndex = 'val')
     {
         /** @var TypeFieldNode $fieldType */
         $fieldType = $pair[$etIndex];

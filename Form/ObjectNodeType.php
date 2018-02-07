@@ -3,12 +3,14 @@
 namespace Nodeart\BuilderBundle\Form;
 
 use Nodeart\BuilderBundle\Entity\ObjectNode;
+use Nodeart\BuilderBundle\Form\Type\AjaxCheckboxType;
 use Nodeart\BuilderBundle\Form\Type\SluggableText;
 use Nodeart\BuilderBundle\Form\Type\WysiwygType;
 use Nodeart\BuilderBundle\Helpers\TemplateTwigFileResolver;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -75,6 +77,21 @@ class ObjectNodeType extends AbstractType
                 'choices' => ObjectNode::STATUSES,
                 'required' => true,
                 'empty_data' => ObjectNode::STATUS_DRAFT
+            ])
+            ->add('seoTitle', TextType::class, [
+                'label' => 'SEO title',
+                'required' => true
+            ])
+            ->add('seoDescription', TextareaType::class, [
+                'label' => 'SEO description',
+            ])
+            ->add('seoKeywords', AjaxCheckboxType::class, [
+                'label' => 'SEO keywords',
+                'is_multiple' => true,
+                'maxSelections' => false,
+                'placeholder' => 'pick_field',
+                'url' => '/builder/s/bonuses/a/seoKeywords',
+                'error_bubbling' => false
             ]);
 
         /** @var ObjectNode $object */

@@ -11,60 +11,10 @@ use Nodeart\BuilderBundle\Entity\Repositories\TypeFieldNodeRepository;
 use Nodeart\BuilderBundle\Entity\TypeFieldNode;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class DefaultController extends Controller
 {
-
-    /**
-     * ajax search for autocomplete fields
-     * @todo: what a mess :/ get rid of that filthy slashes
-     * @Route("/s/{label}/t", name="semantic_search_type")
-     * @Route("/s/{label}/t/", name="semantic_search_type_slash")
-     * @Route("/s/{label}/t/{parentAttrValue}", name="semantic_search_type_val")
-     *
-     * @param string $label
-     * @param string $parentAttrValue
-     *
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function semanticSearch($label = '', $parentAttrValue = '')
-    {
-        $searchResults = $this->get('semantic.input.search')->search($label, $parentAttrValue);
-        $response = new JsonResponse();
-        $response->setEncodingOptions(JSON_UNESCAPED_UNICODE);
-        $response->setData($searchResults);
-
-        return $response;
-    }
-
-    /**
-     * ajax search for autocomplete fields
-     * @todo: what a mess :/ get rid of that filthy slashes
-     * @Route("/s/{label}/v/{parentAttrValue}", name="semantic_search_child")
-     * @Route("/s/{label}/v/{parentAttrValue}/", name="semantic_search_child_slash")
-     * @Route("/s/{label}/v/{parentAttrValue}/{value}", name="semantic_search_child_val")
-     *
-     * @param string $label
-     * @param string $parentAttrValue
-     * @param string $value
-     * @param Request $request
-     *
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function semanticSearchChilds($label = '', $parentAttrValue = '', $value = '', Request $request)
-    {
-        $value = (!is_null($request->request->get('value'))) ? $request->request->get('value') : $value;
-        $searchResults = $this->get('semantic.input.search')->search($label, $parentAttrValue, $value);
-        $response = new JsonResponse();
-        $response->setEncodingOptions(JSON_UNESCAPED_UNICODE);
-        $response->setData($searchResults);
-
-        return $response;
-    }
-
-
     /**
      * Ajax file deletion
      * @todo: make it role based
@@ -99,6 +49,7 @@ class DefaultController extends Controller
      * @param int $objectId
      *
      * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
      */
     public function unlinkFiedlValueAction(int $id, int $objectId)
     {
@@ -140,6 +91,7 @@ class DefaultController extends Controller
      * @param int|null $typeId
      *
      * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
      */
     public function linkReplaceFieldValuesAction(string $ids, int $objectId, int $typeId = null)
     {
@@ -184,7 +136,6 @@ class DefaultController extends Controller
         }
         $nm->persist($object);
         $nm->flush();
-
 
         $this->addFlash('success', 'Файлы успешно свзязаны с обьектом');
 

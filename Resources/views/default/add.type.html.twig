@@ -93,6 +93,12 @@
 
 {% block node_buttons %}
     <div class="child-left right floated ui icon buttons">
+        {% if not node.isDataType %}
+            <a class="tiny ui button"
+               href="{{ path('vListObject',{'entityType': node.slug}) }}"
+               title="{{ 'Список обьектов - фронт'|trans }}">
+                <i class="external icon"></i></a>
+        {% endif %}
         <a class="tiny ui button" href="{{ path('builder_edit_type',{'id':node.id}) }}"
            title="{{ 'Редактирование типа'|trans }}">
             <i class="edit icon"></i></a>

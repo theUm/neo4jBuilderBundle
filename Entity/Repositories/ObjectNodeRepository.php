@@ -7,7 +7,6 @@ use Nodeart\BuilderBundle\Entity\EntityTypeNode;
 use Nodeart\BuilderBundle\Entity\FieldValueNode;
 use Nodeart\BuilderBundle\Entity\ObjectNode;
 use Nodeart\BuilderBundle\Entity\TypeFieldNode;
-use Nodeart\BuilderBundle\Helpers\FieldAndValue;
 
 class ObjectNodeRepository extends BaseRepository
 {
@@ -77,37 +76,6 @@ class ObjectNodeRepository extends BaseRepository
     }
 
     /**
-     * @param ObjectNode $object
-     *
-     * @return array
-     */
-    public function getObjectMainFieldValues(ObjectNode $object)
-    {
-        $mainFieldVals = [];
-        $fields = $this->getFields($object);
-        /** @var FieldAndValue $fieldAndValue */
-        foreach ($fields as $fieldSlug => $fieldAndValue) {
-            /** @var TypeFieldNode $typeNode */
-            $typeNode = $fieldAndValue['type'];
-            if ($typeNode->isMainField() && !is_null($fieldAndValue['val'])) {
-                $values = $fieldAndValue['val'];
-                if (is_array($values)) {
-                    $valuesData = [];
-                    /** @var FieldValueNode $fieldValue */
-                    foreach ($values as $fieldValue) {
-                        $valuesData[] = $fieldValue->getData();
-                    }
-                    $mainFieldVals = array_merge($mainFieldVals, $valuesData);
-                } else {
-                    $mainFieldVals[] = $values->getData();
-                }
-            }
-        }
-
-        return $mainFieldVals;
-    }
-
-    /**
      * Seeks of all object`s fields and values
      *
      * @param ObjectNode $objectNode
@@ -148,9 +116,9 @@ class ObjectNodeRepository extends BaseRepository
             OPTIONAL MATCH (o)<-[rel:is_field_of]-(fv:FieldValue)-[:is_value_of]->(etf)
             WITH rel, etf, fv ORDER BY etf.order, rel.order
             WITH etf, collect(fv) as val
-            RETURN etf.slug as slug, {type: etf, val:val} as field'
+            RETURN etf.slug as slug, {fieldType: etf, val:val} as field'
         );
-        $entityTypeFieldsQuery->addEntityMapping('type', TypeFieldNode::class);
+        $entityTypeFieldsQuery->addEntityMapping('fieldType', TypeFieldNode::class);
         $entityTypeFieldsQuery->addEntityMapping('val', FieldValueNode::class, Query::HYDRATE_COLLECTION);
         $entityTypeFieldsQuery->addEntityMapping('field', null, Query::HYDRATE_MAP);
         $entityTypeFieldsQuery->setParameter('oId', $objectNode->getId());
@@ -337,33 +305,6 @@ class ObjectNodeRepository extends BaseRepository
     }
 
     /**
-     * Searches Objects by type+fieldType+value
-     *
-     * @param $entityType
-     * @param $entityTypeField
-     * @param $value
-     * @param int $limit
-     * @param int $skip
-     *
-     * @return array
-     */
-    public function findObjectsByValue($entityType, $entityTypeField, $value, int $limit = 10, int $skip = 0)
-    {
-        $entityTypeFieldsQuery = $this->entityManager->createQuery(
-            'MATCH (fv:FieldValue)-[]-(etf:EntityTypeField)-[]-(et:EntityType)<-[:has_type]-(o:Object)-[]-(fv) 
-            WHERE et.slug = {etSlug} AND etf.slug = {etfSlug} AND fv.data = {data} RETURN o SKIP {skip} LIMIT {limit}'
-        );
-        $entityTypeFieldsQuery->addEntityMapping('o', ObjectNode::class);
-        $entityTypeFieldsQuery->setParameter('etSlug', $entityType);
-        $entityTypeFieldsQuery->setParameter('etfSlug', $entityTypeField);
-        $entityTypeFieldsQuery->setParameter('data', $value);
-        $entityTypeFieldsQuery->setParameter('limit', $limit);
-        $entityTypeFieldsQuery->setParameter('skip', $skip);
-
-        return $entityTypeFieldsQuery->execute();
-    }
-
-    /**
      * Finds parent objects of specific type that have specific value
      *
      * @param $parentEntityType
@@ -413,13 +354,13 @@ class ObjectNodeRepository extends BaseRepository
         	WHERE parentType.slug = {ptSlug} AND parent.slug = {pSlug} AND type.slug = {tSlug} ' . $isDataTypePart . ' 
         	OPTIONAL MATCH (etf)<-[:is_value_of]-(fv)-[rel:is_field_of]->(o)
         	WITH o, etf, fv, rel ORDER BY etf.order, rel.order
-            WITH o, {type:etf, vals: collect(fv)} as fieldValuesMap
+            WITH o, {fieldType:etf, vals: collect(fv)} as fieldValuesMap
             RETURN o, collect(fieldValuesMap) as objectFields SKIP {skip} LIMIT {limit}'
         );
         $entityTypeFieldsQuery->addEntityMapping('o', ObjectNode::class);
         $entityTypeFieldsQuery->addEntityMapping('fieldValuesMap', null, Query::HYDRATE_MAP);
         $entityTypeFieldsQuery->addEntityMapping('objectFields', null, Query::HYDRATE_MAP_COLLECTION);
-        $entityTypeFieldsQuery->addEntityMapping('type', TypeFieldNode::class);
+        $entityTypeFieldsQuery->addEntityMapping('fieldType', TypeFieldNode::class);
         $entityTypeFieldsQuery->addEntityMapping('vals', FieldValueNode::class, Query::HYDRATE_COLLECTION);
 
         $entityTypeFieldsQuery->setParameter('ptSlug', $parentTypeSlug);

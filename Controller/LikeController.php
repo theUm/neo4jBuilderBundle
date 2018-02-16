@@ -72,6 +72,8 @@ class LikeController extends BaseController
         $response->setData([
             'status' => 'updated',
             'action' => $action,
+            'likesNewValue' => $objectNode->getLikes(),
+            'dislikesNewValue' => $objectNode->getDisLikes(),
         ]);
 
         return $response;

@@ -282,6 +282,32 @@ class EntityTypeNode
     }
 
     /**
+     * @param bool $onlyDataTypes
+     * @return ArrayCollection|EntityTypeNode[]
+     */
+    public function getFilteredChildTypes(bool $onlyDataTypes = false)
+    {
+        $res = iterator_to_array($this->getChildTypes());
+        $res = array_filter($res, function (EntityTypeNode $entityType) use ($onlyDataTypes) {
+            return $entityType->isDataType() === $onlyDataTypes;
+        });
+        return $res;
+    }
+
+    /**
+     * @param bool $onlyDataTypes
+     * @return ArrayCollection|EntityTypeNode[]
+     */
+    public function getFilteredParentTypes(bool $onlyDataTypes = false)
+    {
+        $res = iterator_to_array($this->getParentTypes());
+        $res = array_filter($res, function (EntityTypeNode $entityType) use ($onlyDataTypes) {
+            return $entityType->isDataType() === $onlyDataTypes;
+        });
+        return $res;
+    }
+
+    /**
      * @param EntityTypeNode[]|ArrayCollection $childTypes
      */
     public function setChildTypes($childTypes)

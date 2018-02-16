@@ -12,6 +12,8 @@ class ObjectSearchQuery
 {
 
     const DEFAULT_PAGE_LIMIT = 20;
+    const REL_LINK_TO_CHILD = false;
+    const REL_LINK_TO_PARENT = true;
 
     private $query;
 
@@ -199,19 +201,20 @@ class ObjectSearchQuery
         return $this;
     }
 
-    public function addParentChildRelations(string $relatedETSlug, $linkToParent = true)
+    public function addParentChildRelations(int $refObjectId, $linkToParent = self::REL_LINK_TO_PARENT)
     {
         $this->parentChildLinks = ($linkToParent) ?
-            '-[:is_child_of]->(refObject:Object)-->(refET:EntityType)' :
-            '<-[:is_child_of]-(refObject:Object)-->(refET:EntityType)';
+//            '-[:is_child_of]->(refObject:Object)-->(refET:EntityType)' :
+            '-[:is_child_of]->(refObject:Object)' :
+            '<-[:is_child_of]-(refObject:Object)';
 
         if ($this->baseFiltersCount < 1) {
             $this->baseWhere = 'WHERE ';
         } else {
             $this->parentChildFilter = ' AND ';
         }
-        $this->parentChildFilter .= 'refET.slug = {refETSlug}';
-        $this->query->setParameter('refETSlug', $relatedETSlug);
+        $this->parentChildFilter .= 'reObject.id = {refObjectId}';
+        $this->query->setParameter('refObjectId', $refObjectId);
         $this->baseFiltersCount++;
         return $this;
     }

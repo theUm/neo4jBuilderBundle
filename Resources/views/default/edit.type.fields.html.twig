@@ -5,8 +5,8 @@
         {{ block('crud_modal') }}
         <h1 class="ui header">{{ "Редактировать поля типа"|trans ~ ' ' ~ entity.name }}
             {% if entity.parentTypes %}
-                <small>[{% for perentType in entity.parentTypes %}{{ ' ' ~ perentType.name ~ ' ' }}{% endfor %}
-                ]</small>{% endif %}
+                <small>[{% for perentType in entity.parentTypes %}{{ ' ' ~ perentType.name ~ ' ' }}{% endfor %}]</small>
+            {% endif %}
             <span class="sub header"><button id="toggle-sort-mode" type="button" class="ui tiny blue button"
                                              data-toggled="false"><i
                             class="sort content ascending icon"></i>{{ 'Режим упорядочивания'|trans }}</button></span>
@@ -14,16 +14,19 @@
         {{ form(form) }}
         <a class="ui left floated button primary" href="{{ path('builder_add_types') }}">{{ "Назад"|trans }}</a>
         <a class="ui left floated button" href="{{ path('builder_edit_type', {'id':entity.id}) }}"
-           title="{{ "Перейти редактированию полей этого типа"|trans }}"><i class="list icon"></i>Редактирование
-            типа</a>
+           title="{{ "Перейти редактированию этого типа"|trans }}"><i
+                    class="edit icon"></i>{{ 'Редактирование типа'|trans }}</a>
+        <a class="ui left floated button" href="{{ path('builder_list_objects', {'id':entity.id}) }}"
+           title="{{ "Перейти к списку объектов этого типа"|trans }}"><i
+                    class="database icon"></i>{{ 'Список объектов'|trans }}</a>
     </div>
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
     <script src="{{ asset('bundles/builder/js/sortable.min.js') }}"></script>
-    <script type="text/javascript">
-        {% if form.dyn_fields is defined %}
+    {% if form.dyn_fields is defined %}
+        <script type="text/javascript">
         //symfony dynamic form field add/remove
         $(document).ready(function () {
             let newVar = $('<div/>', {
@@ -157,6 +160,7 @@
                 }
             }
 
+            console.log("hallo");
             // init sortable
             let sortable = Sortable.create(document.querySelector('#type_fields_dyn_fields'), {
                 disabled: true,
@@ -193,6 +197,6 @@
             });
 
         });
-        {% endif %}
-    </script>
+        </script>
+    {% endif %}
 {% endblock javascripts %}

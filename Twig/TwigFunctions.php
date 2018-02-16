@@ -501,8 +501,8 @@ class TwigFunctions extends \Twig_Extension
         if (is_object($objects)) {
             $objects = iterator_to_array($objects);
         }
-        $objects = array_filter($objects, function (EntityTypeNode $entityType) {
-            return $entityType->isDataType() === ObjectNode::STATUS_ACTIVE;
+        $objects = array_filter($objects, function (ObjectNode $object) {
+            return $object->getStatus() === ObjectNode::STATUS_ACTIVE;
         });
         return $objects;
     }

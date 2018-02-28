@@ -1,0 +1,20 @@
+{% extends '@Builder/default/ajax.empty.content.html.twig' %}
+
+{% block content %}
+    <div class="twelve wide column">
+        <h3 class="ui header">{{ "Существующие %typeName% связанные с %parentName%"|trans({'%typeName%':entity.name, '%parentName%':parentObject.name}) }}</h3>
+        {% if objects|length == 0 %}
+            <div class="ui middle">
+                <span>{{ "Нет таких"|trans }}</span>
+            </div>
+        {% else %}
+            <div class="ui middle aligned recursive list">
+                {{ block('object_list') }}
+                {% set currentPageParams = masterParams|merge(pager.orderParams) %}
+                {% include '@Builder/default/default.pager.html.twig' %}
+            </div>
+        {% endif %}
+        <a class="ui left floated button primary"
+           href="{{ path('builder_add_type_object', {'typeId':entity.id, 'parentObjId':parentObject.id}) }}">{{ 'Создать новый и связать'|trans }}</a>
+    </div>
+{% endblock %}

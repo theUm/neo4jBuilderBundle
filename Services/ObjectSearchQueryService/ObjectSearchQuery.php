@@ -203,8 +203,8 @@ class ObjectSearchQuery
 
     public function addParentChildRelations(int $refObjectId, $linkToParent = self::REL_LINK_TO_PARENT)
     {
+
         $this->parentChildLinks = ($linkToParent) ?
-//            '-[:is_child_of]->(refObject:Object)-->(refET:EntityType)' :
             '-[:is_child_of]->(refObject:Object)' :
             '<-[:is_child_of]-(refObject:Object)';
 
@@ -213,7 +213,7 @@ class ObjectSearchQuery
         } else {
             $this->parentChildFilter = ' AND ';
         }
-        $this->parentChildFilter .= 'reObject.id = {refObjectId}';
+        $this->parentChildFilter .= 'id(refObject) = {refObjectId}';
         $this->query->setParameter('refObjectId', $refObjectId);
         $this->baseFiltersCount++;
         return $this;

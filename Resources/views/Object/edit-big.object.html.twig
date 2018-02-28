@@ -9,12 +9,14 @@
         <div class="ui grid">
             {# 4 wide left sidebar menu #}
             <div class="ui four wide column vertical pointing secondary tabular menu">
-                <a class="active item"
+                <a class="active main item"
                    data-tab="main_object_form"><b>{{ 'Редактировать \"%name\"'|trans({'%name' : objectEntity.name})|raw }}</b></a>
                 <div class="ui divider"></div>
                 {# related types list #}
                 {% for childType in objectEntity.entityType.childTypes if not childType.dataType %}
-                    <a class="item" data-tab="{{ 'child_type_'~childType.slug }}">{{ childType.name }}</a>
+                    <a class="item object" data-tab="{{ 'child_type_'~childType.slug }}"
+                       data-url="{{ path('builder_list_child_objects',{ 'parentId': objectEntity.id, 'typeId':childType.id}) }}"
+                    >{{ childType.name }}</a>
                 {% endfor %}
             </div>
             {# /left sidebar menu #}
@@ -26,7 +28,11 @@
 
                 {# related types list content tabs #}
                 {% for childType in objectEntity.entityType.childTypes if not childType.dataType %}
-                    {{ block('related_types_tab_segment') }}
+                    {#{{ block('related_types_tab_segment') }}#}
+                    <div class="ui dynamic object list tab segment" data-tab="{{ 'child_type_'~childType.slug }}"
+                         data-url="{{ path('builder_list_child_objects',{ 'parentId': objectEntity.id, 'typeId':childType.id}) }}"
+                    >
+                    </div>
                 {% endfor %}
 
                 {# bottom buttons #}
@@ -88,7 +94,7 @@
         {% endif %}
         <div class="ui bottom attached tab segment"
              data-tab="{{ 'obj_'~childType.slug~'_new' }}"
-             data-url="{{ path('builder_add_type_object',{ 'id': childType.id, 'parentObjId': objectEntity.id}) }}"
+             data-url="{{ path('builder_add_type_object',{ 'typeId': childType.id, 'parentObjId': objectEntity.id}) }}"
              data-new="true"></div>
     </div>
 {% endblock %}

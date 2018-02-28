@@ -314,21 +314,38 @@ $(document).ready(function () {
     }
 
     initTabableDropdown();
-
     $('.menu .item').tab();
-    $('.secondary.tabular.menu .item').tab(
-        {
+    $('.secondary.tabular.menu .main.item').tab({
             'onVisible': function () {
                 $(this).find('.tabular.menu .item').first().click()
             }
         });
-    $('.dynamic.tab.segment .menu .item')
-        .tab({
-            auto: true,
-            onLoad: function () {
-                initNewFields(this)
-            }
-        });
+
+    $('.secondary.tabular.menu .object.item').each(function () {
+        let $this = $(this);
+        let currentDataUrl = $this.data('url');
+        if (currentDataUrl) {
+            $this.tab({
+                    auto: true,
+                    cache: false,
+                    apiSettings: {
+                        url: currentDataUrl
+                    },
+                    onLoad: function (tabPath) {
+                        let tabContentContainer = $(`.object.list.tab.segment[data-tab="${tabPath}"]`);
+                        tabContentContainer.find("div.ui.pagination.menu > a").click(function (e) {
+                            e.preventDefault();
+                            let parentContainer = $(this).parents(".dynamic.object.list");
+                            parentContainer.data('url', this.href);
+                            parentContainer[0].dataset.url = this.href;
+                            $this.tab('refresh');
+                            $this.tab('change tab', tabPath);
+                        })
+                    }
+                }
+            );
+        }
+    });
 
     //menu & fields
 

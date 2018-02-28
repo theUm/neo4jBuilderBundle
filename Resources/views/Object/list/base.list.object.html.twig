@@ -1,34 +1,4 @@
-{% extends '::crud_page.html.twig' %}
-
-{% block content %}
-    <div class="twelve wide column">
-        {% if entity.dataType %}
-            <h3 class="ui header">{{ "Существующие объекты типа для данных "|trans ~ ' "' ~ entity.name ~ '"' -}}</h3>
-        {% else %}
-            <h3 class="ui header">{{ "Существующие объекты типа"|trans ~ ' ' ~ entity.name }}</h3>
-        {% endif %}
-        {% if objects|length == 0 %}
-            <div class="ui middle">
-                <span>{{ "Нет таких"|trans }}</span>
-            </div>
-        {% else %}
-            <div class="ui middle aligned recursive list">
-                {{ block('object_list') }}
-                {% set currentPageParams = masterParams|merge(pager.orderParams) %}
-                {% include '@Builder/default/default.pager.html.twig' %}
-            </div>
-        {% endif %}
-        <a class="ui left floated button primary"
-           href="{{ path('builder_add_type_object', {'id':entity.id}) }}">{{ 'Создать обьект'|trans }}</a>
-        <a class="ui left floated button"
-           href="{{ path('builder_edit_type',{'id':entity}) }}"><i
-                    class="edit icon"></i>{{ 'Ред.'|trans ~ ' ' ~ entity.name }}</a>
-        <hr/>
-        <a class="ui left floated button primary backward"
-           href="{{ path('builder_add_types') }}">{{ 'Назад'|trans }}</a>
-    </div>
-{% endblock %}
-
+{% extends app.request.xmlHttpRequest? '@Builder/Object/list/ajax.list.object.html.twig' : '@Builder/Object/list/list.object.html.twig' %}
 
 {% block object_list %}
     {% if entity.dataType %}

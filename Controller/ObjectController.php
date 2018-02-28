@@ -55,7 +55,7 @@ class ObjectController extends Controller
         $pager->createQueries($pagerQueries);
         $masterRequest = $this->get('request_stack')->getMasterRequest();
 
-        return $this->render('BuilderBundle:default:list.object.html.twig', [
+        return $this->render('BuilderBundle:Object/list:base.list.object.html.twig', [
             'objects' => $pager->paginate(),
             'entity' => $entityType,
             'pager' => $pager->getPaginationData(),
@@ -65,16 +65,65 @@ class ObjectController extends Controller
     }
 
     /**
+     * @Route("/builder/type/{parentId}/{typeId}/object", name="builder_list_child_objects")
+     * @param int $parentId
+     * @param int $typeId
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @internal param Request $request
+     */
+    public function objectsListChildAction(int $parentId, int $typeId)
+    {
+        $nm = $this->get('neo.app.manager');
+        /** @var EntityTypeNodeRepository $etRepository */
+        $etRepository = $nm->getRepository(EntityTypeNode::class);
+        /** @var ObjectNodeRepository $oRepository */
+        $oRepository = $nm->getRepository(ObjectNode::class);
+
+        /** @var EntityTypeNode $entityType */
+        $entityType = $etRepository->findOneById($typeId);
+        /** @var ObjectNode $ObjectNode */
+        $parentObjectNode = $oRepository->findOneById($parentId);
+
+        if (is_null($entityType) || is_null($parentObjectNode)) {
+            throw $this->createNotFoundException('There is no such EntityType or Object');
+        }
+
+        $pagerQueries = new ObjectsQueries($this->get(ObjectSearchQuery::class));
+        $pagerQueries->getObjectSearchQueryService()
+            ->addETFilters(['cql' => 'id(type) = {typeId}', 'params' => [
+                ['name' => 'typeId', 'values' => $typeId],
+            ]])
+            ->addParentChildRelations($parentId, ObjectSearchQuery::REL_LINK_TO_PARENT)
+            ->addSecondOrder('o.name ASC');
+
+        /** @var Pager $pager */
+        $pager = $this->get('neo.pager');
+        $pager->setLimit(1);
+        $pager->createQueries($pagerQueries);
+        $masterRequest = $this->get('request_stack')->getMasterRequest();
+
+        return $this->render('BuilderBundle:Object/list:base.list.object.html.twig', [
+            'objects' => $pager->paginate(),
+            'entity' => $entityType,
+            'parentObject' => $parentObjectNode,
+            'pager' => $pager->getPaginationData(),
+            'masterRoute' => $masterRequest->attributes->get('_route'),
+            'masterParams' => $masterRequest->attributes->get('_route_params')
+        ]);
+    }
+
+    /**
      * Add object of specific type
      *
-     * @Route("/builder/object/type/{id}/add/{parentObjId}", name="builder_add_type_object", defaults={"parentObjId" = null})
-     * @param int $id
+     * @Route("/builder/object/type/{typeId}/add/{parentObjId}", name="builder_add_type_object", defaults={"builder_add_type_object" = null})
+     * @param int $typeId
      * @param int $parentObjId
      * @param Request $request
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function addObjectAction(int $id, int $parentObjId = null, Request $request)
+    public function addObjectAction(int $typeId, int $parentObjId = null, Request $request)
     {
         $nm = $this->get('neo.app.manager');
         /** @var EntityTypeNodeRepository $etRepository */
@@ -82,7 +131,7 @@ class ObjectController extends Controller
         /** @var ObjectNodeRepository $oRepository */
         $oRepository = $nm->getRepository(ObjectNode::class);
         /** @var EntityTypeNode $entityType */
-        $entityType = $etRepository->findOneById($id);
+        $entityType = $etRepository->findOneById($typeId);
         /** @var ObjectNode $parentObjectNode */
         $parentObjectNode = $oRepository->findOneById($parentObjId);
 
@@ -115,7 +164,7 @@ class ObjectController extends Controller
         $dynamicFieldsIds = $formFieldsService->addFormFields($formBuilder);
 
         $formBuilder->setAction($this->generateUrl('builder_add_type_object', [
-            'id' => $id,
+            'typeId' => $typeId,
             'parentObjId' => $parentObjId
         ]));
         /** @var Form $form */
@@ -151,16 +200,14 @@ class ObjectController extends Controller
 
                 return $this->redirect($url);
             }
+        }
 
-        } else {
-            if (!$request->isXmlHttpRequest()) {
-                // I don`t even want to go home now
-                foreach ($form->getErrors(true, true) as $error) {
-                    $this->addFlash('error',
-                        $error->getOrigin()->getConfig()->getOption('label') . ': ' . $error->getMessage()
-                    );
-                }
-
+        // add errors in flash if form if invalid && this is not ajax
+        if (!$form->isValid() && !$request->isXmlHttpRequest()) {
+            foreach ($form->getErrors(true, true) as $error) {
+                $this->addFlash('error',
+                    $error->getOrigin()->getConfig()->getOption('label') . ': ' . $error->getMessage()
+                );
             }
         }
 

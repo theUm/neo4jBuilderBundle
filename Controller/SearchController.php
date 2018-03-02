@@ -98,5 +98,43 @@ class SearchController extends Controller
         return $response;
     }
 
+    /**
+     * ajax search for user search autocomplete fields
+     * @todo: what a mess :/ get rid of that filthy slashes
+     * @Route("/builder/s/user", name="semantic_search_user")
+     * @Route("/builder/s/user/", name="semantic_search_user_slash")
+     * @Route("/builder/s/user/{value}", name="semantic_search_user_value")
+     *
+     * @param string $value
+     * @return JsonResponse
+     * @throws \GraphAware\Neo4j\Client\Exception\Neo4jExceptionInterface
+     */
+    public function searchUserAction(string $value = null)
+    {
+        $foundData = [];
+        $searchQuery = $this->get('neo.app.manager')->createQuery();
+        $likePart = '';
+        if (!is_null($value)) {
+            $likePart = 'WHERE user.name =~ {value} OR user.email =~ {value}';
+            $searchQuery->setParameter('value', '.*' . preg_quote($value) . '.*');
+        }
+
+        $searchQuery->setCQL("MATCH (u:User) $likePart RETURN id(u) as id, u.username as name");
+
+        foreach ($searchQuery->getResult() as $row) {
+            $foundData[] = [
+                'id' => $row['id'],
+                'name' => $row['name'],
+                'value' => $row['name'],
+            ];
+        }
+
+        $response = new JsonResponse();
+        $response->setEncodingOptions(JSON_UNESCAPED_UNICODE);
+        $response->setData(['success' => true, 'results' => $foundData]);
+
+        return $response;
+    }
+
 
 }

@@ -14,6 +14,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Routing\Router;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
@@ -21,10 +22,12 @@ use Symfony\Component\Validator\Constraints\Regex;
 class ObjectNodeType extends AbstractType
 {
     private $templateTwigFileResolver;
+    private $router;
 
-    public function __construct(TemplateTwigFileResolver $templateTwigFileResolver)
+    public function __construct(TemplateTwigFileResolver $templateTwigFileResolver, Router $router)
     {
         $this->templateTwigFileResolver = $templateTwigFileResolver;
+        $this->router = $router;
     }
 
     /**
@@ -90,7 +93,22 @@ class ObjectNodeType extends AbstractType
                 'is_multiple' => true,
                 'maxSelections' => false,
                 'placeholder' => 'pick_field',
-                'url' => '/builder/s/bonuses/a/seoKeywords',
+                'url' => $this->router->generate(
+                    'semantic_search_attrib', [
+                    'entityType' => 'bonuses',
+                    'attr' => 'seoKeywords'
+                ]),
+                'error_bubbling' => false
+            ])
+            ->add('createdBy', AjaxCheckboxType::class, [
+                'mapped' => false,
+                'label' => 'Author',
+                'is_multiple' => false,
+                'maxSelections' => 1,
+                'placeholder' => 'pick_author',
+                'url' => $this->router->generate(
+                    'semantic_search_user'
+                ),
                 'error_bubbling' => false
             ]);
 

@@ -74,7 +74,7 @@ services:
 # base entity node form types
     object.form.type:
         class: Nodeart\BuilderBundle\Form\ObjectNodeType
-        arguments: ['@template.twig.files.resolver']
+        arguments: ['@template.twig.files.resolver', '@router']
         tags:
             - { name: form.type }
 

@@ -195,6 +195,13 @@ class UserNode extends User implements \Serializable
      */
     protected $objectReactions;
 
+    /**
+     * @var Collection|ObjectNode[]
+     *
+     * @OGM\Relationship(targetEntity="ObjectNode", collection=true, direction="INCOMING", type="created_by")
+     */
+    protected $createdObjects;
+
     public function __construct()
     {
         parent::__construct();
@@ -202,6 +209,7 @@ class UserNode extends User implements \Serializable
         $this->comments = new Collection();
         $this->reactions = new Collection();
         $this->bookmarks = new Collection();
+        $this->createdObjects = new Collection();
     }
 
     /**
@@ -776,6 +784,26 @@ class UserNode extends User implements \Serializable
     public function getObjectReactions()
     {
         return $this->objectReactions;
+    }
+
+    /**
+     * @return Collection|ObjectNode[]
+     */
+    public function getCreatedObjects()
+    {
+        return $this->createdObjects;
+    }
+
+    /**
+     * @param Collection|ObjectNode[] $objects
+     *
+     * @return UserNode
+     */
+    public function setCreatedObjects($objects)
+    {
+        $this->createdObjects = $objects;
+
+        return $this;
     }
 
 }

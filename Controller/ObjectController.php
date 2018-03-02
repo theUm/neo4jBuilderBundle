@@ -6,6 +6,7 @@ use Nodeart\BuilderBundle\Entity\EntityTypeNode;
 use Nodeart\BuilderBundle\Entity\ObjectNode;
 use Nodeart\BuilderBundle\Entity\Repositories\EntityTypeNodeRepository;
 use Nodeart\BuilderBundle\Entity\Repositories\ObjectNodeRepository;
+use Nodeart\BuilderBundle\Entity\UserNode;
 use Nodeart\BuilderBundle\Form\ObjectNodeType;
 use Nodeart\BuilderBundle\Services\EntityTypeChildsUnlinker;
 use Nodeart\BuilderBundle\Services\ObjectEditControlService;
@@ -126,6 +127,8 @@ class ObjectController extends Controller
     public function addObjectAction(int $typeId, int $parentObjId = null, Request $request)
     {
         $nm = $this->get('neo.app.manager');
+        /** @var UserNode $user */
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
         /** @var EntityTypeNodeRepository $etRepository */
         $etRepository = $nm->getRepository(EntityTypeNode::class);
         /** @var ObjectNodeRepository $oRepository */
@@ -185,6 +188,7 @@ class ObjectController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $parentIds = $formFieldsService->getPickedParentIds($form);
+            $objectNode->setCreatedBy($user);
             $objectNode = $oRepository->createObjectNode($objectNode, $entityType, $parentIds);
             $objectNodeId = $objectNode->getId();
 

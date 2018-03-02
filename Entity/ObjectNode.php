@@ -109,7 +109,7 @@ class ObjectNode
      * @OGM\Property(type="array")
      * @var array
      */
-    protected $seoKeywords;
+    protected $seoKeywords = null;
 
     /**
      * @OGM\Relationship(type="has_type", direction="OUTGOING", targetEntity="EntityTypeNode", collection=false)
@@ -134,6 +134,12 @@ class ObjectNode
      * @var ArrayCollection|ObjectNode[]
      */
     protected $parentObjects;
+
+    /**
+     * @OGM\Relationship(type="created_by", direction="OUTGOING", targetEntity="UserNode", collection=false, mappedBy="createdObjects")
+     * @var UserNode
+     */
+    protected $createdBy;
 
     /**
      * @var array
@@ -529,7 +535,7 @@ class ObjectNode
      */
     public function getseoKeywords(): ?array
     {
-        return $this->seoKeywords;
+        return empty($this->seoKeywords) ? null : $this->seoKeywords;
     }
 
     /**
@@ -558,6 +564,24 @@ class ObjectNode
     public function getSeoTitle(): ?string
     {
         return $this->seoTitle;
+    }
+
+    /**
+     * @param UserNode $createdBy
+     * @return ObjectNode
+     */
+    public function setCreatedBy(UserNode $createdBy): ObjectNode
+    {
+        $this->createdBy = $createdBy;
+        return $this;
+    }
+
+    /**
+     * @return UserNode
+     */
+    public function getCreatedBy(): ?UserNode
+    {
+        return $this->createdBy;
     }
 
 

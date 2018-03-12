@@ -74,7 +74,7 @@ services:
 # base entity node form types
     object.form.type:
         class: Nodeart\BuilderBundle\Form\ObjectNodeType
-        arguments: ['@template.twig.files.resolver', '@router']
+        arguments: ['@template.twig.files.resolver', '@router', '@Nodeart\BuilderBundle\Form\Validator\InDatabaseValidator']
         tags:
             - { name: form.type }
 
@@ -93,6 +93,11 @@ services:
         arguments: ['@field.value.file.saver']
         tags:
             - { name: form.type }
+
+    Nodeart\BuilderBundle\Form\Validator\InDatabaseValidator:
+        arguments: ['@neo.app.manager']
+        tags:
+            - { name: validator.constraint_validator }
 
     Nodeart\BuilderBundle\Entity\Repositories\OGMUserManager:
         ['@fos_user.util.password_updater', '@fos_user.util.canonical_fields_updater', '@neo.app.manager', 'Nodeart\BuilderBundle\Entity\UserNode']

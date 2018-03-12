@@ -7,6 +7,7 @@ use Nodeart\BuilderBundle\Entity\EntityTypeNode;
 use Nodeart\BuilderBundle\Entity\FieldValueNode;
 use Nodeart\BuilderBundle\Entity\ObjectNode;
 use Nodeart\BuilderBundle\Entity\TypeFieldNode;
+use Nodeart\BuilderBundle\Entity\UserNode;
 
 class ObjectNodeRepository extends BaseRepository
 {
@@ -544,5 +545,18 @@ class ObjectNodeRepository extends BaseRepository
                     WHERE id(o)={id} AND id(rem) in {id_rem}
                     DELETE r
                     return o";
+    }
+
+    public function updateUserToObjectRelation(UserNode $userNode, ObjectNode $objectNode)
+    {
+        $query = $this->entityManager->createQuery(
+            "MATCH (newU:User),(o:Object) WHERE id(o) = {oId} AND newU.email = {userEmail}
+             OPTIONAL MATCH (o)-[oldLink:created_by]->(oldU:User)
+             DETACH DELETE oldLink
+             MERGE (newU)<-[:created_by]-(o)"
+        );
+        $query->setParameter('userEmail', $userNode->getEmailCanonical());
+        $query->setParameter('oId', $objectNode->getId());
+        $query->execute();
     }
 }

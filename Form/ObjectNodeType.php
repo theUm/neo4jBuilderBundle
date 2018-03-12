@@ -3,11 +3,14 @@
 namespace Nodeart\BuilderBundle\Form;
 
 use Nodeart\BuilderBundle\Entity\ObjectNode;
+use Nodeart\BuilderBundle\Entity\UserNode;
 use Nodeart\BuilderBundle\Form\Type\AjaxCheckboxType;
 use Nodeart\BuilderBundle\Form\Type\SluggableText;
 use Nodeart\BuilderBundle\Form\Type\WysiwygType;
+use Nodeart\BuilderBundle\Form\Validator\InDatabaseValidator;
 use Nodeart\BuilderBundle\Helpers\TemplateTwigFileResolver;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -23,11 +26,13 @@ class ObjectNodeType extends AbstractType
 {
     private $templateTwigFileResolver;
     private $router;
+    private $inDatabaseValidator;
 
-    public function __construct(TemplateTwigFileResolver $templateTwigFileResolver, Router $router)
+    public function __construct(TemplateTwigFileResolver $templateTwigFileResolver, Router $router, InDatabaseValidator $inDatabaseValidator)
     {
         $this->templateTwigFileResolver = $templateTwigFileResolver;
         $this->router = $router;
+        $this->inDatabaseValidator = $inDatabaseValidator;
     }
 
     /**
@@ -45,9 +50,7 @@ class ObjectNodeType extends AbstractType
                     'class' => 'slug-base'
                 ],
                 'required' => true,
-                'constraints' => [
-                    new NotBlank()
-                ],
+                'constraints' => [new NotBlank()],
             ])
             ->add('slug', SluggableText::class, [
                 'label' => 'Slug (Имя в ссылках)',
@@ -90,6 +93,7 @@ class ObjectNodeType extends AbstractType
             ])
             ->add('seoKeywords', AjaxCheckboxType::class, [
                 'label' => 'SEO keywords',
+                'empty_data' => null,
                 'is_multiple' => true,
                 'maxSelections' => false,
                 'placeholder' => 'pick_field',
@@ -109,7 +113,7 @@ class ObjectNodeType extends AbstractType
                 'url' => $this->router->generate(
                     'semantic_search_user'
                 ),
-                'error_bubbling' => false
+                'error_bubbling' => false,
             ]);
 
         /** @var ObjectNode $object */
@@ -117,6 +121,30 @@ class ObjectNodeType extends AbstractType
         if (!is_null($object) && !is_null($object->getEntityType()) && !($object->getEntityType()->isDataType())) {
             $this->templateTwigFileResolver->addTemplateFields($builder, 'Object');
         }
+
+        // custom transformer to transform single user
+        $builder->get('createdBy')->resetViewTransformers()->addViewTransformer(
+            new CallbackTransformer(
+                function ($value) {
+                    if (empty($value))
+                        return null;
+                    if ($value instanceof UserNode) {
+                        return $value->getUsername();
+                    }
+                    return $value;
+                },
+                function ($value) use ($options) {
+                    // on null input + isMultiple - return value from option "empty_data" if present. Empty array if not present
+                    if (is_null($value)) {
+                        $value = (is_object($options['empty_data']) && ($options['empty_data'] instanceof \Closure)) ?
+                            null : $options['empty_data'];
+                    }
+                    if (empty($value))
+                        return null;
+                    return $value;
+                }
+            )
+        );
     }
 
     /**

@@ -18,7 +18,6 @@ use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Form;
-use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -164,6 +163,11 @@ class ObjectController extends Controller
             $formFieldsService->addParentTypesFields($formBuilder);
         }
 
+        //remove author select for non-admins
+        if (!in_array('ROLE_ADMIN', $user->getRoles())) {
+            $formBuilder->remove('createdBy');
+        }
+
         $dynamicFieldsIds = $formFieldsService->addFormFields($formBuilder);
 
         $formBuilder->setAction($this->generateUrl('builder_add_type_object', [
@@ -176,21 +180,12 @@ class ObjectController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $objectWithNameExists = ($form->has('name') && $oRepository->isObjectWithValueExists($entityType, 'name', $form->get('name')->getData()));
-            $objectWithSlugExists = ($form->has('slug') && $oRepository->isObjectWithValueExists($entityType, 'slug', $form->get('slug')->getData()));
-            if ($objectWithNameExists) {
-                $form->get('name')->addError(new FormError('Object with this name is already exists'));
-            }
-            if ($objectWithSlugExists) {
-                $form->get('slug')->addError(new FormError('Object with this slug is already exists'));
-            }
-        }
-
-        if ($form->isSubmitted() && $form->isValid()) {
             $parentIds = $formFieldsService->getPickedParentIds($form);
-            $objectNode->setCreatedBy($user);
             $objectNode = $oRepository->createObjectNode($objectNode, $entityType, $parentIds);
             $objectNodeId = $objectNode->getId();
+
+            // current user is author of object
+            $oRepository->updateUserToObjectRelation($user, $objectNode);
 
             if (!$request->isXmlHttpRequest()) {
                 $this->addFlash('success', 'Объект успешно создан');

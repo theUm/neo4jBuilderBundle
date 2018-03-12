@@ -17,7 +17,9 @@ use Nodeart\BuilderBundle\Entity\Repositories\EntityTypeNodeRepository;
 use Nodeart\BuilderBundle\Entity\Repositories\FieldValueNodeRepository;
 use Nodeart\BuilderBundle\Entity\Repositories\ObjectNodeRepository;
 use Nodeart\BuilderBundle\Entity\Repositories\TypeFieldNodeRepository;
+use Nodeart\BuilderBundle\Entity\Repositories\UserNodeRepository;
 use Nodeart\BuilderBundle\Entity\TypeFieldNode;
+use Nodeart\BuilderBundle\Entity\UserNode;
 use Nodeart\BuilderBundle\Form\Type\AjaxCheckboxType;
 use Nodeart\BuilderBundle\Form\Type\LabeledNumberType;
 use Nodeart\BuilderBundle\Form\Type\LabeledTextType;
@@ -63,6 +65,9 @@ class ObjectFormFieldsService
     private $tfRepository;
     /** @var FieldValueNodeRepository $valueRepository */
     private $valueRepository;
+    /** @var UserNodeRepository $valueRepository */
+    private $userRepository;
+    private $currentAuthor;
 
     public function __construct(FormNodeBridge $fnb, EntityManager $nm)
     {
@@ -72,6 +77,7 @@ class ObjectFormFieldsService
         $this->tfRepository = $nm->getRepository(TypeFieldNode::class);
         $this->valueRepository = $nm->getRepository(FieldValueNode::class);
         $this->etRepository = $nm->getRepository(EntityTypeNode::class);
+        $this->userRepository = $nm->getRepository(UserNode::class);
     }
 
     public function addFormFields(FormBuilderInterface $form)
@@ -176,7 +182,7 @@ class ObjectFormFieldsService
     /**
      * @return ObjectNode
      */
-    public function getObject()
+    public function getObject(): ?ObjectNode
     {
         return $this->object;
     }
@@ -191,6 +197,7 @@ class ObjectFormFieldsService
         foreach ($object->getParentObjects() as $parentObject) {
             $this->currentParentObjectsIds[] = $parentObject->getId();
         }
+        $this->currentAuthor = $object->getCreatedBy();
         // clear types and values if object changed
         $this->typesByIds = $this->existedValues = null;
     }
@@ -524,7 +531,22 @@ class ObjectFormFieldsService
             $formBuilder->remove('status');
             $formBuilder->remove('seoDescription');
             $formBuilder->remove('seoKeywords');
+            $formBuilder->remove('createdBy');
         }
     }
 
+    public function updateAuthor(Form $form)
+    {
+        if ($form->has('createdBy')) {
+            $newAuthorUsername = $form->get('createdBy')->getData();
+            if (is_null($this->currentAuthor) || ($newAuthorUsername !== $this->currentAuthor->getUsername())) {
+
+                $newAuthor = $this->userRepository->findOneBy(['username' => $newAuthorUsername]);
+                if (!$newAuthor) {
+                    $form->get('createdBy')->addError(new FormError('There is no such user with username "' . $newAuthorUsername . '"'));
+                }
+                $this->oRepository->updateUserToObjectRelation($newAuthor, $this->getObject());
+            }
+        }
+    }
 }

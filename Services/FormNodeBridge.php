@@ -343,7 +343,8 @@ class FormNodeBridge
             'label' => $fieldTypeNode->getName(),
             'required' => false,
             'mapped' => false,
-            'error_bubbling' => false
+            'error_bubbling' => false,
+            'label_attr' => ['tooltip' => $fieldTypeNode->getTooltip()]
         ];
 
         //transform data: if this is collection or file field - pass array of values. also do that if this is labeledXType with `multiple` option

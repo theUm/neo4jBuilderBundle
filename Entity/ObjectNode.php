@@ -4,11 +4,13 @@ namespace Nodeart\BuilderBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use GraphAware\Neo4j\OGM\Annotations as OGM;
+use Nodeart\BuilderBundle\Form\Validator\Constraint\InDatabase;
 use Nodeart\BuilderBundle\Helpers\TemplateTwigFileResolver;
 use Symfony\Component\Workflow\Exception\LogicException;
 
 /**
  * @OGM\Node(label="Object", repository="Nodeart\BuilderBundle\Entity\Repositories\ObjectNodeRepository")
+ * @InDatabase(fields="name,slug")
  */
 class ObjectNode
 {
@@ -136,7 +138,7 @@ class ObjectNode
     protected $parentObjects;
 
     /**
-     * @OGM\Relationship(type="created_by", direction="OUTGOING", targetEntity="UserNode", collection=false, mappedBy="createdObjects")
+     * @OGM\Relationship(type="created_by", direction="OUTGOING", targetEntity="UserNode", collection=false)
      * @var UserNode
      */
     protected $createdBy;
@@ -570,7 +572,7 @@ class ObjectNode
      * @param UserNode $createdBy
      * @return ObjectNode
      */
-    public function setCreatedBy(UserNode $createdBy): ObjectNode
+    public function setCreatedBy(?UserNode $createdBy): ObjectNode
     {
         $this->createdBy = $createdBy;
         return $this;

@@ -66,6 +66,7 @@ class ObjectEditControlService
         if ($withParentFields) {
             $this->formFieldsService->addParentTypesFields($formBuilder, $isAjax);
         }
+        $formBuilder->get('createdBy')->setData($objectNode->getCreatedBy());
         $this->formFieldsService->hideFieldsForDataType($formBuilder);
 
         $this->dynamicFieldsIds = $this->formFieldsService->addFormFields($formBuilder);
@@ -76,7 +77,7 @@ class ObjectEditControlService
     public function saveForm(Form $form, $silent = true)
     {
         //update name, slug, desc
-        $this->oRepository->updateObjectNodeData($this->formFieldsService->getObject()->getId(), $this->getObject()->toArray());
+        $this->oRepository->updateObjectNodeData($this->getObject()->getId(), $this->getObject()->toArray());
 
         //this is normal way to save relations, and it not works for now
         //$this->formFieldsService->setParentsToObject($form);
@@ -92,6 +93,8 @@ class ObjectEditControlService
             $this->formFieldsService->getCurrentParentObjectsIds(),
             ObjectNodeRepository::LINK_TO_PARENTS
         );
+
+        $this->formFieldsService->updateAuthor($form);
         if (!$silent) {
             $this->container->get('session')->getFlashBag()->add('success', 'Объект успешно изменён');
         }

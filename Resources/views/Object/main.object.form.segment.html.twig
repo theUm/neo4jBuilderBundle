@@ -7,6 +7,9 @@
     {{ form_row(form.name) }}
     {{ form_row(form.slug) }}
     {{ form_row(form.status) }}
+    {% if is_granted('ROLE_ADMIN') %}
+        {{ form_row(form.createdBy) }}
+    {% endif %}
     {{ block('form_tabable_dropdown') }}
 {% else %}
     {{ form_rest(form) }}

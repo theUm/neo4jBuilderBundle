@@ -26,8 +26,8 @@ class LabeledNumberType extends AbstractType
     {
 
 
-        $builder->add('value', IntegerType::class, ['required' => false, 'attr' => ['maxlength' => 16]]);
-        $builder->add('text', TextType::class, ['required' => false, 'attr' => ['maxlength' => 16]]);
+        $builder->add('value', IntegerType::class, ['required' => false, 'attr' => ['maxlength' => 128]]);
+        $builder->add('text', TextType::class, ['required' => false, 'attr' => ['maxlength' => 128]]);
 
     }
 

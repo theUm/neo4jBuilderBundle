@@ -23,8 +23,8 @@ class LabeledTextType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('value', TextType::class, ['required' => false, 'attr' => ['maxlength' => 16]]);
-        $builder->add('text', TextType::class, ['required' => false, 'attr' => ['maxlength' => 16]]);
+        $builder->add('value', TextType::class, ['required' => false, 'attr' => ['maxlength' => 128]]);
+        $builder->add('text', TextType::class, ['required' => false, 'attr' => ['maxlength' => 128]]);
     }
 
     public function configureOptions(OptionsResolver $resolver)

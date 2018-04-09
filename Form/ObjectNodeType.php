@@ -86,10 +86,11 @@ class ObjectNodeType extends AbstractType
             ])
             ->add('seoTitle', TextType::class, [
                 'label' => 'SEO title',
-                'required' => true
+                'required' => false
             ])
             ->add('seoDescription', TextareaType::class, [
                 'label' => 'SEO description',
+                'required' => false,
             ])
             ->add('seoKeywords', AjaxCheckboxType::class, [
                 'label' => 'SEO keywords',

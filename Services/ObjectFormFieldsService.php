@@ -529,6 +529,7 @@ class ObjectFormFieldsService
             $formBuilder->remove('description');
             $formBuilder->remove('isCommentable');
             $formBuilder->remove('status');
+            $formBuilder->remove('seoTitle');
             $formBuilder->remove('seoDescription');
             $formBuilder->remove('seoKeywords');
             $formBuilder->remove('createdBy');
@@ -544,8 +545,10 @@ class ObjectFormFieldsService
                 $newAuthor = $this->userRepository->findOneBy(['username' => $newAuthorUsername]);
                 if (!$newAuthor) {
                     $form->get('createdBy')->addError(new FormError('There is no such user with username "' . $newAuthorUsername . '"'));
+                } else {
+                    $this->oRepository->updateUserToObjectRelation($newAuthor, $this->getObject());
                 }
-                $this->oRepository->updateUserToObjectRelation($newAuthor, $this->getObject());
+
             }
         }
     }

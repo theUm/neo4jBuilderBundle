@@ -2,8 +2,8 @@
 
 namespace Nodeart\BuilderBundle\Helpers\Util;
 
-use Doctrine\ORM\EntityNotFoundException;
 use Nodeart\BuilderBundle\Entity\EntityTypeNode;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Created by PhpStorm.
@@ -15,10 +15,11 @@ class TypeCommentProcessor extends AbstractCommentProcessor
 {
     function processRelId()
     {
+        /** @var EntityTypeNode|null $entityTypeNode */
         $entityTypeNode = $this->nm->getRepository(EntityTypeNode::class)->find($this->getRefId());
 
         if (is_null($entityTypeNode)) {
-            throw new EntityNotFoundException('Entity type with id "' . $this->getRefId() . ' not found"', 404);
+            throw new NotFoundHttpException('Entity type with id "' . $this->getRefId() . ' not found"', 404);
         }
 
         $this->comment->setEntityType($entityTypeNode);

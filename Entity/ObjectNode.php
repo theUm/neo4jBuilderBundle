@@ -388,6 +388,22 @@ class ObjectNode
     }
 
     /**
+     * @return string
+     */
+    public function getExcerpt(): ?string
+    {
+        return $this->excerpt;
+    }
+
+    /**
+     * @param string $excerpt
+     */
+    public function setExcerpt(string $excerpt)
+    {
+        $this->excerpt = $excerpt;
+    }
+
+    /**
      * @return \DateTime
      */
     public function getCreatedAt(): ?\DateTime
@@ -404,6 +420,94 @@ class ObjectNode
     {
         $this->createdAt = $createdAt;
 
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getLikes(): int
+    {
+        return intval($this->likes);
+    }
+
+    /**
+     * @param int $likes
+     */
+    public function setLikes(?int $likes): void
+    {
+        $this->likes = $likes;
+    }
+
+    /**
+     * @return int
+     */
+    public function getDislikes(): int
+    {
+        return intval($this->dislikes);
+    }
+
+    /**
+     * @param int $dislikes
+     * @return ObjectNode
+     */
+    public function setDislikes(int $dislikes): ObjectNode
+    {
+        $this->dislikes = $dislikes;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSeoTitle(): ?string
+    {
+        return $this->seoTitle;
+    }
+
+    /**
+     * @param string $seoTitle
+     * @return ObjectNode
+     */
+    public function setSeoTitle(?string $seoTitle): ObjectNode
+    {
+        $this->seoTitle = $seoTitle;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSeoDescription(): ?string
+    {
+        return $this->seoDescription;
+    }
+
+    /**
+     * @param string $seoDescription
+     * @return ObjectNode
+     */
+    public function setSeoDescription(?string $seoDescription): ObjectNode
+    {
+        $this->seoDescription = $seoDescription;
+        return $this;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getseoKeywords(): ?array
+    {
+        return empty($this->seoKeywords) ? null : $this->seoKeywords;
+    }
+
+    /**
+     * @param string $seoKeywords
+     * @return ObjectNode
+     */
+    public function setseoKeywords(?array $seoKeywords): ObjectNode
+    {
+        $this->seoKeywords = $seoKeywords;
         return $this;
     }
 
@@ -459,113 +563,17 @@ class ObjectNode
         $this->comments = $comments;
     }
 
-    /**
-     * @return string
-     */
-    public function getExcerpt(): ?string
-    {
-        return $this->excerpt;
-    }
-
-    /**
-     * @param string $excerpt
-     */
-    public function setExcerpt(string $excerpt)
-    {
-        $this->excerpt = $excerpt;
-    }
-
     public function isActive(): bool
     {
         return $this->getStatus() === self::STATUS_ACTIVE;
     }
 
     /**
-     * @return int
+     * @return UserNode
      */
-    public function getLikes(): int
+    public function getCreatedBy(): ?UserNode
     {
-        return intval($this->likes);
-    }
-
-    /**
-     * @param int $likes
-     */
-    public function setLikes(?int $likes): void
-    {
-        $this->likes = $likes;
-    }
-
-    /**
-     * @param int $dislikes
-     * @return ObjectNode
-     */
-    public function setDislikes(int $dislikes): ObjectNode
-    {
-        $this->dislikes = $dislikes;
-        return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getDislikes(): int
-    {
-        return intval($this->dislikes);
-    }
-
-    /**
-     * @return string
-     */
-    public function getSeoDescription(): ?string
-    {
-        return $this->seoDescription;
-    }
-
-    /**
-     * @param string $seoDescription
-     * @return ObjectNode
-     */
-    public function setSeoDescription(?string $seoDescription): ObjectNode
-    {
-        $this->seoDescription = $seoDescription;
-        return $this;
-    }
-
-    /**
-     * @return array|null
-     */
-    public function getseoKeywords(): ?array
-    {
-        return empty($this->seoKeywords) ? null : $this->seoKeywords;
-    }
-
-    /**
-     * @param string $seoKeywords
-     * @return ObjectNode
-     */
-    public function setseoKeywords(?array $seoKeywords): ObjectNode
-    {
-        $this->seoKeywords = $seoKeywords;
-        return $this;
-    }
-
-    /**
-     * @param string $seoTitle
-     * @return ObjectNode
-     */
-    public function setSeoTitle(?string $seoTitle): ObjectNode
-    {
-        $this->seoTitle = $seoTitle;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getSeoTitle(): ?string
-    {
-        return $this->seoTitle;
+        return $this->createdBy;
     }
 
     /**
@@ -576,14 +584,6 @@ class ObjectNode
     {
         $this->createdBy = $createdBy;
         return $this;
-    }
-
-    /**
-     * @return UserNode
-     */
-    public function getCreatedBy(): ?UserNode
-    {
-        return $this->createdBy;
     }
 
 

@@ -2,7 +2,7 @@
 
 namespace Nodeart\BuilderBundle\Controller;
 
-use FrontBundle\Controller\Base\BaseController;
+use Nodeart\BuilderBundle\Controller\Base\BaseController;
 use Nodeart\BuilderBundle\Entity\CommentNode;
 use Nodeart\BuilderBundle\Entity\Repositories\CommentNodeRepository;
 use Nodeart\BuilderBundle\Entity\UserCommentReaction;
@@ -11,12 +11,12 @@ use Nodeart\BuilderBundle\Form\CommentNodeType;
 use Nodeart\BuilderBundle\Helpers\CommentSaver;
 use Nodeart\BuilderBundle\Services\Pager\Pager;
 use Nodeart\BuilderBundle\Services\Pager\Queries\CommentsQueries;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
 class CommentsController extends BaseController
 {

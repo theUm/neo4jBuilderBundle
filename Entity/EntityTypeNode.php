@@ -202,22 +202,6 @@ class EntityTypeNode
     }
 
     /**
-     * @return ArrayCollection|EntityTypeNode[]
-     */
-    public function getParentTypes()
-    {
-        return $this->parentTypes;
-    }
-
-    /**
-     * @param EntityTypeNode[]|ArrayCollection $parentTypes
-     */
-    public function setParentTypes($parentTypes)
-    {
-        $this->parentTypes = $parentTypes;
-    }
-
-    /**
      * @param EntityTypeNode $parentType
      */
     public function addParentType($parentType)
@@ -254,6 +238,35 @@ class EntityTypeNode
     }
 
     /**
+     * @param bool $onlyDataTypes
+     * @return ArrayCollection|EntityTypeNode[]
+     */
+    public function getFilteredChildTypes(bool $onlyDataTypes = false)
+    {
+        $res = iterator_to_array($this->getChildTypes());
+        $res = array_filter($res, function (EntityTypeNode $entityType) use ($onlyDataTypes) {
+            return $entityType->isDataType() === $onlyDataTypes;
+        });
+        return $res;
+    }
+
+    /**
+     * @return EntityTypeNode[]|ArrayCollection
+     */
+    public function getChildTypes()
+    {
+        return $this->childTypes;
+    }
+
+    /**
+     * @param EntityTypeNode[]|ArrayCollection $childTypes
+     */
+    public function setChildTypes($childTypes)
+    {
+        $this->childTypes = $childTypes;
+    }
+
+    /**
      * @return bool
      */
     public function isDataType(): ?bool
@@ -274,27 +287,6 @@ class EntityTypeNode
     }
 
     /**
-     * @return EntityTypeNode[]|ArrayCollection
-     */
-    public function getChildTypes()
-    {
-        return $this->childTypes;
-    }
-
-    /**
-     * @param bool $onlyDataTypes
-     * @return ArrayCollection|EntityTypeNode[]
-     */
-    public function getFilteredChildTypes(bool $onlyDataTypes = false)
-    {
-        $res = iterator_to_array($this->getChildTypes());
-        $res = array_filter($res, function (EntityTypeNode $entityType) use ($onlyDataTypes) {
-            return $entityType->isDataType() === $onlyDataTypes;
-        });
-        return $res;
-    }
-
-    /**
      * @param bool $onlyDataTypes
      * @return ArrayCollection|EntityTypeNode[]
      */
@@ -308,11 +300,19 @@ class EntityTypeNode
     }
 
     /**
-     * @param EntityTypeNode[]|ArrayCollection $childTypes
+     * @return ArrayCollection|EntityTypeNode[]
      */
-    public function setChildTypes($childTypes)
+    public function getParentTypes()
     {
-        $this->childTypes = $childTypes;
+        return $this->parentTypes;
+    }
+
+    /**
+     * @param EntityTypeNode[]|ArrayCollection $parentTypes
+     */
+    public function setParentTypes($parentTypes)
+    {
+        $this->parentTypes = $parentTypes;
     }
 
     /**

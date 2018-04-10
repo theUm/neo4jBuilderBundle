@@ -29,6 +29,7 @@ class InDatabaseValidator extends ConstraintValidator
         $class = $this->nm->getClassMetadata(get_class($entity));
         $hasError = false;
         $errorField = '';
+        $fieldValue = '';
         foreach ($fields as $fieldName) {
             $fieldValue = $class->getPropertyMetadata($fieldName)->getValue($entity);
             $res = $this->objectNodeRepository->findBy([$fieldName => $fieldValue]);

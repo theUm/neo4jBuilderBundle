@@ -1,6 +1,6 @@
 {
   "name": "nodeart/builderbundle",
-  "description": "Admin bundle of graph-orm based php mini-cmf",
+  "description": "Admin+core bundle of graph-orm based php mini-cmf",
   "type": "symfony-bundle",
   "authors": [
     {
@@ -30,20 +30,10 @@
     }
   ],
   "require": {
-    "php": ">=5.5.9",
+    "php": ">=7.1",
     "symfony/symfony": "^3.3",
-    "doctrine/orm": "^2.5",
-    "doctrine/doctrine-bundle": "^1.6",
-    "doctrine/doctrine-cache-bundle": "^1.2",
-    "symfony/swiftmailer-bundle": "^2.3",
-    "symfony/monolog-bundle": "^2.8",
-    "symfony/polyfill-apcu": "^1.0",
-    "sensio/distribution-bundle": "^5.0",
-    "sensio/framework-extra-bundle": "^3.0.2",
-    "incenteev/composer-parameter-handler": "^2.0",
-    "symfony/var-dumper": "^3.1",
-    "graphaware/neo4j-php-ogm": "dev-master",
-    "neo4j/neo4j-bundle": "^0.3",
+    "graphaware/neo4j-php-ogm": "@rc",
+    "neo4j/neo4j-bundle": "^0.4",
     "whiteoctober/breadcrumbs-bundle": "dev-jsonld",
     "liip/imagine-bundle": "^1.8",
     "friendsofsymfony/user-bundle": "^2.0"

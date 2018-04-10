@@ -2,7 +2,6 @@
 
 namespace Nodeart\BuilderBundle\Twig;
 
-use FrontBundle\Helpers\UrlCyrillicTransformer;
 use GraphAware\Neo4j\OGM\EntityManager;
 use Liip\ImagineBundle\Imagine\Cache\CacheManager;
 use Nodeart\BuilderBundle\Entity\CommentNode;
@@ -14,6 +13,7 @@ use Nodeart\BuilderBundle\Entity\Repositories\ObjectNodeRepository;
 use Nodeart\BuilderBundle\Entity\TypeFieldNode;
 use Nodeart\BuilderBundle\Form\CommentNodeType;
 use Nodeart\BuilderBundle\Helpers\FieldAndValue;
+use Nodeart\BuilderBundle\Helpers\Util\UrlCyrillicTransformer;
 use Nodeart\BuilderBundle\Services\ObjectSearchQueryService\ObjectSearchQuery;
 use Nodeart\BuilderBundle\Services\ObjectsQueriesRAMStorage;
 use Nodeart\BuilderBundle\Twig\Utils\TypeFieldValuePairTransformer;
@@ -507,11 +507,6 @@ class TwigFunctions extends \Twig_Extension
         return $objects;
     }
 
-    private function getObjectSearchQuery()
-    {
-        return clone $this->objectSearchQuery;
-    }
-
     /**
      * //ok
      *
@@ -545,6 +540,11 @@ class TwigFunctions extends \Twig_Extension
             ->execute();
     }
 
+    private function getObjectSearchQuery()
+    {
+        return clone $this->objectSearchQuery;
+    }
+
     /**
      * @param ObjectNode $object
      * @param string|array $childTypeSlug
@@ -557,20 +557,6 @@ class TwigFunctions extends \Twig_Extension
     public function getChildObjects(ObjectNode $object, $childTypeSlug, array $params = [], int $limit = 5, int $skip = 0)
     {
         return $this->getChildParentObjects(ObjectSearchQuery::REL_LINK_TO_PARENT, $object, $childTypeSlug, $params, $limit, $skip);
-    }
-
-    /**
-     * @param ObjectNode $object
-     * @param string|array $childTypeSlug
-     * @param array $params ['cql'=>'', 'params'=> ['name'=>'', 'value'=>'']
-     * @param int $limit
-     * @param int $skip
-     * @return array|mixed
-     * @throws \Exception
-     */
-    public function getParentObjects(ObjectNode $object, $childTypeSlug, array $params = [], int $limit = 5, int $skip = 0)
-    {
-        return $this->getChildParentObjects(ObjectSearchQuery::REL_LINK_TO_CHILD, $object, $childTypeSlug, $params, $limit, $skip);
     }
 
     /**
@@ -609,6 +595,20 @@ class TwigFunctions extends \Twig_Extension
             ->addSecondOrder('o.createdAt DESC')
             ->getQuery()
             ->execute();
+    }
+
+    /**
+     * @param ObjectNode $object
+     * @param string|array $childTypeSlug
+     * @param array $params ['cql'=>'', 'params'=> ['name'=>'', 'value'=>'']
+     * @param int $limit
+     * @param int $skip
+     * @return array|mixed
+     * @throws \Exception
+     */
+    public function getParentObjects(ObjectNode $object, $childTypeSlug, array $params = [], int $limit = 5, int $skip = 0)
+    {
+        return $this->getChildParentObjects(ObjectSearchQuery::REL_LINK_TO_CHILD, $object, $childTypeSlug, $params, $limit, $skip);
     }
 
     /**

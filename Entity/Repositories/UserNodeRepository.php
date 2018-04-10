@@ -61,16 +61,6 @@ class UserNodeRepository extends BaseRepository
         return $res;
     }
 
-    protected function getCreateRelationsQuery(bool $isChildsLink): string
-    {
-        return '';
-    }
-
-    protected function getDeleteRelationsQuery(bool $isChildsLink): string
-    {
-        return '';
-    }
-
     /**
      * @param UserNode $user
      * @param ObjectNode $object
@@ -110,5 +100,15 @@ class UserNodeRepository extends BaseRepository
         $query->setParameter('oId', $objectNode->getId());
 
         return $query->getOneOrNullResult()[0] ?? ['liked' => false, 'disliked' => false];
+    }
+
+    protected function getCreateRelationsQuery(bool $isChildsLink): string
+    {
+        return '';
+    }
+
+    protected function getDeleteRelationsQuery(bool $isChildsLink): string
+    {
+        return '';
     }
 }

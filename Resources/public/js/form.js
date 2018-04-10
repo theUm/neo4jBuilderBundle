@@ -316,10 +316,10 @@ $(document).ready(function () {
     initTabableDropdown();
     $('.menu .item').tab();
     $('.secondary.tabular.menu .main.item').tab({
-            'onVisible': function () {
-                $(this).find('.tabular.menu .item').first().click()
-            }
-        });
+        'onVisible': function () {
+            $(this).find('.tabular.menu .item').first().click()
+        }
+    });
 
     $('.secondary.tabular.menu .object.item').each(function () {
         let $this = $(this);

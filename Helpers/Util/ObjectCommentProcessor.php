@@ -2,8 +2,8 @@
 
 namespace Nodeart\BuilderBundle\Helpers\Util;
 
-use Doctrine\ORM\EntityNotFoundException;
 use Nodeart\BuilderBundle\Entity\ObjectNode;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Created by PhpStorm.
@@ -18,7 +18,7 @@ class ObjectCommentProcessor extends AbstractCommentProcessor
         $objectNode = $this->nm->getRepository(ObjectNode::class)->find($this->getRefId());
 
         if (is_null($objectNode)) {
-            throw new EntityNotFoundException('Object with id "' . $this->getRefId() . '" not found', 404);
+            throw new NotFoundHttpException('Object with id "' . $this->getRefId() . '" not found', 404);
         }
 
         $this->comment->setObject($objectNode);

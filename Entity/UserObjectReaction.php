@@ -57,6 +57,7 @@ class UserObjectReaction
         }
         $this->createdAt = new \DateTime();
     }
+
     /**
      * @return int
      */

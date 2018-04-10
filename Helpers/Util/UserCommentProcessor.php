@@ -2,8 +2,8 @@
 
 namespace Nodeart\BuilderBundle\Helpers\Util;
 
-use Doctrine\ORM\EntityNotFoundException;
 use Nodeart\BuilderBundle\Entity\UserNode;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Created by PhpStorm.
@@ -18,7 +18,7 @@ class UserCommentProcessor extends AbstractCommentProcessor
         $userNode = $this->nm->getRepository(UserNode::class)->find($this->getRefId());
 
         if (is_null($userNode)) {
-            throw new EntityNotFoundException('User with id "' . $this->getRefId() . ' not found"', 404);
+            throw new NotFoundHttpException('User with id "' . $this->getRefId() . ' not found"', 404);
         }
 
         $this->comment->setUser($userNode);

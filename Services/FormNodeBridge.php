@@ -200,7 +200,7 @@ class FormNodeBridge
      * @param FieldValueNode $value
      * @param TypeFieldNode $typeNode
      *
-     * @return FieldValueNode|DateTime|null|string
+     * @return FieldValueNode|\DateTime|null|string
      */
     public function transformNodeValueToForm(FieldValueNode $value, TypeFieldNode $typeNode)
     {

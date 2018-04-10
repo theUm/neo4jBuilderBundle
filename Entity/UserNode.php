@@ -769,6 +769,14 @@ class UserNode extends User implements \Serializable
     }
 
     /**
+     * @return Collection|UserObjectReaction[]
+     */
+    public function getObjectReactions()
+    {
+        return $this->objectReactions;
+    }
+
+    /**
      * @param Collection|UserObjectReaction[] $objectReactions
      * @return UserNode
      */
@@ -776,14 +784,6 @@ class UserNode extends User implements \Serializable
     {
         $this->objectReactions = $objectReactions;
         return $this;
-    }
-
-    /**
-     * @return Collection|UserObjectReaction[]
-     */
-    public function getObjectReactions()
-    {
-        return $this->objectReactions;
     }
 
     /**

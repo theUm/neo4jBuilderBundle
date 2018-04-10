@@ -23,10 +23,6 @@
     {
       "type": "vcs",
       "url": "https://github.com/theUm/neo4jBuilderBundle"
-    },
-    {
-      "type": "vcs",
-      "url": "https://github.com/toooni/BreadcrumbsBundle"
     }
   ],
   "require": {
@@ -34,7 +30,6 @@
     "symfony/symfony": "^3.3",
     "graphaware/neo4j-php-ogm": "@rc",
     "neo4j/neo4j-bundle": "^0.4",
-    "whiteoctober/breadcrumbs-bundle": "dev-jsonld",
     "liip/imagine-bundle": "^1.8",
     "friendsofsymfony/user-bundle": "^2.0"
   },

@@ -19,12 +19,6 @@
   "license": [
     "MIT"
   ],
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "https://github.com/theUm/neo4jBuilderBundle"
-    }
-  ],
   "require": {
     "php": ">=7.1",
     "symfony/symfony": "^3.3",

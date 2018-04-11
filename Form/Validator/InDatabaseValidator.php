@@ -32,6 +32,8 @@ class InDatabaseValidator extends ConstraintValidator
         $fieldValue = '';
         foreach ($fields as $fieldName) {
             $fieldValue = $class->getPropertyMetadata($fieldName)->getValue($entity);
+            if (empty($fieldValue))
+                continue;
             $res = $this->objectNodeRepository->findBy([$fieldName => $fieldValue]);
             //if there is no record in DB with such value or if it is same entity
             $hasError = !(count($res) === 0 || ((count($res) === 1) && ($res[0] === $entity)));

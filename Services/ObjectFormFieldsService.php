@@ -21,6 +21,8 @@ use Nodeart\BuilderBundle\Entity\Repositories\UserNodeRepository;
 use Nodeart\BuilderBundle\Entity\TypeFieldNode;
 use Nodeart\BuilderBundle\Entity\UserNode;
 use Nodeart\BuilderBundle\Form\Type\AjaxCheckboxType;
+use Nodeart\BuilderBundle\Form\Type\DoubleLabeledNumberType;
+use Nodeart\BuilderBundle\Form\Type\DoubleLabeledTextType;
 use Nodeart\BuilderBundle\Form\Type\LabeledNumberType;
 use Nodeart\BuilderBundle\Form\Type\LabeledTextType;
 use Nodeart\BuilderBundle\Form\Type\NamedFileType;
@@ -105,7 +107,9 @@ class ObjectFormFieldsService
                     PredefinedAjaxCheckboxType::class,
                     NamedFileType::class,
                     LabeledNumberType::class,
-                    LabeledTextType::class
+                    LabeledTextType::class,
+                    DoubleLabeledTextType::class,
+                    DoubleLabeledNumberType::class
                 ])) {
                 $formType = AjaxCheckboxType::class;
             }
@@ -123,7 +127,12 @@ class ObjectFormFieldsService
                 $fieldOptions['object_id'] = ($this->getObject()) ? $this->getObject()->getId() : false;
             }
 
-            if (in_array($formType, [LabeledNumberType::class, LabeledTextType::class]) && isset($fieldOptions['multiple']) && $fieldOptions['multiple']) {
+            if (in_array($formType, [
+                    LabeledNumberType::class,
+                    LabeledTextType::class,
+                    DoubleLabeledNumberType::class,
+                    DoubleLabeledTextType::class])
+                && isset($fieldOptions['multiple']) && $fieldOptions['multiple']) {
                 $baseFormType = $formType;
                 $formType = CollectionType::class;
                 unset($fieldOptions['multiple']);
@@ -476,12 +485,12 @@ class ObjectFormFieldsService
             } else { //just replace old vals with new if needed
                 $actionsArray['delete'] = array_udiff($previousValues[$typeId], $values,
                     function (FieldValueNode $obj_a, FieldValueNode $obj_b) {
-                        return $obj_a->getDataLabel() !== $obj_b->getDataLabel() || $obj_a->getData() !== $obj_b->getData();
+                        return $obj_a->getDataLabel2() !== $obj_b->getDataLabel2() || $obj_a->getDataLabel() !== $obj_b->getDataLabel() || $obj_a->getData() !== $obj_b->getData();
                     }
                 );
                 $actionsArray['create'] = array_udiff($values, $previousValues[$typeId],
                     function (FieldValueNode $obj_a, FieldValueNode $obj_b) {
-                        return $obj_a->getDataLabel() !== $obj_b->getDataLabel() || $obj_a->getData() !== $obj_b->getData();
+                        return $obj_a->getDataLabel2() !== $obj_b->getDataLabel2() || $obj_a->getDataLabel() !== $obj_b->getDataLabel() || $obj_a->getData() !== $obj_b->getData();
                     }
                 );
                 $actionsArray['updateOrder'] = $values;

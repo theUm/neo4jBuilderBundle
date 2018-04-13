@@ -73,24 +73,31 @@ class FieldValueNodeRepository extends BaseRepository
                 'mimeType' => $valueNode->getMimeType()
             ];
         } else {
-            if ($forSetQueryPart) {
-                $dataQueryPart['params'] = $prefix . 'data={data}';
-            } else {
-                $dataQueryPart['params'] = 'data:{data}';
-            }
-            $dataQueryPart['values'] = ['data' => $valueNode->getData()];
-
-            if (!empty($valueNode->getDataLabel())) {
-                if ($forSetQueryPart) {
-                    $dataQueryPart['params'] .= ', ' . $prefix . 'dataLabel={dataLabel}';
-                } else {
-                    $dataQueryPart['params'] .= ', dataLabel:{dataLabel}';
-                }
-                $dataQueryPart['values'] = ['data' => $valueNode->getData(), 'dataLabel' => $valueNode->getDataLabel()];
-            }
-
+            $dataQueryPart = $this->transformDataQueryPartValues($valueNode, $forSetQueryPart ? $prefix : '');
         }
 
+        return $dataQueryPart;
+    }
+
+    private function transformDataQueryPartValues(FieldValueNode $fv, string $prefix = ''): array
+    {
+        $dataQueryPart = [];
+        $dataWithLabels = $fv->getDataWithLabels();
+        //filter empty values
+        $dataWithLabels = array_filter($dataWithLabels, function ($value, $key) {
+            return !is_null($value);
+        }, ARRAY_FILTER_USE_BOTH);
+
+        $dataQueryPart['params'] = [];
+        foreach ($dataWithLabels as $key => $value) {
+            if (!empty($prefix)) {
+                $dataQueryPart['params'][] = $prefix . $key . '={' . $key . '}';
+            } else {
+                $dataQueryPart['params'][] = $key . ':{' . $key . '}';
+            }
+            $dataQueryPart['values'][$key] = $value;
+        }
+        $dataQueryPart['params'] = join(',', $dataQueryPart['params']);
         return $dataQueryPart;
     }
 

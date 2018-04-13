@@ -13,6 +13,8 @@ use Nodeart\BuilderBundle\Entity\EntityTypeNode;
 use Nodeart\BuilderBundle\Entity\FieldValueNode;
 use Nodeart\BuilderBundle\Entity\TypeFieldNode;
 use Nodeart\BuilderBundle\Form\Type\AjaxCheckboxType;
+use Nodeart\BuilderBundle\Form\Type\DoubleLabeledNumberType;
+use Nodeart\BuilderBundle\Form\Type\DoubleLabeledTextType;
 use Nodeart\BuilderBundle\Form\Type\LabeledNumberType;
 use Nodeart\BuilderBundle\Form\Type\LabeledTextType;
 use Nodeart\BuilderBundle\Form\Type\NamedFileType;
@@ -59,6 +61,8 @@ class FormNodeBridge
         'wysiwyg' => ['class' => WysiwygType::class],
         'labeled_number' => ['class' => LabeledNumberType::class],
         'labeled_text' => ['class' => LabeledTextType::class],
+        'double_labeled_number' => ['class' => DoubleLabeledNumberType::class],
+        'double_labeled_text' => ['class' => DoubleLabeledTextType::class],
     ];
 
     protected $uploadsDir;
@@ -234,12 +238,21 @@ class FormNodeBridge
                     ];
                     break;
                 }
+            case DoubleLabeledTextType::class :
+            case DoubleLabeledNumberType::class :
+                {
+                    $value = [
+                        'value' => $value->getData(),
+                        'text' => $value->getDataLabel(),
+                        'text2' => $value->getDataLabel2()
+                    ];
+                    break;
+                }
             default:
                 {
                     $value = $value->getData();
                 }
         }
-
         return $value;
     }
 
@@ -287,27 +300,63 @@ class FormNodeBridge
 
     private function getFieldValuesByFormType($formData, $formType)
     {
-        if (in_array($formType, [LabeledNumberType::class, LabeledTextType::class])) {
-            $formData = array_merge(['value' => 0, 'text' => ''], $formData);
-            $fv = new FieldValueNode();
-            $fv->setData($this->transformFormValue($formData['value']));
-            $fv->setDataLabel($this->transformFormValue($formData['text']));
-            $fieldValues = $fv;
-        } else {
-            // if its array of values or single value
-            if (is_array($formData)) {
-                $fieldValues = [];
-                foreach ($formData as $datum) {
-                    $fv = new FieldValueNode();
-                    $fv->setData($this->transformFormValue($datum));
-                    $fieldValues[] = $fv;
+        switch ($formType) {
+            case in_array($formType, [DoubleLabeledNumberType::class, DoubleLabeledTextType::class]):
+                {
+                    $fieldValues = $this->makeDoubleLabeledField($formData);
+                    break;
                 }
-            } else {
-                $fieldValues = new FieldValueNode();
-                $fieldValues->setData($this->transformFormValue($formData));
-            }
+            case in_array($formType, [LabeledNumberType::class, LabeledTextType::class]):
+                {
+                    $fieldValues = $this->makeLabeledField($formData);
+                    break;
+                }
+            case is_array($formData):
+                {
+                    $fieldValues = $this->makeFieldsArray($formData);
+                    break;
+                }
+            default:
+                {
+                    $fieldValues = $this->makeRegularField($formData);
+                }
         }
         return $fieldValues;
+    }
+
+    function makeDoubleLabeledField($formData): FieldValueNode
+    {
+        $formData = array_merge(['value' => 0, 'text' => '', 'text2' => ''], $formData);
+        $fv = new FieldValueNode();
+        $fv->setData($this->transformFormValue($formData['value']));
+        $fv->setDataLabel($this->transformFormValue($formData['text']));
+        $fv->setDataLabel2($this->transformFormValue($formData['text2']));
+        return $fv;
+    }
+
+    function makeLabeledField($formData): FieldValueNode
+    {
+        $formData = array_merge(['value' => 0, 'text' => ''], $formData);
+        $fv = new FieldValueNode();
+        $fv->setData($this->transformFormValue($formData['value']));
+        $fv->setDataLabel($this->transformFormValue($formData['text']));
+        return $fv;
+    }
+
+    function makeFieldsArray($formData): array
+    {
+        $fieldValues = [];
+        foreach ($formData as $datum) {
+            $fieldValues[] = $this->makeRegularField($datum);
+        }
+        return $fieldValues;
+    }
+
+    function makeRegularField($formData): FieldValueNode
+    {
+        $fv = new FieldValueNode();
+        $fv->setData($this->transformFormValue($formData));
+        return $fv;
     }
 
     /**
@@ -348,7 +397,7 @@ class FormNodeBridge
         ];
 
         //transform data: if this is collection or file field - pass array of values. also do that if this is labeledXType with `multiple` option
-        $data = ($fieldTypeNode->isCollection() || ($formType == NamedFileType::class) || (in_array($formType, [LabeledNumberType::class, LabeledTextType::class]) && $fieldTypeNode->isCollection()))
+        $data = ($fieldTypeNode->isCollection() || ($formType == NamedFileType::class))
             ? $fieldValuesData
             : array_pop($fieldValuesData);
         $fieldOptions['data'] = $data;
@@ -373,7 +422,7 @@ class FormNodeBridge
 
         if ($fieldTypeNode->isCollection()) {
             $fieldOptions['is_multiple'] = true;
-            if (in_array($formType, [NamedFileType::class, LabeledNumberType::class, LabeledTextType::class])) {
+            if (in_array($formType, [NamedFileType::class, LabeledNumberType::class, LabeledTextType::class, DoubleLabeledNumberType::class, DoubleLabeledTextType::class])) {
                 $fieldOptions['multiple'] = true;
             } else {
                 $fieldOptions['parent_node_val'] = $fieldTypeNode->getSlug();

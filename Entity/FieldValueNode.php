@@ -31,6 +31,12 @@ class FieldValueNode
     protected $dataLabel = null;
 
     /**
+     * @OGM\Property(type="string", nullable=true)
+     * @var string
+     */
+    protected $dataLabel2 = null;
+
+    /**
      * @OGM\Relationship(type="is_value_of", direction="OUTGOING", targetEntity="TypeFieldNode", collection=false)
      * @var TypeFieldNode
      */
@@ -149,5 +155,26 @@ class FieldValueNode
         $this->dataLabel = $dataLabel;
 
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDataLabel2(): ?string
+    {
+        return $this->dataLabel2;
+    }
+
+    /**
+     * @param string $dataLabel2
+     */
+    public function setDataLabel2(?string $dataLabel2): void
+    {
+        $this->dataLabel2 = $dataLabel2;
+    }
+
+    public function getDataWithLabels()
+    {
+        return ['data' => $this->getData(), 'dataLabel' => $this->getDataLabel(), 'dataLabel2' => $this->getDataLabel2()];
     }
 }

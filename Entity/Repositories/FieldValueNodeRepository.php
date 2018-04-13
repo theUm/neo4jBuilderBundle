@@ -28,7 +28,7 @@ class FieldValueNodeRepository extends BaseRepository
             if (!($valueNode instanceof FieldValueNode)) {
                 throw  new LogicException('Invalid form transforming for ' . get_class($valueNode) . '. ' . FieldValueNode::class . ' needed');
             }
-            if (!is_null($valueNode)) {
+            if (!is_null($valueNode) && !empty($valueNode->getData())) {
                 $this->createSingleValue($valueNode, $fieldTypeId, $object, $query);
             }
         }
@@ -81,14 +81,13 @@ class FieldValueNodeRepository extends BaseRepository
 
     private function transformDataQueryPartValues(FieldValueNode $fv, string $prefix = ''): array
     {
-        $dataQueryPart = [];
+        $dataQueryPart = ['params' => [], 'values' => []];
         $dataWithLabels = $fv->getDataWithLabels();
         //filter empty values
         $dataWithLabels = array_filter($dataWithLabels, function ($value, $key) {
             return !is_null($value);
         }, ARRAY_FILTER_USE_BOTH);
 
-        $dataQueryPart['params'] = [];
         foreach ($dataWithLabels as $key => $value) {
             if (!empty($prefix)) {
                 $dataQueryPart['params'][] = $prefix . $key . '={' . $key . '}';

@@ -18,9 +18,10 @@
                 <div class="content">
                     {{ block('node_buttons_object') }}
                     <div class="ui dividing header">
-                        <div class="ui celled horizontal list">
+                        <div class="ui divided horizontal list">
                             <div class="item">{{ pair.object.name }}</div>
-                            <div class="item">{{ pair.object.createdAt|date('H:i d.m.Y') }}</div>
+                            <div class="item"><span
+                                        class="small-item">{{ pair.object.createdAt|date('H:i d.m.Y') }}</span></div>
                         </div>
                     </div>
                 </div>

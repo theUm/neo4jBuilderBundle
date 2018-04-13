@@ -382,3 +382,8 @@ td.status-cell {
 .ui.bottom.attached.tab > .ui.bottom.attached.tab.segment {
     border-top: 1px solid #d4d4d5;
 }
+
+span.small-item {
+    font-weight: 400;
+    font-size: 0.9em;
+}
